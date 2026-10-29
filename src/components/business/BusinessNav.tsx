@@ -77,6 +77,13 @@ const BusinessNav = () => {
               {item.name}
             </a>
           ))}
+          <a
+            href="/connexion"
+            onClick={() => setIsOpen(false)}
+            className="text-lg font-medium text-mist"
+          >
+            Connexion
+          </a>
           <div className="mt-2">
             <ThemeToggle />
           </div>
@@ -127,7 +134,13 @@ const BusinessNav = () => {
               </a>
             );
           })}
-          <div className="ml-2">
+          <a
+            href="/connexion"
+            className="ml-1 rounded-md px-3 py-1.5 text-[13px] text-mist transition-colors hover:text-snow"
+          >
+            Connexion
+          </a>
+          <div className="ml-1">
             <ThemeToggle />
           </div>
           <a
@@ -138,6 +151,12 @@ const BusinessNav = () => {
           </a>
         </nav>
         <div className="flex items-center gap-2 md:hidden">
+          <a
+            href="/connexion"
+            className="rounded-md px-2 py-1 text-[13px] text-mist"
+          >
+            Connexion
+          </a>
           <ThemeToggle />
           <button onClick={() => setIsOpen(true)} className="text-snow" aria-label="Menu">
             <Menu className="h-5 w-5" />

@@ -1,20 +1,11 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import { signInAction } from "@/app/(private)/actions";
 import { Field, PrimaryButton } from "./ui";
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <PrimaryButton type="submit">
-      {pending ? "Connexion…" : "Se connecter"}
-    </PrimaryButton>
-  );
-}
-
 export function SignInForm() {
-  const [state, action] = useFormState(signInAction, {
+  const [state, action, pending] = useActionState(signInAction, {
     ok: false,
   });
 
@@ -27,7 +18,9 @@ export function SignInForm() {
           {state.error}
         </p>
       ) : null}
-      <SubmitButton />
+      <PrimaryButton type="submit">
+        {pending ? "Connexion…" : "Se connecter"}
+      </PrimaryButton>
     </form>
   );
 }

@@ -10,6 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/demo/",
           "/api/",
+          "/connexion",
           ...(process.env.DASHBOARD_BASE_PATH
             ? [`/${process.env.DASHBOARD_BASE_PATH.replace(/^\/+|\/+$/g, "")}`]
             : []),
