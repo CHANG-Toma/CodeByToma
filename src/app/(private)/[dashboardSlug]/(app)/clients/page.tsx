@@ -5,7 +5,7 @@ import {
   EmptyState,
   PageHeader,
   Panel,
-  PrimaryButton,
+  PrimaryLink,
 } from "@/components/dashboard/ui";
 
 type Props = {
@@ -24,9 +24,9 @@ export default async function ClientsPage({ params, searchParams }: Props) {
         title="Clients"
         description="Contacts et fiches de facturation."
         actions={
-          <Link href={dashboardHref(dashboardSlug, "clients/new")}>
-            <PrimaryButton type="button">Nouveau client</PrimaryButton>
-          </Link>
+          <PrimaryLink href={dashboardHref(dashboardSlug, "clients/new")}>
+            Nouveau client
+          </PrimaryLink>
         }
       />
 
@@ -35,7 +35,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
           name="q"
           defaultValue={q}
           placeholder="Rechercher nom, e-mail, société…"
-          className="w-full max-w-md rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white outline-none ring-sky-500/40 placeholder:text-[#5c6b7d] focus:ring-2"
+          className="w-full max-w-md rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text outline-none ring-sky-500/40 placeholder:text-[#5c6b7d] focus:ring-2"
         />
       </form>
 
@@ -47,7 +47,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
       ) : (
         <Panel className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-white/10 text-[#8fa0b5]">
+            <thead className="border-b border-dash-border text-dash-muted">
               <tr>
                 <th className="px-5 py-3 font-medium">Nom</th>
                 <th className="px-5 py-3 font-medium">Société</th>
@@ -57,20 +57,20 @@ export default async function ClientsPage({ params, searchParams }: Props) {
             </thead>
             <tbody>
               {clients.map((c) => (
-                <tr key={c.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                <tr key={c.id} className="border-b border-dash-border hover:bg-dash-hover">
                   <td className="px-5 py-3">
                     <Link
                       href={dashboardHref(dashboardSlug, `clients/${c.id}`)}
-                      className="font-medium text-white hover:underline"
+                      className="font-medium text-dash-text hover:underline"
                     >
                       {c.name}
                     </Link>
                   </td>
-                  <td className="px-5 py-3 text-[#c5d0de]">
+                  <td className="px-5 py-3 text-dash-soft">
                     {c.companyName ?? "—"}
                   </td>
-                  <td className="px-5 py-3 text-[#c5d0de]">{c.email}</td>
-                  <td className="px-5 py-3 text-[#c5d0de]">
+                  <td className="px-5 py-3 text-dash-soft">{c.email}</td>
+                  <td className="px-5 py-3 text-dash-soft">
                     {c.billingCity ?? "—"}
                   </td>
                 </tr>

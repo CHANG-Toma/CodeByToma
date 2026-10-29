@@ -43,7 +43,7 @@ export default async function NewClientPage({ params }: Props) {
           <div className="sm:col-span-2">
             <TextArea label="Notes internes" name="notes" />
           </div>
-          <label className="flex items-center gap-2 text-sm text-[#c5d0de]">
+          <label className="flex items-center gap-2 text-sm text-dash-soft">
             <input
               type="checkbox"
               name="consentContract"
@@ -52,7 +52,7 @@ export default async function NewClientPage({ params }: Props) {
             />
             Consentement contrat
           </label>
-          <label className="flex items-center gap-2 text-sm text-[#c5d0de]">
+          <label className="flex items-center gap-2 text-sm text-dash-soft">
             <input
               type="checkbox"
               name="consentMarketing"

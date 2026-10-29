@@ -14,7 +14,3 @@ export function formatEur(cents: MoneyCents): string {
     currency: "EUR",
   }).format(cents / 100);
 }
-
-export function eurosToCents(euros: number): MoneyCents {
-  return Math.round(euros * 100);
-}

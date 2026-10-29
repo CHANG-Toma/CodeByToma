@@ -47,10 +47,10 @@ export default async function DashboardHomePage({ params }: Props) {
         {cards.map((card) => (
           <Link key={card.label} href={dashboardHref(dashboardSlug, card.href)}>
             <Panel className="transition hover:border-sky-500/30">
-              <p className="text-xs uppercase tracking-wide text-[#8fa0b5]">
+              <p className="text-xs uppercase tracking-wide text-dash-muted">
                 {card.label}
               </p>
-              <p className="mt-3 text-2xl font-semibold text-white">
+              <p className="mt-3 text-2xl font-semibold text-dash-text">
                 {card.value}
               </p>
             </Panel>
@@ -59,17 +59,17 @@ export default async function DashboardHomePage({ params }: Props) {
       </div>
 
       <div className="mt-8">
-        <h2 className="mb-3 text-sm font-medium text-[#c5d0de]">
+        <h2 className="mb-3 text-sm font-medium text-dash-soft">
           Prochaines échéances abonnements
         </h2>
         {upcoming.length === 0 ? (
           <Panel>
-            <p className="text-sm text-[#8fa0b5]">Aucune échéance à venir.</p>
+            <p className="text-sm text-dash-muted">Aucune échéance à venir.</p>
           </Panel>
         ) : (
           <Panel className="overflow-x-auto p-0">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-white/10 text-[#8fa0b5]">
+              <thead className="border-b border-dash-border text-dash-muted">
                 <tr>
                   <th className="px-5 py-3 font-medium">Offre</th>
                   <th className="px-5 py-3 font-medium">Montant</th>
@@ -78,10 +78,10 @@ export default async function DashboardHomePage({ params }: Props) {
               </thead>
               <tbody>
                 {upcoming.map((s) => (
-                  <tr key={s.id} className="border-b border-white/5">
-                    <td className="px-5 py-3 text-white">{s.label}</td>
+                  <tr key={s.id} className="border-b border-dash-border">
+                    <td className="px-5 py-3 text-dash-text">{s.label}</td>
                     <td className="px-5 py-3">{formatEur(s.priceCents)}</td>
-                    <td className="px-5 py-3 text-[#c5d0de]">
+                    <td className="px-5 py-3 text-dash-soft">
                       {s.nextBillingDate?.toLocaleDateString("fr-FR") ?? "—"}
                     </td>
                   </tr>

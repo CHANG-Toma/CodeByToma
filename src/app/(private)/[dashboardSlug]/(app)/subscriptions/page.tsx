@@ -54,15 +54,15 @@ export default async function SubscriptionsPage({ params }: Props) {
 
       <div className="mb-8 grid gap-6 lg:grid-cols-2">
         <Panel>
-          <h2 className="mb-4 text-sm font-medium text-white">Nouvel abonnement</h2>
+          <h2 className="mb-4 text-sm font-medium text-dash-text">Nouvel abonnement</h2>
           <form action={create} className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm sm:col-span-2">
-              <span className="mb-1.5 block text-[#8fa0b5]">Client</span>
+              <span className="mb-1.5 block text-dash-muted">Client</span>
               <select
                 name="clientId"
                 required
                 defaultValue=""
-                className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+                className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
               >
                 <option value="" disabled>
                   Choisir…
@@ -75,12 +75,12 @@ export default async function SubscriptionsPage({ params }: Props) {
               </select>
             </label>
             <label className="block text-sm sm:col-span-2">
-              <span className="mb-1.5 block text-[#8fa0b5]">Offre</span>
+              <span className="mb-1.5 block text-dash-muted">Offre</span>
               <select
                 name="offerKind"
                 required
                 defaultValue="serenite"
-                className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+                className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
               >
                 {OFFER_KINDS.filter((k) => k !== "setup").map((kind) => {
                   const offer = offers.find((o) => o.kind === kind);
@@ -115,19 +115,19 @@ export default async function SubscriptionsPage({ params }: Props) {
         </Panel>
 
         <Panel>
-          <h2 className="mb-4 text-sm font-medium text-white">
+          <h2 className="mb-4 text-sm font-medium text-dash-text">
             Prochaines échéances
           </h2>
           {upcoming.length === 0 ? (
-            <p className="text-sm text-[#8fa0b5]">Aucune.</p>
+            <p className="text-sm text-dash-muted">Aucune.</p>
           ) : (
             <ul className="space-y-2 text-sm">
               {upcoming.map((s) => (
                 <li key={s.id} className="flex justify-between gap-2">
-                  <span className="text-white">
+                  <span className="text-dash-text">
                     {clientName.get(s.clientId)} — {s.label}
                   </span>
-                  <span className="text-[#8fa0b5]">
+                  <span className="text-dash-muted">
                     {s.nextBillingDate?.toLocaleDateString("fr-FR")}
                   </span>
                 </li>
@@ -145,7 +145,7 @@ export default async function SubscriptionsPage({ params }: Props) {
       ) : (
         <Panel className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-white/10 text-[#8fa0b5]">
+            <thead className="border-b border-dash-border text-dash-muted">
               <tr>
                 <th className="px-5 py-3 font-medium">Client</th>
                 <th className="px-5 py-3 font-medium">Offre</th>
@@ -157,11 +157,11 @@ export default async function SubscriptionsPage({ params }: Props) {
             </thead>
             <tbody>
               {subs.map((s) => (
-                <tr key={s.id} className="border-b border-white/5">
-                  <td className="px-5 py-3 text-white">
+                <tr key={s.id} className="border-b border-dash-border">
+                  <td className="px-5 py-3 text-dash-text">
                     {clientName.get(s.clientId) ?? "—"}
                   </td>
-                  <td className="px-5 py-3 text-[#c5d0de]">{s.label}</td>
+                  <td className="px-5 py-3 text-dash-soft">{s.label}</td>
                   <td className="px-5 py-3">{formatEur(s.priceCents)}</td>
                   <td className="px-5 py-3">
                     <StatusBadge
@@ -169,7 +169,7 @@ export default async function SubscriptionsPage({ params }: Props) {
                       tone={s.status === "active" ? "ok" : "neutral"}
                     />
                   </td>
-                  <td className="px-5 py-3 text-[#8fa0b5]">
+                  <td className="px-5 py-3 text-dash-muted">
                     {s.nextBillingDate?.toLocaleDateString("fr-FR") ?? "—"}
                   </td>
                   <td className="px-5 py-3">

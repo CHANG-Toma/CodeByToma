@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   EmptyState,
+  Field,
   PageHeader,
   Panel,
   PrimaryButton,
@@ -11,7 +12,6 @@ import { formatEur } from "@/server/domain/money";
 import { listInvoices } from "@/server/application/invoices";
 import { listPayments } from "@/server/application/payments";
 import { createPaymentAction } from "@/app/(private)/actions";
-import { Field } from "@/components/dashboard/ui";
 import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
 import { revalidatePath } from "next/cache";
 
@@ -47,16 +47,16 @@ export default async function PaymentsPage({ params }: Props) {
 
       {openInvoices.length > 0 ? (
         <Panel className="mb-8 max-w-2xl">
-          <h2 className="mb-4 text-sm font-medium text-white">
+          <h2 className="mb-4 text-sm font-medium text-dash-text">
             Nouveau paiement
           </h2>
           <form action={pay} className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm sm:col-span-2">
-              <span className="mb-1.5 block text-[#8fa0b5]">Facture</span>
+              <span className="mb-1.5 block text-dash-muted">Facture</span>
               <select
                 name="invoiceId"
                 required
-                className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+                className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
                 defaultValue=""
               >
                 <option value="" disabled>
@@ -72,11 +72,11 @@ export default async function PaymentsPage({ params }: Props) {
             </label>
             <Field label="Montant (€)" name="amountEuros" type="number" required />
             <label className="block text-sm">
-              <span className="mb-1.5 block text-[#8fa0b5]">Méthode</span>
+              <span className="mb-1.5 block text-dash-muted">Méthode</span>
               <select
                 name="method"
                 defaultValue="bank_transfer"
-                className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+                className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
               >
                 {Object.entries(paymentMethodLabel).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -102,7 +102,7 @@ export default async function PaymentsPage({ params }: Props) {
       ) : (
         <Panel className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-white/10 text-[#8fa0b5]">
+            <thead className="border-b border-dash-border text-dash-muted">
               <tr>
                 <th className="px-5 py-3 font-medium">Date</th>
                 <th className="px-5 py-3 font-medium">Facture</th>
@@ -113,8 +113,8 @@ export default async function PaymentsPage({ params }: Props) {
             </thead>
             <tbody>
               {payments.map((p) => (
-                <tr key={p.id} className="border-b border-white/5">
-                  <td className="px-5 py-3 text-[#c5d0de]">
+                <tr key={p.id} className="border-b border-dash-border">
+                  <td className="px-5 py-3 text-dash-soft">
                     {p.paidAt.toLocaleDateString("fr-FR")}
                   </td>
                   <td className="px-5 py-3">
@@ -123,7 +123,7 @@ export default async function PaymentsPage({ params }: Props) {
                         dashboardSlug,
                         `invoices/${p.invoiceId}`,
                       )}
-                      className="text-white hover:underline"
+                      className="text-dash-text hover:underline"
                     >
                       {invoiceNumber.get(p.invoiceId) ?? p.invoiceId}
                     </Link>

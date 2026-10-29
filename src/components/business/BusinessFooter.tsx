@@ -37,6 +37,15 @@ const BusinessFooter = () => {
           <Link href="/portfolio" className="transition-colors hover:text-snow">
             Portfolio
           </Link>
+          <Link
+            href="/confidentialite"
+            className="transition-colors hover:text-snow"
+          >
+            Confidentialité
+          </Link>
+          <Link href="/connexion" className="transition-colors hover:text-snow">
+            Connexion
+          </Link>
           <a
             href="mailto:toma11chang@gmail.com"
             className="transition-colors hover:text-snow"

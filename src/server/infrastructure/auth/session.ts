@@ -4,14 +4,23 @@ import bcrypt from "bcryptjs";
 import { UnauthorizedError } from "@/server/domain/errors";
 import { deps } from "@/server/application/container";
 import { signInSchema } from "@/server/application/schemas";
+import { hashRateLimitSubject } from "./client-ip";
 
 const COOKIE_NAME = "cbt_session";
-const MAX_AGE_SEC = 60 * 60 * 24 * 7; // 7 jours
+const MAX_AGE_SEC = 60 * 60 * 8; // 8 h — session pro plus courte
+const FAIL_DELAY_MS = 400;
+const MAX_ATTEMPTS = 5;
+const WINDOW_MS = 15 * 60 * 1000;
 
 type SessionPayload = {
   sub: string;
   email: string;
 };
+
+type AttemptBucket = { count: number; resetAt: number };
+
+/** Rate-limit process-local (MVP). En multi-instance : Redis. */
+const loginAttempts = new Map<string, AttemptBucket>();
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET;
@@ -19,6 +28,27 @@ function getSecret() {
     throw new Error("AUTH_SECRET manquant ou trop court (32+ caractères)");
   }
   return new TextEncoder().encode(secret);
+}
+
+function touchAttempt(key: string): { allowed: boolean; retryAfterSec: number } {
+  const now = Date.now();
+  const entry = loginAttempts.get(key);
+  if (!entry || entry.resetAt < now) {
+    loginAttempts.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    return { allowed: true, retryAfterSec: 0 };
+  }
+  if (entry.count >= MAX_ATTEMPTS) {
+    return {
+      allowed: false,
+      retryAfterSec: Math.ceil((entry.resetAt - now) / 1000),
+    };
+  }
+  entry.count += 1;
+  return { allowed: true, retryAfterSec: 0 };
+}
+
+async function delayOnFailure(): Promise<void> {
+  await new Promise((r) => setTimeout(r, FAIL_DELAY_MS));
 }
 
 export async function createSessionToken(
@@ -79,43 +109,52 @@ export async function requireSession(): Promise<SessionPayload> {
   return session;
 }
 
-/** Rate-limit login en mémoire (process) — suffisant mono-user MVP. */
-const loginAttempts = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  const entry = loginAttempts.get(key);
-  if (!entry || entry.resetAt < now) {
-    loginAttempts.set(key, { count: 1, resetAt: now + 15 * 60 * 1000 });
-    return true;
-  }
-  if (entry.count >= 10) return false;
-  entry.count += 1;
-  return true;
-}
-
+/**
+ * @param ipKey empreinte IP (voir getClientIpKey) — jamais l'IP en clair
+ */
 export async function signIn(
   input: unknown,
-  ipKey = "local",
+  ipKey = "unknown",
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  if (!checkRateLimit(ipKey)) {
-    return { ok: false, error: "Trop de tentatives. Réessayez plus tard." };
-  }
-
   const parsed = signInSchema.safeParse(input);
   if (!parsed.success) {
+    await delayOnFailure();
     return { ok: false, error: "Identifiants invalides" };
+  }
+
+  const emailKey = hashRateLimitSubject(parsed.data.email);
+  const ipLimit = touchAttempt(`ip:${ipKey}`);
+  const emailLimit = touchAttempt(`email:${emailKey}`);
+
+  if (!ipLimit.allowed || !emailLimit.allowed) {
+    await delayOnFailure();
+    return {
+      ok: false,
+      error: "Trop de tentatives. Réessayez dans quelques minutes.",
+    };
   }
 
   const user = await deps.users.findByEmail(parsed.data.email.toLowerCase());
   if (!user) {
+    await delayOnFailure();
     return { ok: false, error: "Identifiants invalides" };
   }
 
   const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
   if (!valid) {
+    await delayOnFailure();
+    await deps.audit.append({
+      action: "auth.signin_failed",
+      entity: "User",
+      entityId: user.id,
+      metadata: { reason: "bad_credentials" },
+    });
     return { ok: false, error: "Identifiants invalides" };
   }
+
+  // Succès : reset des compteurs pour cette empreinte
+  loginAttempts.delete(`ip:${ipKey}`);
+  loginAttempts.delete(`email:${emailKey}`);
 
   const token = await createSessionToken({
     sub: user.id,

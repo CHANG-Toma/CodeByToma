@@ -30,7 +30,14 @@ export function LinesEditor({
   const [lines, setLines] = useState<LineDraft[]>(
     initialLines?.length
       ? initialLines
-      : [{ label: "Création du site", quantity: 1, unitPriceHtCents: 14900, taxRatePercent: 0 }],
+      : [
+          {
+            label: "Création du site",
+            quantity: 1,
+            unitPriceHtCents: 14900,
+            taxRatePercent: 0,
+          },
+        ],
   );
 
   const totals = useMemo(() => calculateDocumentTotals(lines), [lines]);
@@ -49,7 +56,7 @@ export function LinesEditor({
           <button
             key={p.label}
             type="button"
-            className="rounded border border-white/10 px-2 py-1 text-xs text-[#c5d0de] hover:bg-white/5"
+            className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
             onClick={() =>
               setLines((prev) => [
                 ...prev,
@@ -70,10 +77,10 @@ export function LinesEditor({
       {lines.map((line, index) => (
         <div
           key={index}
-          className="grid gap-2 rounded-md border border-white/10 p-3 sm:grid-cols-12"
+          className="grid gap-2 rounded-md border border-dash-border p-3 sm:grid-cols-12"
         >
           <input
-            className="sm:col-span-5 rounded-md border border-white/10 bg-[#0e141c] px-2 py-1.5 text-sm text-white"
+            className="rounded-md border border-dash-border bg-dash-input px-2 py-1.5 text-sm text-dash-text sm:col-span-5"
             value={line.label}
             onChange={(e) => update(index, { label: e.target.value })}
             placeholder="Libellé"
@@ -82,7 +89,7 @@ export function LinesEditor({
             type="number"
             min={0.01}
             step={0.01}
-            className="sm:col-span-2 rounded-md border border-white/10 bg-[#0e141c] px-2 py-1.5 text-sm text-white"
+            className="rounded-md border border-dash-border bg-dash-input px-2 py-1.5 text-sm text-dash-text sm:col-span-2"
             value={line.quantity}
             onChange={(e) =>
               update(index, { quantity: Number(e.target.value) || 0 })
@@ -93,7 +100,7 @@ export function LinesEditor({
             type="number"
             min={0}
             step={0.01}
-            className="sm:col-span-3 rounded-md border border-white/10 bg-[#0e141c] px-2 py-1.5 text-sm text-white"
+            className="rounded-md border border-dash-border bg-dash-input px-2 py-1.5 text-sm text-dash-text sm:col-span-3"
             value={(line.unitPriceHtCents / 100).toFixed(2)}
             onChange={(e) =>
               update(index, {
@@ -106,7 +113,7 @@ export function LinesEditor({
           />
           <button
             type="button"
-            className="sm:col-span-2 text-xs text-rose-300"
+            className="text-xs text-rose-600 dark:text-rose-300 sm:col-span-2"
             onClick={() =>
               setLines((prev) => prev.filter((_, i) => i !== index))
             }
@@ -116,10 +123,10 @@ export function LinesEditor({
         </div>
       ))}
 
-      <div className="text-right text-sm text-[#c5d0de]">
+      <div className="text-right text-sm text-dash-soft">
         <p>HT : {formatEur(totals.subtotalCents)}</p>
         <p>TVA : {formatEur(totals.taxCents)}</p>
-        <p className="font-medium text-white">
+        <p className="font-medium text-dash-text">
           TTC : {formatEur(totals.totalCents)}
         </p>
       </div>

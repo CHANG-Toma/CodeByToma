@@ -50,9 +50,11 @@ Puis ouvrir :
 ### Compte démo (seed)
 
 - E-mail : valeur de `AUTH_ADMIN_EMAIL` (défaut `admin@example.com`)
-- Mot de passe : valeur de `AUTH_ADMIN_PASSWORD` (défaut dans `.env.example`)
+- Mot de passe : valeur de `AUTH_ADMIN_PASSWORD` (défaut conforme à la politique ≥12 car. dans `.env.example`)
 
 Données seed : clients / devis **fictifs** uniquement (`@exemple-demo.fr`).
+
+Page publique confidentialité : `/confidentialite`.
 
 ### Scripts utiles
 

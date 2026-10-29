@@ -16,6 +16,7 @@ import {
   signIn,
   signOut,
 } from "@/server/infrastructure/auth/session";
+import { getClientIpKey } from "@/server/infrastructure/auth/client-ip";
 import { DomainError } from "@/server/domain/errors";
 
 function slug() {
@@ -37,17 +38,21 @@ export async function signInAction(
   _prev: unknown,
   formData: FormData,
 ): Promise<{ ok: boolean; error?: string }> {
-  const result = await signIn({
-    email: String(formData.get("email") ?? ""),
-    password: String(formData.get("password") ?? ""),
-  });
+  const ipKey = await getClientIpKey();
+  const result = await signIn(
+    {
+      email: String(formData.get("email") ?? ""),
+      password: String(formData.get("password") ?? ""),
+    },
+    ipKey,
+  );
   if (!result.ok) return result;
   redirect(dashboardHref(slug()));
 }
 
 export async function signOutAction(): Promise<void> {
   await signOut();
-  redirect(dashboardHref(slug(), "signin"));
+  redirect("/");
 }
 
 export async function createClientAction(

@@ -1,4 +1,8 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
+
+const primaryBtnClass =
+  "inline-flex items-center justify-center rounded-md bg-dash-btn px-4 py-2 text-sm font-medium text-dash-on-btn transition hover:bg-dash-btn-hover";
 
 export function PageHeader({
   title,
@@ -12,11 +16,11 @@ export function PageHeader({
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-white">
+        <h1 className="text-2xl font-semibold tracking-tight text-dash-text">
           {title}
         </h1>
         {description ? (
-          <p className="mt-1 text-sm text-[#8fa0b5]">{description}</p>
+          <p className="mt-1 text-sm text-dash-muted">{description}</p>
         ) : null}
       </div>
       {actions}
@@ -32,9 +36,9 @@ export function EmptyState({
   description: string;
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-white/15 px-6 py-14 text-center">
-      <p className="text-base font-medium text-white">{title}</p>
-      <p className="mt-2 text-sm text-[#8fa0b5]">{description}</p>
+    <div className="rounded-lg border border-dashed border-dash-border bg-dash-surface/40 px-6 py-14 text-center">
+      <p className="text-base font-medium text-dash-text">{title}</p>
+      <p className="mt-2 text-sm text-dash-muted">{description}</p>
     </div>
   );
 }
@@ -47,11 +51,12 @@ export function StatusBadge({
   tone?: "neutral" | "ok" | "warn" | "danger" | "info";
 }) {
   const tones = {
-    neutral: "bg-white/10 text-[#c5d0de]",
-    ok: "bg-emerald-500/15 text-emerald-300",
-    warn: "bg-amber-500/15 text-amber-200",
-    danger: "bg-rose-500/15 text-rose-300",
-    info: "bg-sky-500/15 text-sky-200",
+    neutral:
+      "bg-dash-hover text-dash-soft ring-1 ring-dash-border",
+    ok: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    warn: "bg-amber-500/15 text-amber-800 dark:text-amber-200",
+    danger: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+    info: "bg-sky-500/15 text-sky-800 dark:text-sky-200",
   };
   return (
     <span
@@ -82,14 +87,14 @@ export function Field({
 }) {
   return (
     <label className="block text-sm">
-      <span className="mb-1.5 block text-[#8fa0b5]">{label}</span>
+      <span className="mb-1.5 block text-dash-muted">{label}</span>
       <input
         name={name}
         type={type}
         required={required}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white outline-none ring-sky-500/40 placeholder:text-[#5c6b7d] focus:ring-2"
+        className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text outline-none ring-[#2d5a87]/30 placeholder:text-dash-muted2 focus:ring-2"
       />
     </label>
   );
@@ -108,12 +113,12 @@ export function TextArea({
 }) {
   return (
     <label className="block text-sm">
-      <span className="mb-1.5 block text-[#8fa0b5]">{label}</span>
+      <span className="mb-1.5 block text-dash-muted">{label}</span>
       <textarea
         name={name}
         rows={rows}
         defaultValue={defaultValue}
-        className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white outline-none ring-sky-500/40 focus:ring-2"
+        className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text outline-none ring-[#2d5a87]/30 focus:ring-2"
       />
     </label>
   );
@@ -121,21 +126,30 @@ export function TextArea({
 
 export function PrimaryButton({
   children,
-  type = "submit",
   formAction,
 }: {
   children: React.ReactNode;
-  type?: "submit" | "button";
   formAction?: (formData: FormData) => void | Promise<void>;
 }) {
   return (
-    <button
-      type={type}
-      formAction={formAction}
-      className="inline-flex items-center justify-center rounded-md bg-[#2d5a87] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#3a6fa3]"
-    >
+    <button type="submit" formAction={formAction} className={primaryBtnClass}>
       {children}
     </button>
+  );
+}
+
+/** Lien stylé comme bouton primaire (évite button dans Link). */
+export function PrimaryLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link href={href} className={primaryBtnClass}>
+      {children}
+    </Link>
   );
 }
 
@@ -150,7 +164,7 @@ export function SecondaryButton({
     <button
       type="submit"
       formAction={formAction}
-      className="inline-flex items-center justify-center rounded-md border border-white/15 px-4 py-2 text-sm text-[#c5d0de] transition hover:bg-white/5"
+      className="inline-flex items-center justify-center rounded-md border border-dash-border px-4 py-2 text-sm text-dash-soft transition hover:bg-dash-hover"
     >
       {children}
     </button>
@@ -167,7 +181,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "rounded-lg border border-white/10 bg-[#121a24]/70 p-5",
+        "rounded-lg border border-dash-border bg-dash-surface p-5 shadow-sm shadow-black/[0.03]",
         className,
       )}
     >

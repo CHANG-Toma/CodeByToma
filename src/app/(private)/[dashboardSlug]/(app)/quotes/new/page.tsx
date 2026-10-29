@@ -34,12 +34,12 @@ export default async function NewQuotePage({ params, searchParams }: Props) {
       <Panel className="max-w-3xl space-y-4">
         <form action={action} className="space-y-4">
           <label className="block text-sm">
-            <span className="mb-1.5 block text-[#8fa0b5]">Client</span>
+            <span className="mb-1.5 block text-dash-muted">Client</span>
             <select
               name="clientId"
               required
               defaultValue={clientId ?? ""}
-              className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+              className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
             >
               <option value="" disabled>
                 Choisir…
@@ -52,16 +52,16 @@ export default async function NewQuotePage({ params, searchParams }: Props) {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1.5 block text-[#8fa0b5]">Valide jusqu&apos;au</span>
+            <span className="mb-1.5 block text-dash-muted">Valide jusqu&apos;au</span>
             <input
               type="date"
               name="validUntil"
-              className="rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+              className="rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
             />
           </label>
           <TextArea label="Notes" name="notes" />
           <div>
-            <p className="mb-2 text-sm text-[#8fa0b5]">Lignes</p>
+            <p className="mb-2 text-sm text-dash-muted">Lignes</p>
             <LinesEditor />
           </div>
           <PrimaryButton>Créer le devis</PrimaryButton>

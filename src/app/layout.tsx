@@ -97,7 +97,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="dark" suppressHydrationWarning>
+    <html
+      lang="fr"
+      className="dark"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body className={`${figtree.variable} antialiased`}>
         <ThemeProvider>
           <SpeedInsights />

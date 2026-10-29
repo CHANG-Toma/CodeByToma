@@ -56,7 +56,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
           <div className="flex flex-wrap gap-2">
             <a
               href={dashboardHref(dashboardSlug, `invoices/${id}/pdf`)}
-              className="inline-flex items-center justify-center rounded-md bg-[#2d5a87] px-4 py-2 text-sm font-medium text-white hover:bg-[#3a6fa3]"
+              className="inline-flex items-center justify-center rounded-md bg-dash-btn px-4 py-2 text-sm font-medium text-dash-on-btn hover:bg-dash-btn-hover"
             >
               Télécharger PDF
             </a>
@@ -76,17 +76,17 @@ export default async function InvoiceDetailPage({ params }: Props) {
 
       <div className="mb-4 flex flex-wrap gap-3 text-sm">
         <StatusBadge label={invoiceStatusLabel[invoice.status]} />
-        <span className="text-[#8fa0b5]">
+        <span className="text-dash-muted">
           Émise : {invoice.issuedAt?.toLocaleDateString("fr-FR") ?? "—"}
         </span>
-        <span className="text-[#8fa0b5]">
+        <span className="text-dash-muted">
           Échéance : {invoice.dueAt?.toLocaleDateString("fr-FR") ?? "—"}
         </span>
       </div>
 
       <Panel className="mb-6 overflow-x-auto p-0">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-white/10 text-[#8fa0b5]">
+          <thead className="border-b border-dash-border text-dash-muted">
             <tr>
               <th className="px-5 py-3 font-medium">Libellé</th>
               <th className="px-5 py-3 font-medium">Qté</th>
@@ -96,8 +96,8 @@ export default async function InvoiceDetailPage({ params }: Props) {
           </thead>
           <tbody>
             {invoice.lines.map((line) => (
-              <tr key={line.id} className="border-b border-white/5">
-                <td className="px-5 py-3 text-white">{line.label}</td>
+              <tr key={line.id} className="border-b border-dash-border">
+                <td className="px-5 py-3 text-dash-text">{line.label}</td>
                 <td className="px-5 py-3">{line.quantity}</td>
                 <td className="px-5 py-3">
                   {formatEur(line.unitPriceHtCents)}
@@ -112,7 +112,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
         <div className="space-y-1 px-5 py-4 text-right text-sm">
           <p>TTC : {formatEur(invoice.totalCents)}</p>
           <p>Payé : {formatEur(invoice.paidCents)}</p>
-          <p className="font-medium text-white">
+          <p className="font-medium text-dash-text">
             Reste dû : {formatEur(remaining)}
           </p>
         </div>
@@ -122,7 +122,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
       invoice.status !== "cancelled" &&
       invoice.status !== "draft" ? (
         <Panel className="mb-6 max-w-xl">
-          <h2 className="mb-4 text-sm font-medium text-white">
+          <h2 className="mb-4 text-sm font-medium text-dash-text">
             Enregistrer un paiement
           </h2>
           <form action={pay} className="grid gap-3 sm:grid-cols-2">
@@ -134,10 +134,10 @@ export default async function InvoiceDetailPage({ params }: Props) {
               defaultValue={(remaining / 100).toFixed(2)}
             />
             <label className="block text-sm">
-              <span className="mb-1.5 block text-[#8fa0b5]">Méthode</span>
+              <span className="mb-1.5 block text-dash-muted">Méthode</span>
               <select
                 name="method"
-                className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+                className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
                 defaultValue="bank_transfer"
               >
                 {Object.entries(paymentMethodLabel).map(([value, label]) => (
@@ -157,19 +157,19 @@ export default async function InvoiceDetailPage({ params }: Props) {
       ) : null}
 
       <Panel>
-        <h2 className="mb-3 text-sm font-medium text-white">Paiements</h2>
+        <h2 className="mb-3 text-sm font-medium text-dash-text">Paiements</h2>
         {payments.length === 0 ? (
-          <p className="text-sm text-[#8fa0b5]">Aucun paiement.</p>
+          <p className="text-sm text-dash-muted">Aucun paiement.</p>
         ) : (
           <ul className="space-y-2 text-sm">
             {payments.map((p) => (
-              <li key={p.id} className="flex justify-between gap-2 text-[#c5d0de]">
+              <li key={p.id} className="flex justify-between gap-2 text-dash-soft">
                 <span>
                   {p.paidAt.toLocaleDateString("fr-FR")} —{" "}
                   {paymentMethodLabel[p.method] ?? p.method}
                   {p.reference ? ` (${p.reference})` : ""}
                 </span>
-                <span className="text-white">{formatEur(p.amountCents)}</span>
+                <span className="text-dash-text">{formatEur(p.amountCents)}</span>
               </li>
             ))}
           </ul>
@@ -179,7 +179,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
       <p className="mt-4 text-sm">
         <Link
           href={dashboardHref(dashboardSlug, `clients/${client.id}`)}
-          className="text-sky-300 hover:underline"
+          className="text-dash-accent hover:underline"
         >
           Fiche client
         </Link>

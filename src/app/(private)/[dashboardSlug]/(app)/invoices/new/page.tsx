@@ -10,10 +10,14 @@ import {
 import { listClients } from "@/server/application/clients";
 import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
 
-type Props = { params: Promise<{ dashboardSlug: string }> };
+type Props = {
+  params: Promise<{ dashboardSlug: string }>;
+  searchParams: Promise<{ clientId?: string }>;
+};
 
-export default async function NewInvoicePage({ params }: Props) {
+export default async function NewInvoicePage({ params, searchParams }: Props) {
   const { dashboardSlug } = await params;
+  const { clientId } = await searchParams;
   const clients = await listClients();
 
   async function action(formData: FormData) {
@@ -33,12 +37,12 @@ export default async function NewInvoicePage({ params }: Props) {
       <Panel className="max-w-3xl">
         <form action={action} className="space-y-4">
           <label className="block text-sm">
-            <span className="mb-1.5 block text-[#8fa0b5]">Client</span>
+            <span className="mb-1.5 block text-dash-muted">Client</span>
             <select
               name="clientId"
               required
-              className="w-full rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
-              defaultValue=""
+              className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
+              defaultValue={clientId ?? ""}
             >
               <option value="" disabled>
                 Choisir…

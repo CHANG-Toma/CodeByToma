@@ -1,12 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { CATALOG_OFFERS } from "../src/server/domain/catalog";
+import { validatePasswordPolicy } from "../src/server/domain/password-policy";
 
 const prisma = new PrismaClient();
 
 async function main() {
   const email = (process.env.AUTH_ADMIN_EMAIL ?? "admin@example.com").toLowerCase();
-  const password = process.env.AUTH_ADMIN_PASSWORD ?? "change-me-strong-password";
+  const password = process.env.AUTH_ADMIN_PASSWORD ?? "ChangeMe-Strong1";
+
+  const policy = validatePasswordPolicy(password);
+  if (!policy.ok) {
+    throw new Error(`AUTH_ADMIN_PASSWORD non conforme : ${policy.message}`);
+  }
 
   const passwordHash = await bcrypt.hash(password, 12);
 

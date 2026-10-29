@@ -4,6 +4,7 @@ import {
   PageHeader,
   Panel,
   PrimaryButton,
+  PrimaryLink,
   StatusBadge,
 } from "@/components/dashboard/ui";
 import { invoiceStatusLabel } from "@/lib/dashboard-labels";
@@ -42,9 +43,9 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
         title="Factures"
         description="Émission, paiements et PDF."
         actions={
-          <Link href={dashboardHref(dashboardSlug, "invoices/new")}>
-            <PrimaryButton type="button">Nouvelle facture</PrimaryButton>
-          </Link>
+          <PrimaryLink href={dashboardHref(dashboardSlug, "invoices/new")}>
+            Nouvelle facture
+          </PrimaryLink>
         }
       />
 
@@ -53,12 +54,12 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
           name="q"
           defaultValue={q}
           placeholder="N° ou client…"
-          className="w-full max-w-xs rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+          className="w-full max-w-xs rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
         />
         <select
           name="status"
           defaultValue={status ?? ""}
-          className="rounded-md border border-white/10 bg-[#121a24] px-3 py-2 text-sm text-white"
+          className="rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
         >
           <option value="">Tous les statuts</option>
           {Object.entries(invoiceStatusLabel).map(([value, label]) => (
@@ -78,7 +79,7 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
       ) : (
         <Panel className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-white/10 text-[#8fa0b5]">
+            <thead className="border-b border-dash-border text-dash-muted">
               <tr>
                 <th className="px-5 py-3 font-medium">N°</th>
                 <th className="px-5 py-3 font-medium">Client</th>
@@ -90,16 +91,16 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
             </thead>
             <tbody>
               {invoices.map((inv) => (
-                <tr key={inv.id} className="border-b border-white/5">
+                <tr key={inv.id} className="border-b border-dash-border">
                   <td className="px-5 py-3">
                     <Link
                       href={dashboardHref(dashboardSlug, `invoices/${inv.id}`)}
-                      className="font-medium text-white hover:underline"
+                      className="font-medium text-dash-text hover:underline"
                     >
                       {inv.number}
                     </Link>
                   </td>
-                  <td className="px-5 py-3 text-[#c5d0de]">
+                  <td className="px-5 py-3 text-dash-soft">
                     {clientName.get(inv.clientId) ?? "—"}
                   </td>
                   <td className="px-5 py-3">
@@ -107,7 +108,7 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
                   </td>
                   <td className="px-5 py-3">{formatEur(inv.totalCents)}</td>
                   <td className="px-5 py-3">{formatEur(inv.paidCents)}</td>
-                  <td className="px-5 py-3 text-[#8fa0b5]">
+                  <td className="px-5 py-3 text-dash-muted">
                     {inv.dueAt?.toLocaleDateString("fr-FR") ?? "—"}
                   </td>
                 </tr>

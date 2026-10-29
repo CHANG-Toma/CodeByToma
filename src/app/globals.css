@@ -167,3 +167,44 @@
     animation: shimmer 2s infinite;
   }
 }
+
+/* Dashboard — tokens dark (défaut) / light */
+.dashboard-theme {
+  --dash-bg: #080c11;
+  --dash-sidebar: rgba(11, 16, 23, 0.92);
+  --dash-surface: #121a24;
+  --dash-text: #e8edf4;
+  --dash-text-soft: #c5d0de;
+  --dash-muted: #8fa0b5;
+  --dash-muted-2: #6b7a8d;
+  --dash-border: rgba(255, 255, 255, 0.08);
+  --dash-hover: rgba(255, 255, 255, 0.045);
+  --dash-active: rgba(255, 255, 255, 0.09);
+  --dash-accent-bar: #9aabbd;
+  --dash-input: #0b1017;
+  --dash-btn: #2d5a87;
+  --dash-btn-hover: #3a6fa3;
+  --dash-btn-text: #ffffff;
+  --dash-glow: rgba(45, 90, 135, 0.16);
+  color: var(--dash-text);
+  background-color: var(--dash-bg);
+}
+
+.light .dashboard-theme {
+  --dash-bg: #eef1f5;
+  --dash-sidebar: #ffffff;
+  --dash-surface: #ffffff;
+  --dash-text: #141a22;
+  --dash-text-soft: #3d4654;
+  --dash-muted: #5c6570;
+  --dash-muted-2: #7a8491;
+  --dash-border: rgba(20, 28, 40, 0.1);
+  --dash-hover: rgba(20, 28, 40, 0.04);
+  --dash-active: rgba(45, 90, 135, 0.1);
+  --dash-accent-bar: #2d5a87;
+  --dash-input: #f7f8fa;
+  --dash-btn: #1b2a4a;
+  --dash-btn-hover: #2a3f66;
+  --dash-btn-text: #ffffff;
+  --dash-glow: rgba(27, 42, 74, 0.06);
+}

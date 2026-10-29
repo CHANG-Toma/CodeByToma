@@ -83,6 +83,7 @@ export const subscriptionStatusSchema = z.object({
 });
 
 export const signInSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8).max(200),
+  email: z.string().email().max(320),
+  /** Connexion : borne large ; la politique stricte s'applique à la création / reset. */
+  password: z.string().min(1).max(128),
 });

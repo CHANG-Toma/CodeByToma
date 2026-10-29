@@ -71,7 +71,7 @@ export default async function QuoteDetailPage({ params }: Props) {
 
       <Panel className="overflow-x-auto p-0">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-white/10 text-[#8fa0b5]">
+          <thead className="border-b border-dash-border text-dash-muted">
             <tr>
               <th className="px-5 py-3 font-medium">Libellé</th>
               <th className="px-5 py-3 font-medium">Qté</th>
@@ -81,8 +81,8 @@ export default async function QuoteDetailPage({ params }: Props) {
           </thead>
           <tbody>
             {quote.lines.map((line) => (
-              <tr key={line.id} className="border-b border-white/5">
-                <td className="px-5 py-3 text-white">{line.label}</td>
+              <tr key={line.id} className="border-b border-dash-border">
+                <td className="px-5 py-3 text-dash-text">{line.label}</td>
                 <td className="px-5 py-3">{line.quantity}</td>
                 <td className="px-5 py-3">
                   {formatEur(line.unitPriceHtCents)}
@@ -97,16 +97,16 @@ export default async function QuoteDetailPage({ params }: Props) {
         <div className="space-y-1 px-5 py-4 text-right text-sm">
           <p>HT : {formatEur(quote.subtotalCents)}</p>
           <p>TVA : {formatEur(quote.taxCents)}</p>
-          <p className="text-base font-medium text-white">
+          <p className="text-base font-medium text-dash-text">
             TTC : {formatEur(quote.totalCents)}
           </p>
         </div>
       </Panel>
 
-      <p className="mt-4 text-sm text-[#8fa0b5]">
+      <p className="mt-4 text-sm text-dash-muted">
         <Link
           href={dashboardHref(dashboardSlug, `clients/${client.id}`)}
-          className="text-sky-300 hover:underline"
+          className="text-dash-accent hover:underline"
         >
           Voir la fiche client
         </Link>
