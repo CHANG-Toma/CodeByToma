@@ -34,3 +34,6 @@ export const CATALOG_OFFERS: readonly CatalogOfferSeed[] = [
     priceCents: 38000,
   },
 ] as const;
+
+/** Engagement initial type pour un abonnement d’hébergement. */
+export const DEFAULT_COMMITMENT_MONTHS = 12;

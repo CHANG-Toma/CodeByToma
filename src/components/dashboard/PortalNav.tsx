@@ -11,6 +11,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Receipt,
+  RefreshCw,
   UserRound,
 } from "lucide-react";
 import { signOutAction } from "@/app/(private)/actions";
@@ -24,6 +25,7 @@ const NAV = [
   { href: "/espace", label: "Accueil", icon: Home },
   { href: "/espace/devis", label: "Devis", icon: FileText },
   { href: "/espace/factures", label: "Factures", icon: Receipt },
+  { href: "/espace/abonnements", label: "Abonnements", icon: RefreshCw },
   { href: "/espace/profil", label: "Profil", icon: UserRound },
 ] as const;
 

@@ -65,9 +65,10 @@ export async function deleteClient(id: string): Promise<void> {
 
 export async function getClientDetail(id: string) {
   const client = await getClient(id);
-  const [quotes, invoices] = await Promise.all([
+  const [quotes, invoices, subscriptions] = await Promise.all([
     deps.quotes.list({ clientId: id }),
     deps.invoices.list({ clientId: id }),
+    deps.subscriptions.list({ clientId: id }),
   ]);
-  return { client, quotes, invoices };
+  return { client, quotes, invoices, subscriptions };
 }

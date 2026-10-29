@@ -8,6 +8,7 @@ import * as portalApp from "@/server/application/portal";
 import * as quotesApp from "@/server/application/quotes";
 import * as invoicesApp from "@/server/application/invoices";
 import * as paymentsApp from "@/server/application/payments";
+import * as subscriptionsApp from "@/server/application/subscriptions";
 import {
   getDashboardBasePath,
   dashboardHref,
@@ -240,6 +241,49 @@ export async function createPaymentAction(
   } catch (e) {
     return toActionError(e);
   }
+}
+
+export async function createSubscriptionAction(
+  formData: FormData,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const priceEuros = formData.get("priceEuros")
+      ? Number(String(formData.get("priceEuros")).replace(",", "."))
+      : undefined;
+    const sub = await subscriptionsApp.createSubscription({
+      clientId: String(formData.get("clientId") ?? ""),
+      offerKind: String(formData.get("offerKind") ?? ""),
+      startDate: String(formData.get("startDate") ?? ""),
+      priceCents:
+        priceEuros !== undefined && !Number.isNaN(priceEuros)
+          ? Math.round(priceEuros * 100)
+          : undefined,
+      notes: String(formData.get("notes") ?? "") || null,
+    });
+    revalidateDashboard("subscriptions");
+    return { ok: true, id: sub.id };
+  } catch (e) {
+    return toActionError(e);
+  }
+}
+
+export async function pauseSubscriptionAction(id: string) {
+  await requireAdmin();
+  await subscriptionsApp.transitionSubscription(id, { status: "paused" });
+  revalidateDashboard("subscriptions");
+}
+
+export async function resumeSubscriptionAction(id: string) {
+  await requireAdmin();
+  await subscriptionsApp.transitionSubscription(id, { status: "active" });
+  revalidateDashboard("subscriptions");
+}
+
+export async function cancelSubscriptionAction(id: string) {
+  await requireAdmin();
+  await subscriptionsApp.transitionSubscription(id, { status: "cancelled" });
+  revalidateDashboard("subscriptions");
 }
 
 /* ——— Espace client ——— */

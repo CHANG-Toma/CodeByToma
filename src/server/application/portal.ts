@@ -13,6 +13,7 @@ import {
   transitionQuote,
 } from "./quotes";
 import { getInvoice, listInvoices } from "./invoices";
+import { listSubscriptions } from "./subscriptions";
 import { getClient } from "./clients";
 import { portalProfileUpdateSchema } from "./schemas";
 
@@ -23,10 +24,11 @@ function assertOwnsClient(clientId: string, resourceClientId: string) {
 }
 
 export async function getPortalHome(clientId: string) {
-  const [client, quotes, invoices] = await Promise.all([
+  const [client, quotes, invoices, subscriptions] = await Promise.all([
     getClient(clientId),
     listQuotes({ clientId }),
     listInvoices({ clientId }),
+    listSubscriptions({ clientId }),
   ]);
 
   const visibleQuotes = quotes.filter((q) => q.status !== "draft");
@@ -38,16 +40,25 @@ export async function getPortalHome(clientId: string) {
       i.status === "partially_paid" ||
       i.status === "overdue",
   );
+  const activeSubscriptions = subscriptions.filter(
+    (s) => s.status === "active" || s.status === "paused",
+  );
 
   return {
     client,
     pendingQuotes,
     openInvoices,
+    activeSubscriptions,
     counts: {
       quotes: visibleQuotes.length,
       invoices: visibleInvoices.length,
+      subscriptions: activeSubscriptions.length,
     },
   };
+}
+
+export async function listPortalSubscriptions(clientId: string) {
+  return listSubscriptions({ clientId });
 }
 
 export async function listPortalQuotes(clientId: string) {

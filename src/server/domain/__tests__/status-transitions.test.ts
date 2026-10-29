@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   assertInvoiceTransition,
   assertQuoteTransition,
+  assertSubscriptionTransition,
   canTransitionInvoice,
   canTransitionQuote,
+  canTransitionSubscription,
   invoiceStatusAfterPayment,
 } from "../status-transitions";
 
@@ -48,5 +50,20 @@ describe("invoiceStatusAfterPayment", () => {
 
   it("refuse un paiement sur draft", () => {
     expect(() => invoiceStatusAfterPayment("draft", 100, 50)).toThrow();
+  });
+});
+
+describe("transitions abonnement", () => {
+  it("autorise active → paused → active → cancelled", () => {
+    expect(canTransitionSubscription("active", "paused")).toBe(true);
+    expect(canTransitionSubscription("paused", "active")).toBe(true);
+    expect(canTransitionSubscription("active", "cancelled")).toBe(true);
+  });
+
+  it("interdit cancelled → active", () => {
+    expect(canTransitionSubscription("cancelled", "active")).toBe(false);
+    expect(() => assertSubscriptionTransition("cancelled", "active")).toThrow(
+      /interdite/,
+    );
   });
 });

@@ -126,6 +126,34 @@ async function main() {
     console.log("Seed quote:", quote.number);
   }
 
+  const existingSub = await prisma.subscription.findFirst({
+    where: { clientId: clientA.id, offerKind: "hosting", status: "active" },
+  });
+  if (!existingSub) {
+    const startDate = new Date();
+    await prisma.subscription.create({
+      data: {
+        clientId: clientA.id,
+        offerKind: "hosting",
+        label: "Hébergement mensuel",
+        priceCents: 3000,
+        status: "active",
+        startDate,
+        endDate: new Date(
+          startDate.getFullYear(),
+          startDate.getMonth() + 12,
+          startDate.getDate(),
+        ),
+        nextBillingDate: new Date(
+          startDate.getFullYear(),
+          startDate.getMonth() + 1,
+          startDate.getDate(),
+        ),
+        commitmentMonths: 12,
+      },
+    });
+  }
+
   await prisma.invoiceSequence.upsert({
     where: { id: "default" },
     update: {},

@@ -12,6 +12,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Receipt,
+  RefreshCw,
   Users,
 } from "lucide-react";
 import { signOutAction } from "@/app/(private)/actions";
@@ -28,6 +29,7 @@ const NAV = [
   { href: "quotes", label: "Devis", icon: FileText },
   { href: "invoices", label: "Factures", icon: Receipt },
   { href: "payments", label: "Paiements", icon: CreditCard },
+  { href: "subscriptions", label: "Abonnements", icon: RefreshCw },
 ] as const;
 
 type Props = {

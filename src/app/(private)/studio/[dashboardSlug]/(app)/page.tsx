@@ -4,15 +4,17 @@ import { hostingFee, setupFee, tjmFee } from "@/data/pricing";
 import { formatEur } from "@/server/domain/money";
 import { getDashboardKpis } from "@/server/application/invoices";
 import { listQuotes } from "@/server/application/quotes";
+import { listUpcomingBillings } from "@/server/application/subscriptions";
 import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
 
 type Props = { params: Promise<{ dashboardSlug: string }> };
 
 export default async function DashboardHomePage({ params }: Props) {
   const { dashboardSlug } = await params;
-  const [kpis, pendingQuotes] = await Promise.all([
+  const [kpis, pendingQuotes, upcoming] = await Promise.all([
     getDashboardKpis(),
     listQuotes({ status: "sent" }),
+    listUpcomingBillings(5),
   ]);
 
   const cards = [
@@ -32,9 +34,9 @@ export default async function DashboardHomePage({ params }: Props) {
       href: "quotes",
     },
     {
-      label: "Clients actifs",
-      value: String(kpis.activeClients),
-      href: "clients",
+      label: "Abonnements actifs",
+      value: String(kpis.activeSubscriptions),
+      href: "subscriptions",
     },
   ];
 
@@ -98,6 +100,40 @@ export default async function DashboardHomePage({ params }: Props) {
             </Panel>
           ))}
         </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="mb-3 text-sm font-medium text-dash-soft">
+          Prochaines échéances abonnements
+        </h2>
+        {upcoming.length === 0 ? (
+          <Panel>
+            <p className="text-sm text-dash-muted">Aucune échéance à venir.</p>
+          </Panel>
+        ) : (
+          <Panel className="overflow-x-auto p-0">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-dash-border text-dash-muted">
+                <tr>
+                  <th className="px-5 py-3 font-medium">Offre</th>
+                  <th className="px-5 py-3 font-medium">Montant</th>
+                  <th className="px-5 py-3 font-medium">Échéance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {upcoming.map((s) => (
+                  <tr key={s.id} className="border-b border-dash-border">
+                    <td className="px-5 py-3 text-dash-text">{s.label}</td>
+                    <td className="px-5 py-3">{formatEur(s.priceCents)}</td>
+                    <td className="px-5 py-3 text-dash-soft">
+                      {s.nextBillingDate?.toLocaleDateString("fr-FR") ?? "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Panel>
+        )}
       </div>
 
       <div className="mt-8">

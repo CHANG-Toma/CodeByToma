@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { PageHeader, Panel, StatusBadge } from "@/components/dashboard/ui";
-import { quoteStatusLabel, invoiceStatusLabel } from "@/lib/dashboard-labels";
+import {
+  quoteStatusLabel,
+  invoiceStatusLabel,
+  subscriptionStatusLabel,
+} from "@/lib/dashboard-labels";
 import { formatEur } from "@/server/domain/money";
 import { getPortalHome } from "@/server/application/portal";
 import { requireClient } from "@/server/infrastructure/auth/session";
@@ -23,9 +27,9 @@ export default async function EspaceHomePage() {
       href: "/espace/factures",
     },
     {
-      label: "Documents",
-      value: String(home.counts.quotes + home.counts.invoices),
-      href: "/espace/devis",
+      label: "Abonnements",
+      value: String(home.counts.subscriptions),
+      href: "/espace/abonnements",
     },
   ];
 
@@ -33,7 +37,7 @@ export default async function EspaceHomePage() {
     <div>
       <PageHeader
         title={`Bonjour${home.client.name ? `, ${home.client.name.split(" ")[0]}` : ""}`}
-        description={`Bienvenue dans l’espace client de ${displayName}. Consultez vos devis et factures.`}
+        description={`Bienvenue dans l’espace client de ${displayName}. Consultez vos devis, factures et abonnements.`}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -124,6 +128,39 @@ export default async function EspaceHomePage() {
           )}
         </section>
       </div>
+
+      {home.activeSubscriptions.length > 0 ? (
+        <div className="mt-8">
+          <h2 className="mb-3 text-sm font-medium text-dash-soft">
+            Abonnements
+          </h2>
+          <Panel className="space-y-3 p-4">
+            {home.activeSubscriptions.slice(0, 4).map((sub) => (
+              <Link
+                key={sub.id}
+                href="/espace/abonnements"
+                className="flex items-center justify-between gap-3 rounded-md px-2 py-2 transition hover:bg-dash-hover"
+              >
+                <div>
+                  <p className="text-sm font-medium text-dash-text">
+                    {sub.label}
+                  </p>
+                  <p className="text-xs text-dash-muted">
+                    {formatEur(sub.priceCents)}/mois
+                    {sub.nextBillingDate
+                      ? ` · prochaine : ${sub.nextBillingDate.toLocaleDateString("fr-FR")}`
+                      : ""}
+                  </p>
+                </div>
+                <StatusBadge
+                  label={subscriptionStatusLabel[sub.status]}
+                  tone={sub.status === "active" ? "ok" : "neutral"}
+                />
+              </Link>
+            ))}
+          </Panel>
+        </div>
+      ) : null}
     </div>
   );
 }

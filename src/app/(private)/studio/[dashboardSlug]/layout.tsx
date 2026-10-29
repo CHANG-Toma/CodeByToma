@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { assertValidDashboardSlug } from "@/server/infrastructure/auth/dashboard-path";
+import {
+  assertValidDashboardSlug,
+  getDashboardBasePath,
+} from "@/server/infrastructure/auth/dashboard-path";
 
 export const metadata: Metadata = {
   robots: {
@@ -10,6 +13,14 @@ export const metadata: Metadata = {
   },
   title: "Studio",
 };
+
+/** Seul le slug secret est valide — évite d’absorber d’autres segments. */
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  const slug = getDashboardBasePath();
+  return slug ? [{ dashboardSlug: slug }] : [];
+}
 
 type Props = {
   children: React.ReactNode;

@@ -6,6 +6,7 @@ import type {
   Payment,
   Quote,
   QuoteLine,
+  Subscription,
 } from "@prisma/client";
 import type {
   CatalogOfferRecord,
@@ -14,11 +15,13 @@ import type {
   LineRecord,
   PaymentRecord,
   QuoteRecord,
+  SubscriptionRecord,
 } from "@/server/domain/ports/repositories";
 import type { OfferKind } from "@/server/domain/catalog";
 import type {
   InvoiceStatus,
   QuoteStatus,
+  SubscriptionStatus,
 } from "@/server/domain/status-transitions";
 
 export function mapClient(c: Client): ClientRecord {
@@ -100,6 +103,25 @@ export function mapInvoice(
       .slice()
       .sort((a, b) => a.position - b.position)
       .map(mapLine),
+  };
+}
+
+export function mapSubscription(s: Subscription): SubscriptionRecord {
+  return {
+    id: s.id,
+    clientId: s.clientId,
+    offerKind: s.offerKind as OfferKind,
+    label: s.label,
+    priceCents: s.priceCents,
+    currency: s.currency,
+    status: s.status as SubscriptionStatus,
+    startDate: s.startDate,
+    endDate: s.endDate,
+    nextBillingDate: s.nextBillingDate,
+    commitmentMonths: s.commitmentMonths,
+    notes: s.notes,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
   };
 }
 

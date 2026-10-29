@@ -1,6 +1,7 @@
 import type {
   InvoiceStatus,
   QuoteStatus,
+  SubscriptionStatus,
 } from "@/server/domain/status-transitions";
 
 export const quoteStatusLabel: Record<QuoteStatus, string> = {
@@ -18,6 +19,12 @@ export const invoiceStatusLabel: Record<InvoiceStatus, string> = {
   paid: "Payée",
   overdue: "En retard",
   cancelled: "Annulée",
+};
+
+export const subscriptionStatusLabel: Record<SubscriptionStatus, string> = {
+  active: "Actif",
+  paused: "En pause",
+  cancelled: "Résilié",
 };
 
 export const paymentMethodLabel: Record<string, string> = {

@@ -4,6 +4,7 @@ import type {
   PaymentMethod,
   PaymentStatus,
   QuoteStatus as PrismaQuoteStatus,
+  SubscriptionStatus as PrismaSubscriptionStatus,
 } from "@prisma/client";
 import { formatInvoiceNumber } from "@/server/domain/invoice-numbering";
 import type { OfferKind } from "@/server/domain/catalog";
@@ -16,6 +17,7 @@ import type {
   InvoiceCreateInput,
   IPaymentRepository,
   IQuoteRepository,
+  ISubscriptionRepository,
   IUserRepository,
   QuoteCreateInput,
 } from "@/server/domain/ports/repositories";
@@ -26,6 +28,7 @@ import {
   mapInvoice,
   mapPayment,
   mapQuote,
+  mapSubscription,
 } from "./mappers";
 
 export const clientRepository: IClientRepository = {
@@ -377,6 +380,57 @@ export const paymentRepository: IPaymentRepository = {
       _sum: { amountCents: true },
     });
     return agg._sum.amountCents ?? 0;
+  },
+};
+
+export const subscriptionRepository: ISubscriptionRepository = {
+  async findById(id) {
+    const row = await prisma.subscription.findUnique({ where: { id } });
+    return row ? mapSubscription(row) : null;
+  },
+
+  async list(filters) {
+    const rows = await prisma.subscription.findMany({
+      where: {
+        ...(filters?.clientId ? { clientId: filters.clientId } : {}),
+        ...(filters?.status
+          ? { status: filters.status as PrismaSubscriptionStatus }
+          : {}),
+      },
+      orderBy: { nextBillingDate: "asc" },
+    });
+    return rows.map(mapSubscription);
+  },
+
+  async create(data) {
+    const row = await prisma.subscription.create({
+      data: {
+        ...data,
+        offerKind: data.offerKind as PrismaOfferKind,
+        status: data.status as PrismaSubscriptionStatus,
+      },
+    });
+    return mapSubscription(row);
+  },
+
+  async update(id, data) {
+    const row = await prisma.subscription.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(data.offerKind
+          ? { offerKind: data.offerKind as PrismaOfferKind }
+          : {}),
+        ...(data.status
+          ? { status: data.status as PrismaSubscriptionStatus }
+          : {}),
+      },
+    });
+    return mapSubscription(row);
+  },
+
+  async countActive() {
+    return prisma.subscription.count({ where: { status: "active" } });
   },
 };
 

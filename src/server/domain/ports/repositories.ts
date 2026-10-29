@@ -1,6 +1,10 @@
 import type { OfferKind } from "../catalog";
 import type { UserRole } from "../roles";
-import type { InvoiceStatus, QuoteStatus } from "../status-transitions";
+import type {
+  InvoiceStatus,
+  QuoteStatus,
+  SubscriptionStatus,
+} from "../status-transitions";
 
 export type ClientRecord = {
   id: string;
@@ -77,6 +81,23 @@ export type PaymentRecord = {
   status: string;
   paidAt: Date;
   reference: string | null;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type SubscriptionRecord = {
+  id: string;
+  clientId: string;
+  offerKind: OfferKind;
+  label: string;
+  priceCents: number;
+  currency: string;
+  status: SubscriptionStatus;
+  startDate: Date;
+  endDate: Date | null;
+  nextBillingDate: Date | null;
+  commitmentMonths: number;
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -197,6 +218,24 @@ export type IPaymentRepository = {
     data: Omit<PaymentRecord, "id" | "createdAt" | "updatedAt">,
   ): Promise<PaymentRecord>;
   sumByInvoice(invoiceId: string): Promise<number>;
+};
+
+export type ISubscriptionRepository = {
+  findById(id: string): Promise<SubscriptionRecord | null>;
+  list(filters?: {
+    clientId?: string;
+    status?: SubscriptionStatus;
+  }): Promise<SubscriptionRecord[]>;
+  create(
+    data: Omit<SubscriptionRecord, "id" | "createdAt" | "updatedAt">,
+  ): Promise<SubscriptionRecord>;
+  update(
+    id: string,
+    data: Partial<
+      Omit<SubscriptionRecord, "id" | "createdAt" | "updatedAt" | "clientId">
+    >,
+  ): Promise<SubscriptionRecord>;
+  countActive(): Promise<number>;
 };
 
 export type ICatalogOfferRepository = {

@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { OFFER_KINDS } from "@/server/domain/catalog";
 import {
   INVOICE_STATUSES,
   QUOTE_STATUSES,
+  SUBSCRIPTION_STATUSES,
 } from "@/server/domain/status-transitions";
 
 export const lineInputSchema = z.object({
@@ -62,6 +64,22 @@ export const paymentCreateSchema = z.object({
   paidAt: z.coerce.date().default(() => new Date()),
   reference: z.string().max(120).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
+});
+
+export const subscriptionCreateSchema = z.object({
+  clientId: z.string().min(1),
+  offerKind: z.enum(OFFER_KINDS),
+  label: z.string().min(1).max(200).optional(),
+  priceCents: z.number().int().nonnegative().optional(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date().optional().nullable(),
+  nextBillingDate: z.coerce.date().optional().nullable(),
+  commitmentMonths: z.number().int().positive().default(12),
+  notes: z.string().max(5000).optional().nullable(),
+});
+
+export const subscriptionStatusSchema = z.object({
+  status: z.enum(SUBSCRIPTION_STATUSES),
 });
 
 export const signInSchema = z.object({
