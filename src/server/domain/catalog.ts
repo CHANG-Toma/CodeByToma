@@ -1,12 +1,7 @@
 import type { MoneyCents } from "./money";
+import { hostingFee, setupFee } from "@/data/pricing";
 
-export const OFFER_KINDS = [
-  "setup",
-  "essentiel",
-  "serenite",
-  "premium",
-  "custom",
-] as const;
+export const OFFER_KINDS = ["setup", "hosting", "custom"] as const;
 
 export type OfferKind = (typeof OFFER_KINDS)[number];
 
@@ -15,6 +10,7 @@ export type CatalogOfferSeed = {
   label: string;
   description: string;
   priceCents: MoneyCents;
+  isActive?: boolean;
 };
 
 /** Source de vérité alignée sur src/data/pricing.ts (centimes). */
@@ -22,33 +18,19 @@ export const CATALOG_OFFERS: readonly CatalogOfferSeed[] = [
   {
     kind: "setup",
     label: "Création du site",
-    description: "Frais uniques de conception et mise en ligne",
-    priceCents: 14900,
+    description: "Frais uniques de conception et mise en ligne (vitrine)",
+    priceCents: setupFee.amount * 100,
   },
   {
-    kind: "essentiel",
-    label: "Abonnement Essentiel",
-    description: "Site en ligne et sécurisé — 49 €/mois",
-    priceCents: 4900,
-  },
-  {
-    kind: "serenite",
-    label: "Abonnement Sérénité",
-    description: "Essentiel + mises à jour contenu — 65 €/mois",
-    priceCents: 6500,
-  },
-  {
-    kind: "premium",
-    label: "Abonnement Premium",
-    description: "Accompagnement complet — 159 €/mois",
-    priceCents: 15900,
+    kind: "hosting",
+    label: "Hébergement mensuel",
+    description: `Hébergement chez CodeByToma — ${hostingFee.amount} €/mois (sans modifications)`,
+    priceCents: hostingFee.amount * 100,
   },
   {
     kind: "custom",
-    label: "Sur-mesure",
-    description: "Projet hors grille — montant défini au devis",
-    priceCents: 0,
+    label: "Prestation TJM (1 jour)",
+    description: "Évolutions, améliorations et sur-mesure — 380 €/jour indicatif",
+    priceCents: 38000,
   },
 ] as const;
-
-export const DEFAULT_COMMITMENT_MONTHS = 12;

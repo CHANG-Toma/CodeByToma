@@ -3,14 +3,15 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { hostingFee, setupFee } from "@/data/pricing";
 
 const points = [
-  "149 € une seule fois pour créer votre site",
-  "Essentiel (49 €) : site en ligne et sécurisé, sans rien gérer",
-  "Sérénité (65 €) : on met aussi à jour votre contenu (2× / mois)",
-  "Premium (159 €) : 5 mises à jour / mois, évolutions régulières et suivi mensuel",
-  "Vous pouvez changer de formule plus tard",
-  "Engagement 12 mois, puis renouvellement automatique",
+  `${setupFee.amount} € une seule fois pour créer votre site vitrine`,
+  `Hébergement chez moi : ${hostingFee.amount} €/mois (optionnel)`,
+  "Hébergement = mise en ligne, domaine, HTTPS, sauvegardes, surveillance",
+  "Modifications et améliorations : facturées au TJM, à part",
+  "Vous avez déjà un hébergeur ? Pas d’abonnement — projet / TJM seulement",
+  "Engagement hébergement 12 mois, puis reconduction",
 ];
 
 const BusinessSubscription = () => {
@@ -28,25 +29,26 @@ const BusinessSubscription = () => {
             transition={{ duration: 0.4 }}
           >
             <h2 className="text-2xl font-semibold tracking-tight text-snow md:text-[1.85rem]">
-              Pourquoi choisir un abonnement&nbsp;?
+              Hébergement &nbsp;≠&nbsp; évolutions
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-mist md:text-base">
-              Vous payez une fois la création (149 €), puis un forfait mensuel
-              selon le niveau d&apos;accompagnement souhaité : Essentiel (49
-              €), Sérénité (65 €), Premium (159 €).
+              L’abonnement à {hostingFee.amount} €/mois n’existe que si vous
+              voulez que j’héberge le site. Il ne couvre pas les changements de
+              contenu ni les nouvelles fonctions — ceux-ci se chiffrent au TJM.
             </p>
             <p className="mt-6 text-[15px] font-medium text-snow">
-              Commencez simple, montez en gamme plus tard.
+              Un site chez vous, ou chez moi.
               <span className="mt-1 block font-normal text-mist">
-                Le Premium prépare aussi le passage vers du sur-mesure
-                (réservation, espace client…) sans tout recommencer.
+                Chez vous : je livre le projet, sans abonnement. Chez moi : +
+                {hostingFee.amount} €/mois pour rester en ligne sans gérer la
+                technique.
               </span>
             </p>
             <a
               href="#offres"
               className="mt-6 inline-flex text-[13px] font-medium text-snow underline decoration-cbtBorderStrong underline-offset-4 transition-colors hover:decoration-snow"
             >
-              Voir les formules d&apos;abonnement
+              Voir les tarifs
             </a>
           </motion.div>
 

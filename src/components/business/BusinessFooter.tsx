@@ -15,7 +15,7 @@ const BusinessFooter = () => {
             <span className="mx-2 opacity-40">·</span>
             Code by Toma
             <span className="mx-2 opacity-40">·</span>
-            Création 149 € · Abonnement dès 49 €/mois
+            Création 149 € · Hébergement 30 €/mois · TJM
           </p>
           <p className="mt-2 text-[12px] text-mist/70" suppressHydrationWarning>
             © {year} Toma Chang (Code by Toma) — Tous droits réservés

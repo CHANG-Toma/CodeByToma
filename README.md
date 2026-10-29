@@ -1,6 +1,6 @@
 # Portfolio - CHANG Toma / CodeByToma
 
-Portfolio personnel et site marketing public, avec un **dashboard privé** pour gérer l'activité solo (clients, devis, factures, abonnements, paiements).
+Portfolio personnel et site marketing public, avec un **dashboard privé** pour gérer l'activité solo (clients, devis, factures, paiements).
 
 ## Technologies
 

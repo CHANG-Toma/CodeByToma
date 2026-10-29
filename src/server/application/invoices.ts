@@ -171,12 +171,12 @@ export async function getDashboardKpis() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const [revenueCents, overdueCount, pendingQuotes, activeSubscriptions] =
+  const [revenueCents, overdueCount, pendingQuotes, clients] =
     await Promise.all([
       deps.invoices.sumPaidInPeriod(monthStart, nextMonth),
       deps.invoices.countByStatus("overdue"),
       deps.quotes.list({ status: "sent" }),
-      deps.subscriptions.countActive(),
+      deps.clients.list(),
     ]);
 
   // Also count issued past due as overdue candidates for KPI
@@ -189,6 +189,6 @@ export async function getDashboardKpis() {
     revenueCents,
     overdueInvoices: overdueCount + lateIssued,
     pendingQuotes: pendingQuotes.length,
-    activeSubscriptions,
+    activeClients: clients.length,
   };
 }

@@ -2,24 +2,26 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { UnauthorizedError } from "@/server/domain/errors";
+import type { UserRole } from "@/server/domain/roles";
 import { deps } from "@/server/application/container";
 import { signInSchema } from "@/server/application/schemas";
 import { hashRateLimitSubject } from "./client-ip";
 
 const COOKIE_NAME = "cbt_session";
-const MAX_AGE_SEC = 60 * 60 * 8; // 8 h — session pro plus courte
+const MAX_AGE_SEC = 60 * 60 * 8;
 const FAIL_DELAY_MS = 400;
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000;
 
-type SessionPayload = {
+export type SessionPayload = {
   sub: string;
   email: string;
+  role: UserRole;
+  clientId: string | null;
 };
 
 type AttemptBucket = { count: number; resetAt: number };
 
-/** Rate-limit process-local (MVP). En multi-instance : Redis. */
 const loginAttempts = new Map<string, AttemptBucket>();
 
 function getSecret() {
@@ -54,7 +56,11 @@ async function delayOnFailure(): Promise<void> {
 export async function createSessionToken(
   payload: SessionPayload,
 ): Promise<string> {
-  return new SignJWT({ email: payload.email })
+  return new SignJWT({
+    email: payload.email,
+    role: payload.role,
+    clientId: payload.clientId,
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.sub)
     .setIssuedAt()
@@ -68,7 +74,10 @@ export async function verifySessionToken(
   try {
     const { payload } = await jwtVerify(token, getSecret());
     if (!payload.sub || typeof payload.email !== "string") return null;
-    return { sub: payload.sub, email: payload.email };
+    const role = payload.role === "client" ? "client" : "admin";
+    const clientId =
+      typeof payload.clientId === "string" ? payload.clientId : null;
+    return { sub: payload.sub, email: payload.email, role, clientId };
   } catch {
     return null;
   }
@@ -109,13 +118,27 @@ export async function requireSession(): Promise<SessionPayload> {
   return session;
 }
 
-/**
- * @param ipKey empreinte IP (voir getClientIpKey) — jamais l'IP en clair
- */
+export async function requireAdmin(): Promise<SessionPayload> {
+  const session = await requireSession();
+  if (session.role !== "admin") throw new UnauthorizedError();
+  return session;
+}
+
+export async function requireClient(): Promise<SessionPayload & { clientId: string }> {
+  const session = await requireSession();
+  if (session.role !== "client" || !session.clientId) {
+    throw new UnauthorizedError();
+  }
+  return { ...session, clientId: session.clientId };
+}
+
 export async function signIn(
   input: unknown,
   ipKey = "unknown",
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; role: UserRole }
+  | { ok: false; error: string }
+> {
   const parsed = signInSchema.safeParse(input);
   if (!parsed.success) {
     await delayOnFailure();
@@ -152,13 +175,14 @@ export async function signIn(
     return { ok: false, error: "Identifiants invalides" };
   }
 
-  // Succès : reset des compteurs pour cette empreinte
   loginAttempts.delete(`ip:${ipKey}`);
   loginAttempts.delete(`email:${emailKey}`);
 
   const token = await createSessionToken({
     sub: user.id,
     email: user.email,
+    role: user.role,
+    clientId: user.clientId,
   });
   await setSessionCookie(token);
 
@@ -169,7 +193,7 @@ export async function signIn(
     entityId: user.id,
   });
 
-  return { ok: true };
+  return { ok: true, role: user.role };
 }
 
 export async function signOut(): Promise<void> {

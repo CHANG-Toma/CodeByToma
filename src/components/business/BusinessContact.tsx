@@ -23,8 +23,8 @@ const BusinessContact = () => {
               Prêt à développer votre présence en ligne&nbsp;?
             </h2>
             <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-mist md:text-base">
-              Création 149 €, puis abonnement dès 49 €/mois — et du
-              sur-mesure si votre activité le demande.
+              Création 149 €, hébergement optionnel 30 €/mois, évolutions au
+              TJM — on chiffre selon votre besoin.
             </p>
             <a
               href="mailto:toma11chang@gmail.com?subject=CodeByToma%20—%20Devis%20gratuit"

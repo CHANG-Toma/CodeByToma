@@ -9,9 +9,7 @@ datasource db {
 
 enum OfferKind {
   setup
-  essentiel
-  serenite
-  premium
+  hosting
   custom
 }
 
@@ -32,12 +30,6 @@ enum InvoiceStatus {
   cancelled
 }
 
-enum SubscriptionStatus {
-  active
-  paused
-  cancelled
-}
-
 enum PaymentMethod {
   bank_transfer
   card
@@ -53,14 +45,24 @@ enum PaymentStatus {
   refunded
 }
 
+enum UserRole {
+  admin
+  client
+}
+
 model User {
   id           String     @id @default(cuid())
   email        String     @unique
   passwordHash String
   name         String?
+  role         UserRole   @default(admin)
+  clientId     String?    @unique
+  client       Client?    @relation(fields: [clientId], references: [id])
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   auditLogs    AuditLog[]
+
+  @@index([role])
 }
 
 model Client {
@@ -81,7 +83,7 @@ model Client {
   updatedAt         DateTime       @updatedAt
   quotes            Quote[]
   invoices          Invoice[]
-  subscriptions     Subscription[]
+  user              User?
 
   @@index([email])
   @@index([deletedAt])
@@ -179,28 +181,6 @@ model InvoiceLine {
   position         Int     @default(0)
 
   @@index([invoiceId])
-}
-
-model Subscription {
-  id               String             @id @default(cuid())
-  clientId         String
-  client           Client             @relation(fields: [clientId], references: [id])
-  offerKind        OfferKind
-  label            String
-  priceCents       Int
-  currency         String             @default("EUR")
-  status           SubscriptionStatus @default(active)
-  startDate        DateTime
-  endDate          DateTime?
-  nextBillingDate  DateTime?
-  commitmentMonths Int                @default(12)
-  notes            String?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-
-  @@index([clientId])
-  @@index([status])
-  @@index([nextBillingDate])
 }
 
 model Payment {

@@ -49,38 +49,38 @@ export const showcaseProjects: ShowcaseProject[] = [
 export const offersFaq = [
   {
     q: "Quel est le délai de création d'un site ?",
-    a: "En moyenne entre une et trois semaines selon la complexité et la disponibilité de vos contenus. Les 149 € de création couvrent la conception et la mise en ligne initiale du site. Nous vous communiquons un planning précis dès le démarrage.",
+    a: "En moyenne entre une et trois semaines selon la complexité et la disponibilité de vos contenus. Les 149 € de création couvrent la conception et la mise en ligne initiale d’un site vitrine. Un planning précis est communiqué au démarrage.",
   },
   {
     q: "Comment fonctionne la tarification ?",
-    a: "Vous payez 149 € une seule fois pour la création du site, puis un abonnement mensuel : Essentiel (49 €) pour un site en ligne et sécurisé, Sérénité (65 €) avec 2 mises à jour de contenu par mois, ou Premium (159 €) avec évolutions régulières. Pas de gros budget au départ.",
+    a: "Création du site vitrine : 149 € une seule fois. Hébergement chez CodeByToma (optionnel) : 30 €/mois. Toute modification, amélioration ou projet sur-mesure se facture à part, au TJM ou en forfait jours — ce n’est pas inclus dans l’hébergement.",
   },
   {
     q: "Je ne suis pas à l'aise avec l'informatique — est-ce pour moi ?",
-    a: "Oui, c'est justement l'idée. Vous n'avez pas à gérer l'hébergement, la sécurité ou la technique : on s'en charge. Vous nous envoyez vos textes et photos, on s'occupe du reste. Chaque formule est expliquée en langage simple sur cette page.",
+    a: "Oui. Si j’héberge votre site, vous n’avez pas à gérer la technique (mise en ligne, sécurité, sauvegardes). Pour faire évoluer le contenu ou ajouter une fonction, on en discute et on chiffre au TJM.",
   },
   {
     q: "Que comprend la création à 149 € ?",
-    a: "La conception et la mise en ligne de votre site vitrine : structure, design, pages essentielles et formulaire de contact. L'hébergement, la maintenance technique et l'accompagnement sont ensuite inclus dans l'abonnement mensuel choisi.",
+    a: "La conception et la mise en ligne d’un site vitrine : structure, design, pages essentielles et formulaire de contact. L’hébergement n’est inclus que si vous choisissez l’option à 30 €/mois.",
   },
   {
-    q: "Quelle est la différence entre Essentiel, Sérénité et Premium ?",
-    a: "Essentiel (49 €) : votre site est en ligne, sécurisé et surveillé — vous ne gérez rien côté technique. Sérénité (65 €) : en plus, on met à jour votre contenu 2 fois par mois et on améliore votre visibilité sur Google. Premium (159 €) : en plus, 5 mises à jour par mois, jusqu'à 3 h d'évolutions, un point mensuel, un rapport de visibilité et la possibilité de changer le thème principal.",
+    q: "Que couvre l’hébergement à 30 €/mois ?",
+    a: "Uniquement l’hébergement chez moi : site en ligne, nom de domaine, HTTPS, sauvegardes et surveillance. Aucune modification de texte, photo ou fonctionnalité n’est incluse.",
+  },
+  {
+    q: "Comment sont facturées les modifications ?",
+    a: "Au TJM (380 €/jour indicatif) ou en forfait jours, sur devis. Exemples : changer des textes, ajouter une section, une réservation, un espace client. C’est toujours distinct de l’hébergement.",
   },
   {
     q: "Proposez-vous des applications web ou de l'e-commerce ?",
-    a: "Oui. Les projets plus complexes (applications, e-commerce, réservation, espace client, paiement…) sont étudiés en sur-mesure, séparément de l’abonnement. Contactez-moi pour en discuter — sans grille de prix figée.",
+    a: "Oui. Ces projets sont chiffrés au TJM ou en forfait jours, séparément de la création vitrine et de l’hébergement. Contactez-moi pour en discuter.",
   },
   {
-    q: "Que signifie « évolution légère » ?",
-    a: "En langage simple : ajouter une section, un formulaire ou du contenu sur votre site existant. Pas une refonte complète ni une boutique en ligne — ça, c'est du sur-mesure, étudié à part.",
+    q: "Puis-je héberger le site ailleurs ?",
+    a: "Oui. Dans ce cas, il n’y a pas d’abonnement : je livre le projet (création / TJM) et vous gardez votre hébergeur. Un support ponctuel reste possible au TJM.",
   },
   {
-    q: "Puis-je faire évoluer mon abonnement plus tard ?",
-    a: "Absolument. Vous pouvez monter de palier (Essentiel → Sérénité → Premium) ou passer sur du sur-mesure quand votre activité le demande, sans tout recommencer.",
-  },
-  {
-    q: "Quel est l'engagement de l'abonnement ?",
-    a: "L'abonnement est souscrit pour une durée initiale de 12 mois, puis reconduit tacitement. Pendant toute la durée, le site reste hébergé et géré par nos soins. Vous pouvez l'ajuster ou le résilier selon les modalités précisées dans le contrat.",
+    q: "Quel est l'engagement de l'hébergement ?",
+    a: "L’hébergement est souscrit pour une durée initiale de 12 mois, puis reconduit tacitement. Pendant toute la durée, le site reste hébergé chez CodeByToma. Modalités de résiliation précisées au contrat.",
   },
 ];

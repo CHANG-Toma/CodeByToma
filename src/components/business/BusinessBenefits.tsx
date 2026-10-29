@@ -3,15 +3,16 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { hostingFee, setupFee } from "@/data/pricing";
 
 const benefits = [
-  "Création dès 149 €",
-  "Abonnement dès 49 €/mois",
-  "Hébergement & maintenance inclus",
+  `Création dès ${setupFee.amount} €`,
+  `Hébergement optionnel ${hostingFee.amount} €/mois`,
+  "Évolutions & améliorations au TJM",
   "Design personnalisé",
   "Un développeur Full-Stack dédié",
-  "Sur-mesure sur demande",
-  "Accompagnement dans la durée",
+  "Sur-mesure sur devis",
+  "Pas d’abonnement si vous hébergez ailleurs",
 ];
 
 const BusinessBenefits = () => {
@@ -33,8 +34,9 @@ const BusinessBenefits = () => {
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-mist md:text-base">
             Sans présence en ligne pro, freelances et PME perdent en
-            crédibilité. Nous créons votre site (149 €), puis nous
-            l&apos;accompagnons dans la durée — avec un abonnement qui évolue si votre activité grandit.
+            crédibilité. Je crée votre site ({setupFee.amount} €), je peux
+            l’héberger ({hostingFee.amount} €/mois), et toute évolution se
+            facture clairement au TJM.
           </p>
         </motion.div>
 

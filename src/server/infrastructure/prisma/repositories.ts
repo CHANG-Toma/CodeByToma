@@ -4,7 +4,6 @@ import type {
   PaymentMethod,
   PaymentStatus,
   QuoteStatus as PrismaQuoteStatus,
-  SubscriptionStatus as PrismaSubscriptionStatus,
 } from "@prisma/client";
 import { formatInvoiceNumber } from "@/server/domain/invoice-numbering";
 import type { OfferKind } from "@/server/domain/catalog";
@@ -17,7 +16,6 @@ import type {
   InvoiceCreateInput,
   IPaymentRepository,
   IQuoteRepository,
-  ISubscriptionRepository,
   IUserRepository,
   QuoteCreateInput,
 } from "@/server/domain/ports/repositories";
@@ -28,7 +26,6 @@ import {
   mapInvoice,
   mapPayment,
   mapQuote,
-  mapSubscription,
 } from "./mappers";
 
 export const clientRepository: IClientRepository = {
@@ -344,57 +341,6 @@ export const invoiceRepository: IInvoiceRepository = {
   },
 };
 
-export const subscriptionRepository: ISubscriptionRepository = {
-  async findById(id) {
-    const row = await prisma.subscription.findUnique({ where: { id } });
-    return row ? mapSubscription(row) : null;
-  },
-
-  async list(filters) {
-    const rows = await prisma.subscription.findMany({
-      where: {
-        ...(filters?.clientId ? { clientId: filters.clientId } : {}),
-        ...(filters?.status
-          ? { status: filters.status as PrismaSubscriptionStatus }
-          : {}),
-      },
-      orderBy: { nextBillingDate: "asc" },
-    });
-    return rows.map(mapSubscription);
-  },
-
-  async create(data) {
-    const row = await prisma.subscription.create({
-      data: {
-        ...data,
-        offerKind: data.offerKind as PrismaOfferKind,
-        status: data.status as PrismaSubscriptionStatus,
-      },
-    });
-    return mapSubscription(row);
-  },
-
-  async update(id, data) {
-    const row = await prisma.subscription.update({
-      where: { id },
-      data: {
-        ...data,
-        ...(data.offerKind
-          ? { offerKind: data.offerKind as PrismaOfferKind }
-          : {}),
-        ...(data.status
-          ? { status: data.status as PrismaSubscriptionStatus }
-          : {}),
-      },
-    });
-    return mapSubscription(row);
-  },
-
-  async countActive() {
-    return prisma.subscription.count({ where: { status: "active" } });
-  },
-};
-
 export const paymentRepository: IPaymentRepository = {
   async findById(id) {
     const row = await prisma.payment.findUnique({ where: { id } });
@@ -469,16 +415,62 @@ export const auditLogRepository: IAuditLogRepository = {
 
 export const userRepository: IUserRepository = {
   async findByEmail(email) {
-    return prisma.user.findUnique({
+    const row = await prisma.user.findUnique({
       where: { email },
-      select: { id: true, email: true, passwordHash: true, name: true },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        name: true,
+        role: true,
+        clientId: true,
+      },
     });
+    return row;
   },
 
   async findById(id) {
     return prisma.user.findUnique({
       where: { id },
-      select: { id: true, email: true, name: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        clientId: true,
+      },
+    });
+  },
+
+  async findByClientId(clientId) {
+    return prisma.user.findUnique({
+      where: { clientId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        clientId: true,
+      },
+    });
+  },
+
+  async createClientAccess(data) {
+    return prisma.user.create({
+      data: {
+        email: data.email,
+        passwordHash: data.passwordHash,
+        name: data.name,
+        role: "client",
+        clientId: data.clientId,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        clientId: true,
+      },
     });
   },
 };

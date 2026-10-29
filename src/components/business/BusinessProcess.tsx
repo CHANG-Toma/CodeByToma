@@ -2,19 +2,20 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { hostingFee, setupFee } from "@/data/pricing";
 
 const steps = [
   {
     title: "On crée votre site",
-    text: "149 € une seule fois : design, pages essentielles, formulaire de contact — prêt à accueillir vos clients.",
+    text: `${setupFee.amount} € une seule fois : design, pages essentielles, formulaire — prêt à accueillir vos clients.`,
   },
   {
-    title: "On le garde en ligne pour vous",
-    text: "L'abonnement mensuel couvre la mise en ligne, la sécurité et la maintenance. Vous n'avez rien à installer ni à configurer.",
+    title: "Hébergement si vous le souhaitez",
+    text: `Si le site est chez moi : ${hostingFee.amount} €/mois (mise en ligne, sécurité, sauvegardes). Sinon, vous gardez votre hébergeur — pas d’abonnement.`,
   },
   {
-    title: "Vous faites évoluer quand vous voulez",
-    text: "Besoin de mises à jour régulières ou de nouvelles sections ? On monte de formule ou on passe en sur-mesure, sans tout recommencer.",
+    title: "Évolutions au TJM",
+    text: "Une modification, une amélioration ou un projet métier ? On chiffre à part, au taux journalier ou en forfait jours.",
   },
 ];
 
@@ -36,11 +37,12 @@ const BusinessProcess = () => {
             Comment ça marche
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight text-snow md:text-[1.85rem]">
-            Création, accompagnement, évolution
+            Création, hébergement, puis TJM
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-mist md:text-base">
-            Un démarrage simple avec 149 € de création, puis un abonnement
-            qui s’adapte à votre croissance.
+            Un démarrage clair : {setupFee.amount} € de création,{" "}
+            {hostingFee.amount} €/mois seulement si j’héberge, et du TJM pour
+            tout ce qui fait évoluer le site.
           </p>
         </motion.div>
 

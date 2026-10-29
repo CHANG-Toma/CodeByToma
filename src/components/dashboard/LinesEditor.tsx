@@ -13,9 +13,9 @@ export type LineDraft = {
 
 const PRESETS: Array<{ label: string; unitPriceHtCents: number }> = [
   { label: "Création du site", unitPriceHtCents: 14900 },
-  { label: "Abonnement Essentiel — 1 mois", unitPriceHtCents: 4900 },
-  { label: "Abonnement Sérénité — 1 mois", unitPriceHtCents: 6500 },
-  { label: "Abonnement Premium — 1 mois", unitPriceHtCents: 15900 },
+  { label: "Hébergement — 1 mois", unitPriceHtCents: 3000 },
+  { label: "Prestation TJM — 1 jour", unitPriceHtCents: 38000 },
+  { label: "Prestation TJM — ½ jour", unitPriceHtCents: 19000 },
 ];
 
 type Props = {

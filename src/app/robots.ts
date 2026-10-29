@@ -11,6 +11,7 @@ export default function robots(): MetadataRoute.Robots {
           "/demo/",
           "/api/",
           "/connexion",
+          "/espace",
           ...(process.env.DASHBOARD_BASE_PATH
             ? [`/${process.env.DASHBOARD_BASE_PATH.replace(/^\/+|\/+$/g, "")}`]
             : []),

@@ -35,3 +35,10 @@ export class UnauthorizedError extends DomainError {
     this.name = "UnauthorizedError";
   }
 }
+
+export class ForbiddenError extends DomainError {
+  constructor(message = "Accès refusé") {
+    super("FORBIDDEN", message);
+    this.name = "ForbiddenError";
+  }
+}

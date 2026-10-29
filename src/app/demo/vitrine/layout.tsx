@@ -18,7 +18,7 @@ const body = Outfit({
 export const metadata: Metadata = {
   title: "Aria Coach — Démo Site Vitrine",
   description:
-    "Exemple CodeByToma : site vitrine coaching — création 149 €, abonnement dès 49 €/mois.",
+    "Exemple CodeByToma : site vitrine coaching — création 149 €, hébergement optionnel 30 €/mois.",
   robots: { index: false, follow: false },
 };
 

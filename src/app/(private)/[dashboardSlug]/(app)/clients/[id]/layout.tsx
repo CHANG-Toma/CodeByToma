@@ -25,7 +25,7 @@ export default async function ClientLayout({ children, params }: Props) {
     notFound();
   }
 
-  const { client, quotes, invoices, subscriptions } = detail;
+  const { client, quotes, invoices } = detail;
   const payments = await deps.payments.list();
   const invoiceIds = new Set(invoices.map((i) => i.id));
   const clientPayments = payments.filter((p) => invoiceIds.has(p.invoiceId));
@@ -65,7 +65,6 @@ export default async function ClientLayout({ children, params }: Props) {
           quotes: quotes.length,
           invoices: invoices.length,
           payments: clientPayments.length,
-          subscriptions: subscriptions.length,
         }}
       />
 

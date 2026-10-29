@@ -26,7 +26,7 @@ export default function ConfidentialitePage() {
           <h2 className="text-lg font-medium text-white">1. Responsable</h2>
           <p>
             Le traitement est opéré par Toma Chang — activité CodeByToma
-            (création de sites et abonnements de maintenance). Contact :{" "}
+            (création de sites et prestations associées). Contact :{" "}
             <a
               className="text-sky-300 hover:underline"
               href="mailto:toma11chang@gmail.com"
@@ -46,7 +46,7 @@ export default function ConfidentialitePage() {
             <li>
               <strong className="text-white">Contrat / facturation</strong> :
               identité, e-mail, téléphone éventuel, adresse de facturation,
-              devis, factures, paiements, abonnements.
+              devis, factures, paiements.
             </li>
             <li>
               <strong className="text-white">Compte d&apos;accès</strong> :
@@ -70,8 +70,7 @@ export default function ConfidentialitePage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>
               <strong className="text-white">Exécution du contrat</strong> :
-              gestion client, devis, factures, abonnements, espace de
-              connexion.
+              gestion client, devis, factures, espace de connexion.
             </li>
             <li>
               <strong className="text-white">Intérêt légitime</strong> limité :

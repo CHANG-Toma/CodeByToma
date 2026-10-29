@@ -6,7 +6,6 @@ import {
   invoiceRepository,
   paymentRepository,
   quoteRepository,
-  subscriptionRepository,
   userRepository,
 } from "@/server/infrastructure/prisma/repositories";
 
@@ -15,7 +14,6 @@ export const deps = {
   clients: clientRepository,
   quotes: quoteRepository,
   invoices: invoiceRepository,
-  subscriptions: subscriptionRepository,
   payments: paymentRepository,
   catalog: catalogOfferRepository,
   audit: auditLogRepository,

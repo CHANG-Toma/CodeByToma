@@ -5,15 +5,16 @@ alwaysApply: true
 
 # CodeByToma — contexte projet
 
-Produit : activité solo (Toma Chang) — création de sites + abonnements maintenance.
+Produit : activité solo (Toma Chang) — création de sites + hébergement optionnel + TJM.
 
-## Offres de référence (source de vérité métier)
+## Modèle commercial (règle métier)
 
-- Création unique : **149 €**
-- Abonnements : Essentiel **49 €/mois**, Sérénité **65 €/mois**, Premium **159 €/mois**
-- Engagement initial typique : **12 mois**, reconduction tacite
-- Sur-mesure (e-commerce, résa, espace client…) : hors grille, devis dédié
-- Données pricing actuelles : `src/data/pricing.ts` (site vitrine public)
+1. **Création vitrine** : **149 €** une fois.
+2. **Hébergement** : **30 €/mois** — **uniquement** si le client veut que **tu héberges** le site (infra, domaine, HTTPS, sauvegardes, monitoring). **Aucune modification / amélioration incluse.**
+3. **Évolutions & projets** : **TJM** ou forfait jours (devis) — distinct de l’hébergement.
+4. Client qui héberge ailleurs : pas d’abo — build / TJM seulement.
+
+Source marketing : `src/data/pricing.ts` · catalogue dashboard : `src/server/domain/catalog.ts`.
 
 ## Séparation des surfaces
 
@@ -25,9 +26,9 @@ Produit : activité solo (Toma Chang) — création de sites + abonnements maint
 ## Priorités produit dashboard
 
 1. Clients & contacts
-2. Devis → acceptation → facture
-3. Abonnements récurrents + frais de création
-4. Paiements & relances
+2. Devis → acceptation → facture (lignes création / hébergement / TJM)
+3. Paiements & relances
+4. (Plus tard) suivi hébergement pour clients hébergés
 5. (Plus tard) agents IA / Gmail / todos
 
 Avant de coder : lire les rules SOLID, RGPD, DB et domaine facturation.

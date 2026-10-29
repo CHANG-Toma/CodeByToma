@@ -88,8 +88,8 @@ const BusinessHero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.2 }}
           >
-            Une présence en ligne professionnelle, dès 149 € de création puis
-            un abonnement qui grandit avec vous.
+            Une présence en ligne professionnelle : création dès 149 €,
+            hébergement optionnel à 30 €/mois, évolutions au TJM.
           </motion.p>
 
           <motion.div

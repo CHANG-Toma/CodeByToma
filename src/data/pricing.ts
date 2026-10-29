@@ -3,13 +3,14 @@ export type PricingFeature = {
   detail?: string;
 };
 
-export type PricingAbonnementCard = {
+export type PricingOfferCard = {
   id: string;
   title: string;
   tagline: string;
-  /** Une phrase simple pour comprendre la formule d'un coup d'œil */
   summary: string;
+  /** Prix affiché (ex. "149 €" ou "Sur devis") */
   price: string;
+  /** Suite du prix (ex. "/mois", "une fois", "/jour") */
   period: string;
   features: PricingFeature[];
   cta: string;
@@ -18,126 +19,137 @@ export type PricingAbonnementCard = {
   badge?: string;
 };
 
-/** Frais de création uniques — intégrés au bloc tarifaire des cartes. */
+/** Création vitrine — frais uniques. */
 export const setupFee = {
   amount: 149,
   label: "Création du site : 149 €",
-  detail: "frais uniques, quel que soit le palier d'abonnement choisi",
+  detail: "frais uniques pour un site vitrine",
   shortLine: "149 € de création · une seule fois",
   plainExplanation:
-    "149 € une seule fois pour concevoir et mettre en ligne votre site. Ensuite, l'abonnement mensuel couvre la mise en ligne, la sécurité et l'accompagnement — sans surprise technique.",
+    "149 € une seule fois pour concevoir et mettre en ligne votre site vitrine. L’hébergement chez CodeByToma est optionnel (30 €/mois). Les modifications et améliorations se facturent à part, au TJM.",
+};
+
+/** Hébergement uniquement — si le client veut que tu héberges. */
+export const hostingFee = {
+  amount: 30,
+  label: "Hébergement : 30 €/mois",
+  detail: "uniquement si le site est hébergé chez CodeByToma",
+  shortLine: "30 €/mois · hébergement",
+  plainExplanation:
+    "30 € par mois pour garder votre site en ligne chez moi : hébergement, nom de domaine, HTTPS, sauvegardes et surveillance. Aucune modification de contenu ni d’évolution n’est incluse.",
+};
+
+/** TJM de référence (évolutions / projets) — distinct de l’hébergement. */
+export const tjmFee = {
+  amount: 380,
+  label: "TJM : 380 € / jour",
+  detail: "Modifications, améliorations et sur-mesure — hors hébergement",
+  shortLine: "380 € / jour (TJM)",
 };
 
 /** Formulations courtes réutilisées sur le site. */
 export const pricingSummary = {
   creationFormatted: `${setupFee.amount} €`,
-  subscriptionFrom: "49 €/mois",
-  short: `Création ${setupFee.amount} € · Abonnement dès 49 €/mois`,
-  pitch:
-    "Création du site à 149 € (frais uniques), puis abonnement mensuel dès 49 €/mois.",
+  hostingFormatted: `${hostingFee.amount} €/mois`,
+  tjmFormatted: `${tjmFee.amount} €/jour`,
+  subscriptionFrom: `${hostingFee.amount} €/mois`,
+  short: `Création ${setupFee.amount} € · Hébergement ${hostingFee.amount} €/mois · Évolutions au TJM`,
+  pitch: `Création du site à ${setupFee.amount} €, hébergement optionnel à ${hostingFee.amount} €/mois, évolutions et projets au TJM.`,
 };
 
-export const subscriptionSection = {
-  label: "Abonnement",
-  heading: "Des formules claires, sans jargon",
+export const offersSection = {
+  label: "Tarifs",
+  heading: "Simple : création, hébergement, puis TJM si besoin",
   description:
-    "149 € de création pour fabriquer votre site, puis un abonnement mensuel selon l'accompagnement souhaité. Pas besoin de connaissances techniques : on s'occupe de la partie en ligne, sécurité et maintenance.",
+    "Vous payez la création une fois. Si vous voulez que j’héberge le site, c’est 30 €/mois. Toute modification ou amélioration se facture à part, au taux journalier — pas dans l’hébergement.",
   commitment:
-    "Engagement 12 mois, puis renouvellement automatique. Pendant toute la durée, votre site reste en ligne et géré par nos soins.",
+    "Hébergement : engagement initial 12 mois, puis reconduction. Résiliation selon le contrat.",
   evolutionNote:
-    "Petite évolution = nouveau texte, section ou formulaire de contact. Besoin plus avancé (réservation, paiement, espace client…) = étudié en projet sur-mesure, à part.",
+    "Changer un texte, ajouter une section, une réservation, un espace client… = devis au TJM (ou forfait jours), distinct de l’hébergement.",
 };
 
-export const pricingAbonnement: PricingAbonnementCard[] = [
+/** Cartes affichées sur la page d’accueil. */
+export const pricingOffers: PricingOfferCard[] = [
   {
-    id: "essentiel",
-    title: "Essentiel",
-    tagline:
-      "Zéro souci technique. On s'occupe de tout pendant que vous vous concentrez sur votre activité.",
-    summary: "Votre site est en ligne et sécurisé — vous n'avez rien à gérer.",
-    price: "49 €",
-    period: "/mois",
+    id: "creation",
+    title: "Création",
+    tagline: "Votre site vitrine conçu et mis en ligne.",
+    summary: "Design, pages essentielles et formulaire de contact — une seule fois.",
+    price: "149 €",
+    period: " une fois",
     features: [
-      { text: "Jusqu'à 3 pages" },
-      {
-        text: "Site en ligne 24h/24 + adresse web",
-        detail: "Hébergement + nom de domaine inclus (ex. votresite.fr).",
-      },
-      {
-        text: "Connexion sécurisée + sauvegarde chaque semaine",
-        detail:
-          "Site sécurisé pour vos visiteurs, avec une copie de secours créée automatiquement chaque semaine.",
-      },
-      {
-        text: "Surveillance du site",
-        detail: "Monitoring = on vérifie automatiquement que le site reste disponible.",
-      },
-      { text: "Support par e-mail (réponse sous 48h)" },
-      { text: "Modifications de textes ou photos : sur devis" },
+      { text: "Site vitrine (jusqu’à ~3–5 pages)" },
+      { text: "Design personnalisé" },
+      { text: "Formulaire de contact" },
+      { text: "Mise en ligne initiale" },
     ],
-    cta: "Choisir Essentiel",
-    ctaSubject: "CodeByToma — Abonnement Essentiel",
+    cta: "Demander une création",
+    ctaSubject: "CodeByToma — Création de site",
   },
   {
-    id: "serenite",
-    title: "Sérénité",
-    tagline: "Votre site reste vivant et à jour, sans jamais y penser.",
+    id: "hebergement",
+    title: "Hébergement",
+    tagline: "Uniquement si vous voulez que j’héberge le site chez moi.",
     summary:
-      "Comme Essentiel, plus 2 mises à jour de contenu par mois — textes, photos, pages simples.",
-    price: "65 €",
+      "Le site reste en ligne, sécurisé et surveillé. Pas de modifications incluses.",
+    price: "30 €",
     period: "/mois",
     features: [
-      { text: "Tout Essentiel inclus" },
       {
-        text: "Sauvegarde quotidienne + récupération rapide",
-        detail:
-          "Une sauvegarde est créée chaque jour. En cas de problème, on peut restaurer rapidement une version saine.",
+        text: "Hébergement + nom de domaine",
+        detail: "Ex. votresite.fr — site accessible 24h/24.",
       },
       {
-        text: "Visibilité Google & site plus rapide",
-        detail:
-          "SEO de base = titres, descriptions et structure mieux comprises par Google, avec des pages plus rapides à charger.",
+        text: "HTTPS + sauvegardes",
+        detail: "Connexion sécurisée et copies de secours régulières.",
       },
-      { text: "Support prioritaire (réponse sous 24h)" },
-      { text: "2 modifications de contenu / mois incluses" },
+      {
+        text: "Surveillance de disponibilité",
+        detail: "On vérifie que le site reste accessible.",
+      },
+      {
+        text: "Modifications & améliorations : hors forfait",
+        detail: "Facturées au TJM, sur devis.",
+      },
     ],
-    cta: "Choisir Sérénité",
-    ctaSubject: "CodeByToma — Abonnement Sérénité",
+    cta: "Choisir l’hébergement",
+    ctaSubject: "CodeByToma — Hébergement 30 €/mois",
     featured: true,
-    badge: "⭐ Le plus choisi",
+    badge: "Optionnel",
   },
   {
-    id: "premium",
-    title: "Premium",
-    tagline:
-      "Votre site évolue avec votre activité — avec un vrai suivi, mois après mois.",
+    id: "tjm",
+    title: "Évolutions & projets",
+    tagline: "Améliorations, nouvelles fonctions, sur-mesure.",
     summary:
-      "L'accompagnement le plus complet : plus de mises à jour, des évolutions régulières et un interlocuteur dédié.",
-    price: "159 €",
-    period: "/mois",
+      "Tout ce qui n’est pas de l’hébergement : au TJM ou en forfait jours, sur devis.",
+    price: "380 €",
+    period: "/jour",
     features: [
-      { text: "Autant de pages que nécessaire" },
-      { text: "Tout Sérénité inclus" },
-      { text: "5 modifications de contenu / mois incluses" },
-      { text: "Point mensuel de 15 min (objectifs & priorités)" },
-      { text: "Jusqu'à 3 h d'évolutions / mois" },
+      { text: "Modifications de contenu ou de design" },
+      { text: "Nouvelles pages ou sections" },
       {
-        text: "Rapport mensuel de visibilité",
-        detail:
-          "Nombre de visites, pages les plus vues et performance du site — pour suivre concrètement vos résultats.",
+        text: "Fonctions métier",
+        detail: "Réservation, espace client, e-commerce, automatisations…",
       },
-      { text: "Changement de thème principal possible" },
-      { text: "Priorité sur les projets sur-mesure (réservation, espace client…)" },
+      { text: "Forfait jours possible si le périmètre est clair" },
+      {
+        text: "Jamais inclus dans les 30 € d’hébergement",
+      },
     ],
-    cta: "Choisir Premium",
-    ctaSubject: "CodeByToma — Abonnement Premium",
+    cta: "Parler de mon projet",
+    ctaSubject: "CodeByToma — Projet / TJM",
   },
 ];
 
+/** @deprecated alias — compat imports anciens */
+export const pricingAbonnement = pricingOffers;
+export const subscriptionSection = offersSection;
+
 export const surMesureSection = {
   id: "sur-mesure",
-  title: "Votre activité évolue ? On va plus loin.",
-  text: "Réservation en ligne, espace client, devis automatisés, boutique en ligne… Quand votre site a besoin de fonctions spécifiques à votre métier, on en discute ensemble — sans engagement sur une grille fixe.",
+  title: "Un besoin précis ? On chiffre au TJM.",
+  text: "Réservation, espace client, boutique, automatisation… On définit le périmètre ensemble, puis on facture en forfait jours ou au taux journalier — séparément de l’hébergement.",
   cta: "Discutons de votre projet",
   ctaSubject: "CodeByToma — Projet sur-mesure",
 };

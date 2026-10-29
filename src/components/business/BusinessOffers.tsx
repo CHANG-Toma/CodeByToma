@@ -7,10 +7,11 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import {
   setupFee,
-  subscriptionSection,
-  pricingAbonnement,
+  hostingFee,
+  offersSection,
+  pricingOffers,
   surMesureSection,
-  type PricingAbonnementCard,
+  type PricingOfferCard,
   type PricingFeature,
 } from "@/data/pricing";
 import { showcaseProjects, type ShowcaseProject } from "@/data/businessOffers";
@@ -35,7 +36,7 @@ const CtaLink = ({
       "group mt-8 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-[13px] font-medium transition-all",
       featured
         ? "bg-snow text-ink hover:opacity-90"
-        : "border border-cbtBorder text-snow hover:border-cbtBorderStrong"
+        : "border border-cbtBorder text-snow hover:border-cbtBorderStrong",
     )}
   >
     {children}
@@ -45,77 +46,34 @@ const CtaLink = ({
 const FeatureItem = ({
   feature,
   featured,
-  emphasize,
 }: {
   feature: PricingFeature;
   featured: boolean;
-  emphasize?: boolean;
 }) => (
   <li className="flex items-start gap-2.5 text-[13px] leading-relaxed text-mist">
     <Check
       className={cn(
         "mt-0.5 h-3.5 w-3.5 shrink-0",
-        featured ? "text-snow/70" : "text-snow/50"
+        featured ? "text-snow/70" : "text-snow/50",
       )}
       strokeWidth={1.75}
     />
     <span className="min-w-0 flex-1">
-      <span className={cn(emphasize && "font-medium text-snow")}>
-        {feature.text}
-      </span>
-      {feature.detail && (
+      <span>{feature.text}</span>
+      {feature.detail ? (
         <span className="mt-1.5 block border-l-2 border-snow/15 pl-2.5 text-[12px] leading-relaxed text-mist/75">
           {feature.detail}
         </span>
-      )}
+      ) : null}
     </span>
   </li>
 );
 
-const PricingBreakdown = ({
-  monthlyPrice,
-  monthlyPeriod,
-  featured,
-}: {
-  monthlyPrice: string;
-  monthlyPeriod: string;
-  featured: boolean;
-}) => (
-  <div
-    className={cn(
-      "mt-6 overflow-hidden rounded-xl border",
-      featured ? "border-snow/25 bg-snow/[0.04]" : "border-cbtBorder bg-ink/30"
-    )}
-  >
-    <div className="flex items-center justify-between gap-3 border-b border-cbtBorder px-4 py-3">
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-mist/65">
-          Création du site
-        </p>
-        <p className="mt-0.5 text-[12px] text-mist/75">Une seule fois, au démarrage</p>
-      </div>
-      <p className="text-lg font-semibold text-snow">{setupFee.amount} €</p>
-    </div>
-    <div className="flex items-end justify-between gap-3 px-4 py-4">
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-mist/65">
-          Abonnement
-        </p>
-        <p className="mt-0.5 text-[12px] text-mist/75">Chaque mois ensuite</p>
-      </div>
-      <p className="text-[2rem] font-semibold leading-none tracking-tight text-snow">
-        {monthlyPrice}
-        <span className="text-base font-normal text-mist">{monthlyPeriod}</span>
-      </p>
-    </div>
-  </div>
-);
-
-const AbonnementCard = ({
+const OfferCard = ({
   card,
   index,
 }: {
-  card: PricingAbonnementCard;
+  card: PricingOfferCard;
   index: number;
 }) => {
   const isFeatured = card.featured === true;
@@ -130,7 +88,7 @@ const AbonnementCard = ({
         "relative flex h-full flex-col rounded-2xl border p-6 md:p-7",
         isFeatured
           ? "border-snow/35 bg-surface shadow-[0_16px_48px_-20px_rgba(0,0,0,0.55)] md:-mt-1 md:mb-1"
-          : "border-cbtBorder bg-cbtFill/15 hover:border-cbtBorderStrong"
+          : "border-cbtBorder bg-cbtFill/15 hover:border-cbtBorderStrong",
       )}
     >
       {card.badge ? (
@@ -144,25 +102,40 @@ const AbonnementCard = ({
       <h3 className="text-xl font-semibold text-snow">{card.title}</h3>
       <p className="mt-2 text-[13px] leading-relaxed text-mist">{card.tagline}</p>
 
-      <PricingBreakdown
-        monthlyPrice={card.price}
-        monthlyPeriod={card.period}
-        featured={isFeatured}
-      />
+      <div
+        className={cn(
+          "mt-6 overflow-hidden rounded-xl border px-4 py-4",
+          isFeatured
+            ? "border-snow/25 bg-snow/[0.04]"
+            : "border-cbtBorder bg-ink/30",
+        )}
+      >
+        <p className="text-[2rem] font-semibold leading-none tracking-tight text-snow">
+          {card.price}
+          <span className="text-base font-normal text-mist">{card.period}</span>
+        </p>
+        {card.id === "hebergement" ? (
+          <p className="mt-2 text-[12px] text-mist/75">
+            En plus de la création ({setupFee.amount} €) si le site est chez moi
+          </p>
+        ) : null}
+        {card.id === "creation" ? (
+          <p className="mt-2 text-[12px] text-mist/75">
+            Hébergement optionnel : {hostingFee.amount} €/mois
+          </p>
+        ) : null}
+      </div>
 
       <p className="mt-4 text-[13px] font-medium leading-snug text-snow/90">
         {card.summary}
       </p>
 
       <ul className="mt-6 flex-1 space-y-2.5 border-t border-cbtBorder pt-6">
-        {card.features.map((feature, featureIndex) => (
+        {card.features.map((feature) => (
           <FeatureItem
             key={feature.text}
             feature={feature}
             featured={isFeatured}
-            emphasize={
-              featureIndex === 0 && /pages|illimitées/i.test(feature.text)
-            }
           />
         ))}
       </ul>
@@ -207,7 +180,7 @@ const ProjectPreview = ({ project }: { project: ShowcaseProject }) => (
     className={cn(
       "relative aspect-[16/10] overflow-hidden rounded-lg bg-gradient-to-br",
       !project.image && project.previewFrom,
-      !project.image && project.previewTo
+      !project.image && project.previewTo,
     )}
   >
     {project.image ? (
@@ -307,29 +280,27 @@ const BusinessOffers = () => {
           className="max-w-2xl"
         >
           <p className="text-[12px] font-medium uppercase tracking-[0.16em] text-mist/70">
-            {subscriptionSection.label}
+            {offersSection.label}
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight text-snow md:text-[1.85rem]">
-            {subscriptionSection.heading}
+            {offersSection.heading}
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-mist md:text-base">
-            {subscriptionSection.description}
+            {offersSection.description}
           </p>
         </motion.div>
 
-        <div className="mt-10">
-          <div className="grid gap-5 lg:grid-cols-3 lg:items-stretch">
-            {pricingAbonnement.map((card, i) => (
-              <AbonnementCard key={card.id} card={card} index={i} />
-            ))}
-          </div>
+        <div className="mt-10 grid gap-5 lg:grid-cols-3 lg:items-stretch">
+          {pricingOffers.map((card, i) => (
+            <OfferCard key={card.id} card={card} index={i} />
+          ))}
         </div>
 
         <p className="mt-10 text-center text-[13px] text-mist/80">
-          {subscriptionSection.commitment}
+          {offersSection.commitment}
         </p>
         <p className="mx-auto mt-3 max-w-2xl text-center text-[12px] leading-relaxed text-mist/60">
-          {subscriptionSection.evolutionNote}
+          {offersSection.evolutionNote}
         </p>
 
         <SurMesureBanner />
@@ -349,9 +320,9 @@ const BusinessOffers = () => {
               Découvrez nos réalisations
             </h3>
             <p className="mt-4 text-[15px] leading-relaxed text-mist">
-              Exemples de sites livrés dans le cadre de l&apos;abonnement
-              CodeByToma — création 149 €, puis formule mensuelle au choix.
-              Projets plus complexes étudiés en sur-mesure.
+              Exemples de sites vitrine — création {setupFee.amount} €,
+              hébergement optionnel {hostingFee.amount} €/mois. Projets plus
+              poussés chiffrés au TJM.
             </p>
           </motion.div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

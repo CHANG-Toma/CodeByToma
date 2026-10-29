@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getClient } from "@/server/application/clients";
 import { getInvoice } from "@/server/application/invoices";
 import { assertValidDashboardSlug } from "@/server/infrastructure/auth/dashboard-path";
-import { requireSession } from "@/server/infrastructure/auth/session";
+import { requireAdmin } from "@/server/infrastructure/auth/session";
 import { generateInvoicePdf } from "@/server/infrastructure/pdf/invoice-pdf";
 import { DomainError } from "@/server/domain/errors";
 
@@ -12,7 +12,7 @@ export async function GET(_request: Request, { params }: Params) {
   try {
     const { dashboardSlug, id } = await params;
     assertValidDashboardSlug(dashboardSlug);
-    await requireSession();
+    await requireAdmin();
 
     const invoice = await getInvoice(id);
     const client = await getClient(invoice.clientId);

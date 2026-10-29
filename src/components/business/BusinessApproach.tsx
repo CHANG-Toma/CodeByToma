@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { hostingFee, setupFee } from "@/data/pricing";
 
 const BusinessApproach = () => {
   return (
@@ -24,13 +25,14 @@ const BusinessApproach = () => {
           </h2>
           <div className="mt-6 max-w-2xl space-y-4 text-[15px] leading-relaxed text-mist md:text-base">
             <p>
-              Nous créons votre site (149 €), puis nous gérons l&apos;hébergement, la maintenance et la performance
-              au quotidien via votre abonnement.
+              Je crée votre site ({setupFee.amount} €). Si vous le souhaitez, je
+              l’héberge ({hostingFee.amount} €/mois) : mise en ligne, sécurité,
+              sauvegardes — sans y toucher au contenu.
             </p>
             <p className="text-snow">
-              Quand votre activité grandit, montez de palier ou passez en
-              sur-mesure — réservation, devis, espace client — sans tout
-              recommencer.
+              Quand vous voulez faire évoluer le site — texte, section,
+              réservation, espace client — on chiffre au TJM, clairement, en
+              dehors de l’hébergement.
             </p>
           </div>
         </motion.div>

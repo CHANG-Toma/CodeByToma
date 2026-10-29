@@ -30,7 +30,10 @@ export default async function NewQuotePage({ params, searchParams }: Props) {
 
   return (
     <div>
-      <PageHeader title="Nouveau devis" description="Lignes et totaux recalculés serveur." />
+      <PageHeader
+        title="Nouveau devis"
+        description="Presets : création 149 € · hébergement 30 €/mois · TJM (évolutions hors hébergement)."
+      />
       <Panel className="max-w-3xl space-y-4">
         <form action={action} className="space-y-4">
           <label className="block text-sm">

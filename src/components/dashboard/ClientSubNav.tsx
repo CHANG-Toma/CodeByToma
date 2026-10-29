@@ -6,7 +6,6 @@ import {
   CreditCard,
   FileText,
   Receipt,
-  RefreshCw,
   UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,7 +15,6 @@ export type ClientTabCounts = {
   quotes: number;
   invoices: number;
   payments: number;
-  subscriptions: number;
 };
 
 type Props = {
@@ -46,13 +44,6 @@ const TABS = [
     label: "Paiements",
     icon: CreditCard,
     countKey: "payments" as const,
-  },
-  {
-    key: "subscriptions",
-    href: "subscriptions",
-    label: "Abonnements",
-    icon: RefreshCw,
-    countKey: "subscriptions" as const,
   },
   { key: "overview", href: "overview", label: "Fiche", icon: UserRound },
 ] as const;

@@ -17,7 +17,7 @@ const body = Outfit({
 export const metadata: Metadata = {
   title: "Maison Lune — Démo Site Vitrine",
   description:
-    "Exemple CodeByToma : site vitrine restaurant — création 149 €, abonnement dès 49 €/mois.",
+    "Exemple CodeByToma : site vitrine restaurant — création 149 €, hébergement 30 €/mois.",
   robots: { index: false, follow: false },
 };
 

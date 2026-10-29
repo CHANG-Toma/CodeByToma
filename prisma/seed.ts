@@ -18,11 +18,12 @@ async function main() {
 
   const user = await prisma.user.upsert({
     where: { email },
-    update: { passwordHash, name: "Admin CodeByToma" },
+    update: { passwordHash, name: "Admin CodeByToma", role: "admin" },
     create: {
       email,
       passwordHash,
       name: "Admin CodeByToma",
+      role: "admin",
     },
   });
 
@@ -40,9 +41,15 @@ async function main() {
         label: offer.label,
         description: offer.description,
         priceCents: offer.priceCents,
+        isActive: true,
       },
     });
   }
+
+  // Anciennes formules éventuelles encore en base
+  await prisma.catalogOffer.deleteMany({
+    where: { kind: { notIn: ["setup", "hosting", "custom"] } },
+  }).catch(() => undefined);
 
   // Clients fictifs uniquement — pas de vraies PII
   const clientA = await prisma.client.upsert({
@@ -91,10 +98,10 @@ async function main() {
         status: "sent",
         sentAt: new Date(),
         validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        subtotalCents: 21400,
+        subtotalCents: 17900,
         taxCents: 0,
-        totalCents: 21400,
-        notes: "Création + 1er mois Sérénité",
+        totalCents: 17900,
+        notes: "Création + 1er mois d'hébergement",
         lines: {
           create: [
             {
@@ -105,36 +112,14 @@ async function main() {
               position: 0,
             },
             {
-              label: "Abonnement Sérénité — 1er mois",
+              label: "Hébergement — 1er mois",
               quantity: 1,
-              unitPriceHtCents: 6500,
+              unitPriceHtCents: 3000,
               taxRatePercent: 0,
               position: 1,
             },
           ],
         },
-      },
-    });
-
-    await prisma.subscription.create({
-      data: {
-        clientId: clientA.id,
-        offerKind: "serenite",
-        label: "Abonnement Sérénité",
-        priceCents: 6500,
-        status: "active",
-        startDate: new Date(),
-        endDate: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 12,
-          new Date().getDate(),
-        ),
-        nextBillingDate: new Date(
-          new Date().getFullYear(),
-          new Date().getMonth() + 1,
-          new Date().getDate(),
-        ),
-        commitmentMonths: 12,
       },
     });
 
@@ -147,8 +132,35 @@ async function main() {
     create: { id: "default", year: new Date().getFullYear(), counter: 0 },
   });
 
+  const clientPassword =
+    process.env.AUTH_CLIENT_PASSWORD ?? "ClientDemo-Strong1";
+  const clientPolicy = validatePasswordPolicy(clientPassword);
+  if (!clientPolicy.ok) {
+    throw new Error(`AUTH_CLIENT_PASSWORD non conforme : ${clientPolicy.message}`);
+  }
+  const clientPasswordHash = await bcrypt.hash(clientPassword, 12);
+  const clientEmail = "alice.martin@exemple-demo.fr";
+
+  await prisma.user.upsert({
+    where: { email: clientEmail },
+    update: {
+      passwordHash: clientPasswordHash,
+      name: "Alice Martin",
+      role: "client",
+      clientId: clientA.id,
+    },
+    create: {
+      email: clientEmail,
+      passwordHash: clientPasswordHash,
+      name: "Alice Martin",
+      role: "client",
+      clientId: clientA.id,
+    },
+  });
+
   console.log("Seed OK — admin:", user.email);
   console.log("Clients démo:", clientA.email, clientB.email);
+  console.log("Espace client démo:", clientEmail);
 }
 
 main()

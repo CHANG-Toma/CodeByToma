@@ -16,6 +16,9 @@ export default async function DashboardAppLayout({ children, params }: Props) {
   if (!session) {
     redirect("/connexion");
   }
+  if (session.role !== "admin") {
+    redirect("/espace");
+  }
 
   return (
     <DashboardShell slug={dashboardSlug}>{children}</DashboardShell>

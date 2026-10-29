@@ -416,7 +416,7 @@ const SalonDemo = () => {
             <Link href="/#offres" className="underline underline-offset-2 hover:text-[var(--sv-ink)]">
               CodeByToma
             </Link>
-            {" "}— création 149 € + abonnement
+            {" "}— création 149 € · hébergement 30 €/mois
           </p>
         </div>
       </footer>

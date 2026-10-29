@@ -1,11 +1,11 @@
 "use client";
 
+import { hostingFee, setupFee } from "@/data/pricing";
+
 const items = [
-  "Création 149 €",
-  "Abonnement dès 49 €/mois",
-  "Abonnement Essentiel",
-  "Abonnement Sérénité",
-  "Abonnement Premium",
+  `Création ${setupFee.amount} €`,
+  `Hébergement ${hostingFee.amount} €/mois`,
+  "Évolutions au TJM",
   "Sur-mesure",
   "Devis gratuit",
   "CodeByToma",

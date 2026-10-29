@@ -19,14 +19,6 @@ export const INVOICE_STATUSES = [
 
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
-export const SUBSCRIPTION_STATUSES = [
-  "active",
-  "paused",
-  "cancelled",
-] as const;
-
-export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
-
 const QUOTE_TRANSITIONS: Record<QuoteStatus, readonly QuoteStatus[]> = {
   draft: ["sent", "rejected"],
   sent: ["accepted", "rejected", "expired", "draft"],
@@ -41,15 +33,6 @@ const INVOICE_TRANSITIONS: Record<InvoiceStatus, readonly InvoiceStatus[]> = {
   partially_paid: ["paid", "overdue", "cancelled"],
   paid: [],
   overdue: ["partially_paid", "paid", "cancelled"],
-  cancelled: [],
-};
-
-const SUBSCRIPTION_TRANSITIONS: Record<
-  SubscriptionStatus,
-  readonly SubscriptionStatus[]
-> = {
-  active: ["paused", "cancelled"],
-  paused: ["active", "cancelled"],
   cancelled: [],
 };
 
@@ -84,23 +67,6 @@ export function assertInvoiceTransition(
 ): void {
   if (!canTransitionInvoice(from, to)) {
     throw new Error(`Transition facture interdite : ${from} → ${to}`);
-  }
-}
-
-export function canTransitionSubscription(
-  from: SubscriptionStatus,
-  to: SubscriptionStatus,
-): boolean {
-  if (from === to) return true;
-  return SUBSCRIPTION_TRANSITIONS[from].includes(to);
-}
-
-export function assertSubscriptionTransition(
-  from: SubscriptionStatus,
-  to: SubscriptionStatus,
-): void {
-  if (!canTransitionSubscription(from, to)) {
-    throw new Error(`Transition abonnement interdite : ${from} → ${to}`);
   }
 }
 

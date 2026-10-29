@@ -336,7 +336,7 @@ const GastroDemo = () => {
           <p className="mx-auto mt-4 max-w-md text-[15px] text-[var(--mg-muted)]">
             Démo réalisée par{" "}
             <strong className="text-[var(--mg-ink)]">CodeByToma</strong> —
-            création 149 €, puis abonnement site web pour restaurants, artisans
+            création 149 €, hébergement optionnel et évolutions au TJM pour restaurants, artisans
             et indépendants.
           </p>
 
@@ -376,7 +376,7 @@ const GastroDemo = () => {
             <Link href="/#offres" className="cursor-target text-[var(--mg-ink)] hover:underline">
               CodeByToma
             </Link>
-            {" "}— création 149 € + abonnement
+            {" "}— création 149 € · hébergement 30 €/mois
           </p>
         </div>
       </footer>

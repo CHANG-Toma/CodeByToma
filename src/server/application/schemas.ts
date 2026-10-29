@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { OFFER_KINDS } from "@/server/domain/catalog";
 import {
   INVOICE_STATUSES,
   QUOTE_STATUSES,
-  SUBSCRIPTION_STATUSES,
 } from "@/server/domain/status-transitions";
 
 export const lineInputSchema = z.object({
@@ -66,24 +64,29 @@ export const paymentCreateSchema = z.object({
   notes: z.string().max(1000).optional().nullable(),
 });
 
-export const subscriptionCreateSchema = z.object({
-  clientId: z.string().min(1),
-  offerKind: z.enum(OFFER_KINDS),
-  label: z.string().min(1).max(200).optional(),
-  priceCents: z.number().int().nonnegative().optional(),
-  startDate: z.coerce.date(),
-  endDate: z.coerce.date().optional().nullable(),
-  nextBillingDate: z.coerce.date().optional().nullable(),
-  commitmentMonths: z.number().int().positive().default(12),
-  notes: z.string().max(5000).optional().nullable(),
-});
-
-export const subscriptionStatusSchema = z.object({
-  status: z.enum(SUBSCRIPTION_STATUSES),
-});
-
 export const signInSchema = z.object({
   email: z.string().email().max(320),
   /** Connexion : borne large ; la politique stricte s'applique à la création / reset. */
   password: z.string().min(1).max(128),
+});
+
+export const clientAccessCreateSchema = z.object({
+  clientId: z.string().min(1),
+  email: z.string().email().max(320),
+  password: z.string().min(1).max(128),
+  name: z.string().min(1).max(200).optional().nullable(),
+});
+
+/** Champs que le client peut modifier lui-même (pas les notes internes). */
+export const portalProfileUpdateSchema = z.object({
+  name: z.string().min(1).max(200),
+  email: z.string().email().max(320),
+  phone: z.string().max(40).optional().nullable(),
+  companyName: z.string().max(200).optional().nullable(),
+  billingAddress: z.string().max(500).optional().nullable(),
+  billingCity: z.string().max(120).optional().nullable(),
+  billingPostalCode: z.string().max(20).optional().nullable(),
+  billingCountry: z.string().length(2).default("FR"),
+  consentMarketing: z.boolean().default(false),
+  consentContract: z.boolean().default(true),
 });

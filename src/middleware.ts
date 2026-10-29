@@ -14,23 +14,39 @@ function getSecret(): Uint8Array | null {
   return new TextEncoder().encode(secret);
 }
 
+type TokenClaims = {
+  role: "admin" | "client";
+};
+
+async function readClaims(
+  token: string,
+  secret: Uint8Array,
+): Promise<TokenClaims | null> {
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    const role = payload.role === "client" ? "client" : "admin";
+    return { role };
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Filet serveur : protège le dashboard.
- * Non authentifié → /connexion (page unique, pas de /signin doublon).
+ * Filet serveur : dashboard admin + espace client.
+ * Non authentifié → /connexion (page unique).
  */
 export async function middleware(request: NextRequest) {
   const slug = getDashboardSlug();
-  if (!slug) return NextResponse.next();
-
   const { pathname } = request.nextUrl;
-  const prefix = `/${slug}`;
+  const secret = getSecret();
+  const token = request.cookies.get(COOKIE_NAME)?.value;
 
-  if (!pathname.startsWith(prefix)) {
+  const isEspace = pathname === "/espace" || pathname.startsWith("/espace/");
+  const isDashboard = Boolean(slug) && pathname.startsWith(`/${slug}`);
+
+  if (!isEspace && !isDashboard) {
     return NextResponse.next();
   }
-
-  const token = request.cookies.get(COOKIE_NAME)?.value;
-  const secret = getSecret();
 
   if (!token || !secret) {
     const url = request.nextUrl.clone();
@@ -38,24 +54,32 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  try {
-    await jwtVerify(token, secret);
-    return NextResponse.next();
-  } catch {
+  const claims = await readClaims(token, secret);
+  if (!claims) {
     const url = request.nextUrl.clone();
     url.pathname = "/connexion";
     const res = NextResponse.redirect(url);
     res.cookies.set(COOKIE_NAME, "", { path: "/", maxAge: 0 });
     return res;
   }
+
+  if (isDashboard && claims.role !== "admin") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/espace";
+    return NextResponse.redirect(url);
+  }
+
+  if (isEspace && claims.role !== "client") {
+    const url = request.nextUrl.clone();
+    url.pathname = slug ? `/${slug}` : "/connexion";
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Toutes les routes sauf assets Next / fichiers statiques courants.
-     * Le filtre fin se fait dans le middleware via DASHBOARD_BASE_PATH.
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

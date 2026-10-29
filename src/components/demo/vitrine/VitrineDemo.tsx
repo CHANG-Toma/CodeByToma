@@ -372,7 +372,7 @@ const VitrineDemo = () => {
           <p className="mt-5 max-w-md text-[15px] font-light leading-relaxed text-white/55">
             Démo vitrine coaching — réalisée avec{" "}
             <strong className="font-medium text-white/85">CodeByToma</strong>
-            . Création 149 €, puis abonnement dès 49 €/mois.
+            . Création 149 €, hébergement optionnel 30 €/mois.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
@@ -402,7 +402,7 @@ const VitrineDemo = () => {
             <Link href="/#offres" className="text-[var(--vk-ink)] hover:underline">
               CodeByToma
             </Link>
-            {" "}— création 149 € + abonnement
+            {" "}— création 149 € · hébergement 30 €/mois
           </p>
         </div>
       </footer>

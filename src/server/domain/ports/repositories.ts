@@ -1,9 +1,6 @@
 import type { OfferKind } from "../catalog";
-import type {
-  InvoiceStatus,
-  QuoteStatus,
-  SubscriptionStatus,
-} from "../status-transitions";
+import type { UserRole } from "../roles";
+import type { InvoiceStatus, QuoteStatus } from "../status-transitions";
 
 export type ClientRecord = {
   id: string;
@@ -69,23 +66,6 @@ export type InvoiceRecord = {
   createdAt: Date;
   updatedAt: Date;
   lines: LineRecord[];
-};
-
-export type SubscriptionRecord = {
-  id: string;
-  clientId: string;
-  offerKind: OfferKind;
-  label: string;
-  priceCents: number;
-  currency: string;
-  status: SubscriptionStatus;
-  startDate: Date;
-  endDate: Date | null;
-  nextBillingDate: Date | null;
-  commitmentMonths: number;
-  notes: string | null;
-  createdAt: Date;
-  updatedAt: Date;
 };
 
 export type PaymentRecord = {
@@ -210,24 +190,6 @@ export type IInvoiceRepository = {
   countByStatus(status: InvoiceStatus): Promise<number>;
 };
 
-export type ISubscriptionRepository = {
-  findById(id: string): Promise<SubscriptionRecord | null>;
-  list(filters?: {
-    clientId?: string;
-    status?: SubscriptionStatus;
-  }): Promise<SubscriptionRecord[]>;
-  create(
-    data: Omit<SubscriptionRecord, "id" | "createdAt" | "updatedAt">,
-  ): Promise<SubscriptionRecord>;
-  update(
-    id: string,
-    data: Partial<
-      Omit<SubscriptionRecord, "id" | "createdAt" | "updatedAt" | "clientId">
-    >,
-  ): Promise<SubscriptionRecord>;
-  countActive(): Promise<number>;
-};
-
 export type IPaymentRepository = {
   findById(id: string): Promise<PaymentRecord | null>;
   list(filters?: { invoiceId?: string }): Promise<PaymentRecord[]>;
@@ -252,11 +214,27 @@ export type IAuditLogRepository = {
   }): Promise<void>;
 };
 
+export type AuthUserRecord = {
+  id: string;
+  email: string;
+  passwordHash: string;
+  name: string | null;
+  role: UserRole;
+  clientId: string | null;
+};
+
 export type IUserRepository = {
-  findByEmail(
-    email: string,
-  ): Promise<{ id: string; email: string; passwordHash: string; name: string | null } | null>;
+  findByEmail(email: string): Promise<AuthUserRecord | null>;
   findById(
     id: string,
-  ): Promise<{ id: string; email: string; name: string | null } | null>;
+  ): Promise<Omit<AuthUserRecord, "passwordHash"> | null>;
+  findByClientId(
+    clientId: string,
+  ): Promise<Omit<AuthUserRecord, "passwordHash"> | null>;
+  createClientAccess(data: {
+    email: string;
+    passwordHash: string;
+    name: string | null;
+    clientId: string;
+  }): Promise<Omit<AuthUserRecord, "passwordHash">>;
 };

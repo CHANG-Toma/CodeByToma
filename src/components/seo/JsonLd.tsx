@@ -57,8 +57,8 @@ const professionalService = {
   serviceType: [
     "Création de sites web",
     "Site vitrine",
-    "Maintenance de site web",
-    "Abonnement site internet",
+    "Hébergement de site web",
+    "Développement au TJM",
   ],
   provider: { "@id": `${SITE_URL}/#organization` },
   offers: [
@@ -68,34 +68,24 @@ const professionalService = {
       price: "149",
       priceCurrency: "EUR",
       description:
-        "Conception, développement et mise en ligne de votre site, quel que soit l'abonnement choisi.",
+        "Conception et mise en ligne d'un site vitrine (structure, design, pages essentielles).",
       url: `${SITE_URL}/#offres`,
     },
     {
       "@type": "Offer",
-      name: "Abonnement Essentiel",
-      price: "49",
+      name: "Hébergement",
+      price: "30",
       priceCurrency: "EUR",
       description:
-        "Jusqu'à 3 pages, hébergement, SSL, sauvegarde hebdomadaire, monitoring et support e-mail.",
+        "Site en ligne chez CodeByToma : HTTPS, sauvegardes, surveillance. Évolutions facturées au TJM.",
       url: `${SITE_URL}/#offres`,
     },
     {
       "@type": "Offer",
-      name: "Abonnement Sérénité",
-      price: "65",
+      name: "Évolutions & projets (TJM)",
       priceCurrency: "EUR",
       description:
-        "2 modifications de contenu / mois incluses, sauvegarde quotidienne, SEO de base et support prioritaire.",
-      url: `${SITE_URL}/#offres`,
-    },
-    {
-      "@type": "Offer",
-      name: "Abonnement Premium",
-      price: "159",
-      priceCurrency: "EUR",
-      description:
-        "Pages illimitées, tout Sérénité, 5 mises à jour / mois, point mensuel 15 min, 3 h d'évolutions / mois, rapport de visibilité et changement de thème possible.",
+        "Modifications, améliorations et projets sur-mesure — chiffrage au TJM ou forfait jours, hors hébergement.",
       url: `${SITE_URL}/#offres`,
     },
   ],
