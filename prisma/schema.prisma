@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OfferKind {
+  setup
+  essentiel
+  serenite
+  premium
+  custom
+}
+
+enum QuoteStatus {
+  draft
+  sent
+  accepted
+  rejected
+  expired
+}
+
+enum InvoiceStatus {
+  draft
+  issued
+  partially_paid
+  paid
+  overdue
+  cancelled
+}
+
+enum SubscriptionStatus {
+  active
+  paused
+  cancelled
+}
+
+enum PaymentMethod {
+  bank_transfer
+  card
+  cash
+  check
+  other
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+  refunded
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model Client {
+  id                String         @id @default(cuid())
+  name              String
+  email             String
+  phone             String?
+  companyName       String?
+  billingAddress    String?
+  billingCity       String?
+  billingPostalCode String?
+  billingCountry    String         @default("FR")
+  notes             String?
+  consentMarketing  Boolean        @default(false)
+  consentContract   Boolean        @default(true)
+  deletedAt         DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  quotes            Quote[]
+  invoices          Invoice[]
+  subscriptions     Subscription[]
+
+  @@index([email])
+  @@index([deletedAt])
+  @@index([name])
+}
+
+model CatalogOffer {
+  id          String    @id @default(cuid())
+  kind        OfferKind @unique
+  label       String
+  description String?
+  priceCents  Int
+  currency    String    @default("EUR")
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Quote {
+  id            String      @id @default(cuid())
+  number        String      @unique
+  clientId      String
+  client        Client      @relation(fields: [clientId], references: [id])
+  status        QuoteStatus @default(draft)
+  currency      String      @default("EUR")
+  validUntil    DateTime?
+  notes         String?
+  subtotalCents Int         @default(0)
+  taxCents      Int         @default(0)
+  totalCents    Int         @default(0)
+  acceptedAt    DateTime?
+  sentAt        DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  lines         QuoteLine[]
+  invoices      Invoice[]
+
+  @@index([clientId])
+  @@index([status])
+  @@index([number])
+}
+
+model QuoteLine {
+  id              String  @id @default(cuid())
+  quoteId         String
+  quote           Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  label           String
+  description     String?
+  quantity        Decimal @db.Decimal(12, 2)
+  unitPriceHtCents Int
+  taxRatePercent  Decimal @default(0) @db.Decimal(5, 2)
+  position        Int     @default(0)
+
+  @@index([quoteId])
+}
+
+model Invoice {
+  id              String          @id @default(cuid())
+  number          String          @unique
+  sequentialNumber Int
+  clientId        String
+  client          Client          @relation(fields: [clientId], references: [id])
+  quoteId         String?
+  quote           Quote?          @relation(fields: [quoteId], references: [id])
+  status          InvoiceStatus   @default(draft)
+  currency        String          @default("EUR")
+  issuedAt        DateTime?
+  dueAt           DateTime?
+  notes           String?
+  subtotalCents   Int             @default(0)
+  taxCents        Int             @default(0)
+  totalCents      Int             @default(0)
+  paidCents       Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  lines           InvoiceLine[]
+  payments        Payment[]
+
+  @@unique([sequentialNumber])
+  @@index([clientId])
+  @@index([status])
+  @@index([number])
+  @@index([dueAt])
+}
+
+model InvoiceLine {
+  id               String  @id @default(cuid())
+  invoiceId        String
+  invoice          Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  label            String
+  description      String?
+  quantity         Decimal @db.Decimal(12, 2)
+  unitPriceHtCents Int
+  taxRatePercent   Decimal @default(0) @db.Decimal(5, 2)
+  position         Int     @default(0)
+
+  @@index([invoiceId])
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  clientId         String
+  client           Client             @relation(fields: [clientId], references: [id])
+  offerKind        OfferKind
+  label            String
+  priceCents       Int
+  currency         String             @default("EUR")
+  status           SubscriptionStatus @default(active)
+  startDate        DateTime
+  endDate          DateTime?
+  nextBillingDate  DateTime?
+  commitmentMonths Int                @default(12)
+  notes            String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([nextBillingDate])
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice       @relation(fields: [invoiceId], references: [id])
+  amountCents Int
+  currency    String        @default("EUR")
+  method      PaymentMethod @default(bank_transfer)
+  status      PaymentStatus @default(completed)
+  paidAt      DateTime
+  reference   String?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([invoiceId])
+  @@index([status])
+  @@index([paidAt])
+}
+
+model InvoiceSequence {
+  id      String @id @default("default")
+  year    Int
+  counter Int    @default(0)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}

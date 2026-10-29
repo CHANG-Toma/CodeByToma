@@ -1,0 +1,30 @@
+---
+description: Principes SOLID et architecture maintenable
+alwaysApply: true
+---
+
+# Architecture SOLID
+
+## Règles
+
+- **SRP** : un module = une responsabilité (ex. `InvoicePdfService` ≠ `PaymentWebhookHandler`)
+- **OCP** : étendre via interfaces / stratégie (nouveau moyen de paiement sans réécrire le core)
+- **LSP / ISP** : interfaces étroites (`IInvoiceRepository`, `IPaymentGateway`) — pas de “god service”
+- **DIP** : le domaine ne dépend pas de Prisma/Stripe ; l’infra implémente les ports
+
+## Couches (cible)
+
+```
+app/ (UI + route handlers) → application/ (use-cases) → domain/ → infrastructure/
+```
+
+- Pas de logique métier dans les composants React
+- Pas d’accès DB direct depuis les pages : passer par use-cases / services
+- Validation des entrées aux frontières (Zod)
+- Erreurs typées métier ; ne jamais renvoyer stack traces au client
+
+## Anti-patterns interdits
+
+- `any` non justifié, god-objects, copy-paste de règles de TVA/statuts
+- Coupler Stripe/Prisma dans les composants UI
+- Features “au cas où” hors scope de la tâche demandée

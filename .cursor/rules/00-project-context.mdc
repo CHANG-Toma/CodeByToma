@@ -1,0 +1,33 @@
+---
+description: Contexte métier CodeByToma — lire avant toute feature dashboard / facturation
+alwaysApply: true
+---
+
+# CodeByToma — contexte projet
+
+Produit : activité solo (Toma Chang) — création de sites + abonnements maintenance.
+
+## Offres de référence (source de vérité métier)
+
+- Création unique : **149 €**
+- Abonnements : Essentiel **49 €/mois**, Sérénité **65 €/mois**, Premium **159 €/mois**
+- Engagement initial typique : **12 mois**, reconduction tacite
+- Sur-mesure (e-commerce, résa, espace client…) : hors grille, devis dédié
+- Données pricing actuelles : `src/data/pricing.ts` (site vitrine public)
+
+## Séparation des surfaces
+
+- **Site public** (`/`, demos) : marketing, SEO, pas de données clients
+- **Dashboard privé** : chemin **secret via env** (`DASHBOARD_BASE_PATH`) — jamais `/admin`, `/dashboard`, `/login`, `/backoffice`
+- Aucun lien public vers le dashboard ; exclu de `sitemap` / `robots` ; 404 si mauvais chemin
+- Ne jamais exposer PII, montants internes ou tokens dans le site public
+
+## Priorités produit dashboard
+
+1. Clients & contacts
+2. Devis → acceptation → facture
+3. Abonnements récurrents + frais de création
+4. Paiements & relances
+5. (Plus tard) agents IA / Gmail / todos
+
+Avant de coder : lire les rules SOLID, RGPD, DB et domaine facturation.

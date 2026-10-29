@@ -1,0 +1,29 @@
+---
+description: Conventions Next.js App Router pour le dashboard
+globs: "**/app/**/*.{ts,tsx},**/components/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Next.js — pratiques
+
+- App Router ; Server Components par défaut ; Client Components seulement si interaction
+- Mutations via Server Actions **ou** Route Handlers — choisir un style et rester cohérent
+- Types stricts ; Zod à la frontière ; shared types domaine ≠ types UI
+- UI : réutiliser Tailwind + patterns shadcn déjà présents ; pas de lib UI supplémentaire sans besoin
+- i18n UI en **français** (métier FR)
+- Accessibilité basique : labels, focus, contrastes
+- Pas de secrets `NEXT_PUBLIC_*`
+
+## Structure dashboard suggérée
+
+Préférer un segment dynamique / rewrite basé sur `DASHBOARD_BASE_PATH` (pas de dossier `admin` littéral dans l’URL) :
+
+```
+src/app/(private)/[dashboardSlug]/(auth)/login
+src/app/(private)/[dashboardSlug]/(app)/clients|quotes|invoices|payments|subscriptions
+src/server/domain | application | infrastructure
+```
+
+- Valider `dashboardSlug === process.env.DASHBOARD_BASE_PATH` (sans slash) → sinon `notFound()`
+- Interdire indexation ; aucun lien depuis le marketing
+- Préserver SEO public (`sitemap`, `robots`, metadata)

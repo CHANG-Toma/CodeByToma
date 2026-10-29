@@ -1,0 +1,27 @@
+---
+description: Domaine clients, devis, factures, paiements CodeByToma
+globs: "**/domain/**/*.{ts,tsx},**/billing/**/*,**/invoice*/**/*,**/quote*/**/*,**/payment*/**/*,**/client*/**/*"
+alwaysApply: false
+---
+
+# Domaine facturation
+
+## Entités minimales
+
+- **Client** : identité, contacts, adresse facturation, consentements
+- **Devis (Quote)** : lignes, TVA, validité, statut (`draft` → `sent` → `accepted` | `rejected` | `expired`)
+- **Facture (Invoice)** : n° séquentiel, lignes, totaux, statut (`draft` → `issued` → `partially_paid` | `paid` | `overdue` | `cancelled`)
+- **Abonnement (Subscription)** : offre (`essentiel`|`serenite`|`premium`), prix, période, dates, statut
+- **Paiement (Payment)** : montant, méthode, date, lien facture, référence externe
+- **Ligne** : label, quantité, prix unitaire HT, TVA %
+
+## Règles métier
+
+- Devis accepté peut générer facture(s) : création 149 € ± 1re période abo
+- Numéros facture **monotones** (pas de trou métier sans justification légale)
+- Totaux recalculés serveur (jamais faire confiance au client HTTP)
+- Transition de statuts explicite (state machine) — pas de status string libre
+
+## Offres catalogue (réf.)
+
+`setup_fee=14900` cts ; `essentiel=4900` ; `serenite=6500` ; `premium=15900` — surchargeables par client si besoin.

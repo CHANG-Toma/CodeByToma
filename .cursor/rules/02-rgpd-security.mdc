@@ -1,0 +1,34 @@
+---
+description: RGPD, sécurité et données personnelles
+alwaysApply: true
+---
+
+# RGPD & sécurité
+
+## Données personnelles
+
+- Minimisation : stocker uniquement ce qui sert au contrat / facturation
+- Bases légales : **contrat** (client/presta) + **intérêt légitime** limité (relances)
+- Droits : prévoir export / suppression client (soft-delete + anonymisation factures légales)
+- Pas de logs de PII (email, téléphone, IBAN, tokens)
+- Secrets uniquement via `.env` / Docker secrets — jamais commit
+
+## Auth dashboard
+
+- Chemin d’entrée **non prévisible** : `DASHBOARD_BASE_PATH` dans `.env` (ex. `/studio-xk7m2p`) — jamais de routes classiques `/admin`
+- Ne pas committer ni documenter l’URL réelle dans le README public (utiliser un placeholder)
+- Accès réservé (toi) : session httpOnly, Secure, SameSite
+- CSRF sur mutations ; rate-limit login ; messages d’erreur génériques
+- Toute route dashboard protégée **côté serveur** (middleware + check session) — obscurité ≠ sécurité seule
+
+## Facturation / conservation
+
+- Factures : conservation légale FR — **ne pas supprimer** le document comptable ; anonymiser le contact si droit à l’oubli
+- Chiffrement en transit (HTTPS) ; BDD non exposée hors réseau Docker
+
+## Checklist avant merge feature data
+
+- [ ] Validation Zod des inputs
+- [ ] Authz serveur
+- [ ] Pas de fuite d’erreur infra
+- [ ] Pas de PII dans logs / analytics

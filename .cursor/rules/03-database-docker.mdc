@@ -1,0 +1,32 @@
+---
+description: PostgreSQL Docker, schéma et migrations
+globs: docker-compose*.{yml,yaml},**/prisma/**/*,**/*schema*.prisma,**/*.sql,**/drizzle/**
+alwaysApply: false
+---
+
+# Base de données & Docker
+
+## Stack cible
+
+- PostgreSQL via `docker-compose` (volume nommé, healthcheck)
+- ORM : Prisma (préféré) ou Drizzle — **migrations versionnées** obligatoires
+- Jamais de `db push` en prod ; toujours migrate
+
+## Modélisation
+
+- UUID (ou cuid) en PK ; `createdAt` / `updatedAt` partout
+- Soft-delete clients (`deletedAt`) ; factures immuables après émission
+- Montants en **centimes (integer)** + devise `EUR`
+- Index sur email client, numéro devis/facture, `status`, dates d’échéance
+
+## Docker
+
+- Service `db` uniquement au MVP (pas Redis sauf besoin réel)
+- Credentials via `.env` ; ports bindés en local seulement
+- Documenter `docker compose up -d` dans le README dashboard
+
+## Interdit
+
+- SQLite en cible long terme pour la factu
+- Données seed avec vrais clients / vrais emails perso
+- Modifier le schéma sans migration + mise à jour des types domaine
