@@ -1,20 +1,40 @@
 import Link from "next/link";
-import { PageHeader, Panel } from "@/components/dashboard/ui";
+import { PageHeader, Panel, StatusBadge } from "@/components/dashboard/ui";
 import { hostingFee, setupFee, tjmFee } from "@/data/pricing";
-import { formatEur } from "@/server/domain/money";
+import { formatEur } from "@/lib/money";
+import { dashboardHref } from "@/lib/dashboard-href";
 import { getDashboardKpis } from "@/server/application/invoices";
-import { listQuotes } from "@/server/application/quotes";
-import { listUpcomingBillings } from "@/server/application/subscriptions";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
+import { listTodayActions } from "@/server/application/today-actions";
+import {
+  TODAY_ACTION_LABEL,
+  type TodayActionKind,
+} from "@/server/domain/today-actions";
 
 type Props = { params: Promise<{ dashboardSlug: string }> };
 
+function actionTone(
+  kind: TodayActionKind,
+): "danger" | "warn" | "info" | "neutral" {
+  switch (kind) {
+    case "invoice_overdue":
+    case "quote_expired":
+      return "danger";
+    case "subscription_due":
+    case "quote_follow_up":
+    case "quote_expiring":
+      return "warn";
+    case "accepted_quote_without_invoice":
+      return "info";
+    default:
+      return "neutral";
+  }
+}
+
 export default async function DashboardHomePage({ params }: Props) {
   const { dashboardSlug } = await params;
-  const [kpis, pendingQuotes, upcoming] = await Promise.all([
+  const [kpis, todayActions] = await Promise.all([
     getDashboardKpis(),
-    listQuotes({ status: "sent" }),
-    listUpcomingBillings(5),
+    listTodayActions(),
   ]);
 
   const cards = [
@@ -36,7 +56,7 @@ export default async function DashboardHomePage({ params }: Props) {
     {
       label: "Abonnements actifs",
       value: String(kpis.activeSubscriptions),
-      href: "subscriptions",
+      href: "clients",
     },
   ];
 
@@ -80,6 +100,80 @@ export default async function DashboardHomePage({ params }: Props) {
       </div>
 
       <div className="mt-8">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="text-sm font-medium text-dash-soft">
+              À faire aujourd’hui
+            </h2>
+            <p className="mt-1 text-sm text-dash-muted">
+              Relances, retards et échéances — règles métier, sans bot.
+            </p>
+          </div>
+          {todayActions.length > 0 ? (
+            <p className="text-xs text-dash-muted2">
+              {todayActions.length} action
+              {todayActions.length > 1 ? "s" : ""}
+            </p>
+          ) : null}
+        </div>
+
+        {todayActions.length === 0 ? (
+          <Panel>
+            <p className="text-sm font-medium text-dash-text">
+              Rien d’urgent pour l’instant
+            </p>
+            <p className="mt-1 text-sm text-dash-muted">
+              Pas de facture en retard, devis à relancer ni échéance
+              d’abonnement dans les 7 jours.
+            </p>
+          </Panel>
+        ) : (
+          <Panel className="overflow-x-auto p-0">
+            <ul className="divide-y divide-dash-border">
+              {todayActions.map((action) => (
+                <li key={action.id}>
+                  <Link
+                    href={action.href}
+                    className="flex flex-col gap-2 px-5 py-4 transition hover:bg-dash-hover sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <StatusBadge
+                          label={TODAY_ACTION_LABEL[action.kind]}
+                          tone={actionTone(action.kind)}
+                        />
+                        {action.clientLabel ? (
+                          <span className="text-xs text-dash-muted">
+                            {action.clientLabel}
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="truncate text-sm font-medium text-dash-text">
+                        {action.title}
+                      </p>
+                      <p className="text-xs text-dash-muted">{action.detail}</p>
+                    </div>
+                    <div className="shrink-0 text-left sm:text-right">
+                      {action.amountCents != null ? (
+                        <p className="text-sm font-medium text-dash-text">
+                          {formatEur(action.amountCents)}
+                        </p>
+                      ) : null}
+                      {action.dueAt ? (
+                        <p className="text-xs text-dash-muted2">
+                          {action.dueAt.toLocaleDateString("fr-FR")}
+                        </p>
+                      ) : null}
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+        )}
+      </div>
+
+      <div className="mt-8">
         <h2 className="mb-3 text-sm font-medium text-dash-soft">
           Grille de référence
         </h2>
@@ -100,81 +194,6 @@ export default async function DashboardHomePage({ params }: Props) {
             </Panel>
           ))}
         </div>
-      </div>
-
-      <div className="mt-8">
-        <h2 className="mb-3 text-sm font-medium text-dash-soft">
-          Prochaines échéances abonnements
-        </h2>
-        {upcoming.length === 0 ? (
-          <Panel>
-            <p className="text-sm text-dash-muted">Aucune échéance à venir.</p>
-          </Panel>
-        ) : (
-          <Panel className="overflow-x-auto p-0">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-dash-border text-dash-muted">
-                <tr>
-                  <th className="px-5 py-3 font-medium">Offre</th>
-                  <th className="px-5 py-3 font-medium">Montant</th>
-                  <th className="px-5 py-3 font-medium">Échéance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {upcoming.map((s) => (
-                  <tr key={s.id} className="border-b border-dash-border">
-                    <td className="px-5 py-3 text-dash-text">{s.label}</td>
-                    <td className="px-5 py-3">{formatEur(s.priceCents)}</td>
-                    <td className="px-5 py-3 text-dash-soft">
-                      {s.nextBillingDate?.toLocaleDateString("fr-FR") ?? "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Panel>
-        )}
-      </div>
-
-      <div className="mt-8">
-        <h2 className="mb-3 text-sm font-medium text-dash-soft">
-          Devis en attente de réponse
-        </h2>
-        {pendingQuotes.length === 0 ? (
-          <Panel>
-            <p className="text-sm text-dash-muted">Aucun devis en attente.</p>
-          </Panel>
-        ) : (
-          <Panel className="overflow-x-auto p-0">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-dash-border text-dash-muted">
-                <tr>
-                  <th className="px-5 py-3 font-medium">N°</th>
-                  <th className="px-5 py-3 font-medium">Total TTC</th>
-                  <th className="px-5 py-3 font-medium">Créé le</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingQuotes.slice(0, 8).map((q) => (
-                  <tr key={q.id} className="border-b border-dash-border">
-                    <td className="px-5 py-3">
-                      <Link
-                        href={dashboardHref(dashboardSlug, `quotes/${q.id}`)}
-                        className="font-medium text-dash-text hover:underline"
-                      >
-                        {q.number}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-3">{formatEur(q.totalCents)}</td>
-                    <td className="px-5 py-3 text-dash-soft">
-                      {q.createdAt.toLocaleDateString("fr-FR")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Panel>
-        )}
       </div>
     </div>
   );
