@@ -15,8 +15,6 @@ import {
   HOSTING_FEE_CENTS,
   SETUP_FEE_CENTS,
   TJM_FEE_CENTS,
-  TJM_HALF_DAY_CENTS,
-  TJM_FEE_EUR,
 } from "@/data/fees";
 
 export type LineDraft = {
@@ -26,16 +24,13 @@ export type LineDraft = {
   taxRatePercent: number;
 };
 
-const PRESETS: Array<{ label: string; unitPriceHtCents: number }> = [
-  { label: "Création du site", unitPriceHtCents: SETUP_FEE_CENTS },
-  { label: "Hébergement — 1 mois", unitPriceHtCents: HOSTING_FEE_CENTS },
-  { label: "Prestation TJM — 1 jour", unitPriceHtCents: TJM_FEE_CENTS },
-  { label: "Prestation TJM — ½ jour", unitPriceHtCents: TJM_HALF_DAY_CENTS },
-];
-
 type Props = {
   name?: string;
   initialLines?: LineDraft[];
+  /** Tarifs opérationnels (catalogue). Fallback = fees.ts */
+  setupCents?: number;
+  hostingCents?: number;
+  tjmCents?: number;
 };
 
 type SlotMode = "slot" | "hours";
@@ -45,6 +40,9 @@ const EMPTY_START: LineDraft[] = [];
 export function LinesEditor({
   name = "linesJson",
   initialLines,
+  setupCents = SETUP_FEE_CENTS,
+  hostingCents = HOSTING_FEE_CENTS,
+  tjmCents = TJM_FEE_CENTS,
 }: Props) {
   const [lines, setLines] = useState<LineDraft[]>(
     initialLines ?? EMPTY_START,
@@ -56,19 +54,33 @@ export function LinesEditor({
   const [mode, setMode] = useState<SlotMode>("slot");
   const [calcError, setCalcError] = useState<string | null>(null);
 
+  const tjmEur = tjmCents / 100;
+  const presets = useMemo(
+    () => [
+      { label: "Création du site", unitPriceHtCents: setupCents },
+      { label: "Hébergement — 1 mois", unitPriceHtCents: hostingCents },
+      { label: "Prestation TJM — 1 jour", unitPriceHtCents: tjmCents },
+      {
+        label: "Prestation TJM — ½ jour",
+        unitPriceHtCents: Math.round(tjmCents / 2),
+      },
+    ],
+    [setupCents, hostingCents, tjmCents],
+  );
+
   const totals = useMemo(() => calculateDocumentTotals(lines), [lines]);
 
   const preview = useMemo(() => {
     try {
       if (mode === "slot") {
-        const result = priceFromSlot(slotStart, slotEnd);
+        const result = priceFromSlot(slotStart, slotEnd, tjmCents);
         return { ok: true as const, ...result };
       }
       const hours = Number(String(hoursInput).replace(",", "."));
       return {
         ok: true as const,
         hours,
-        priceCents: priceFromHours(hours),
+        priceCents: priceFromHours(hours, tjmCents),
       };
     } catch (e) {
       return {
@@ -76,7 +88,7 @@ export function LinesEditor({
         message: e instanceof Error ? e.message : "Créneau invalide",
       };
     }
-  }, [mode, slotStart, slotEnd, hoursInput]);
+  }, [mode, slotStart, slotEnd, hoursInput, tjmCents]);
 
   function update(index: number, patch: Partial<LineDraft>) {
     setLines((prev) =>
@@ -92,10 +104,10 @@ export function LinesEditor({
   function addCustomTjm() {
     try {
       if (mode === "slot") {
-        addLine(lineFromSlot(slotStart, slotEnd));
+        addLine(lineFromSlot(slotStart, slotEnd, tjmCents));
       } else {
         const hours = Number(String(hoursInput).replace(",", "."));
-        addLine(lineFromHours(hours));
+        addLine(lineFromHours(hours, tjmCents));
       }
     } catch (e) {
       setCalcError(e instanceof Error ? e.message : "Créneau invalide");
@@ -109,35 +121,35 @@ export function LinesEditor({
       <div className="space-y-3 rounded-md border border-dash-border bg-dash-hover/40 p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="text-sm font-medium text-dash-text">TJM</p>
-          <p className="text-xs text-dash-muted">{TJM_FEE_EUR} € / jour</p>
+          <p className="text-xs text-dash-muted">{tjmEur} € / jour</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
-            onClick={() => addLine(lineFromFullDay())}
+            onClick={() => addLine(lineFromFullDay(tjmCents))}
           >
             1 jour
           </button>
           <button
             type="button"
             className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
-            onClick={() => addLine(lineFromHalfDay())}
+            onClick={() => addLine(lineFromHalfDay(tjmCents))}
           >
             ½ jour
           </button>
           <button
             type="button"
             className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
-            onClick={() => addLine(lineFromSlot(9, 12))}
+            onClick={() => addLine(lineFromSlot(9, 12, tjmCents))}
           >
             Matin 9–12
           </button>
           <button
             type="button"
             className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
-            onClick={() => addLine(lineFromSlot(14, 18))}
+            onClick={() => addLine(lineFromSlot(14, 18, tjmCents))}
           >
             Après-midi 14–18
           </button>
@@ -223,9 +235,7 @@ export function LinesEditor({
         {preview.ok ? (
           <p className="text-xs text-dash-muted">
             Aperçu : {formatEur(preview.priceCents)}
-            {preview.hours != null
-              ? ` · ${preview.hours} h`
-              : null}
+            {preview.hours != null ? ` · ${preview.hours} h` : null}
           </p>
         ) : (
           <p className="text-xs text-rose-600 dark:text-rose-300">
@@ -240,7 +250,7 @@ export function LinesEditor({
       <div>
         <p className="mb-2 text-xs text-dash-muted">Catalogue</p>
         <div className="flex flex-wrap gap-2">
-          {PRESETS.map((p) => (
+          {presets.map((p) => (
             <button
               key={p.label}
               type="button"

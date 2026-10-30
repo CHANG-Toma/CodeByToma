@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   acceptQuoteAction,
+  createInvoiceFromQuoteAction,
   rejectQuoteAction,
   sendQuoteAction,
 } from "@/app/(private)/actions";
@@ -13,20 +14,30 @@ import {
 } from "@/components/dashboard/ui";
 import { quoteStatusLabel } from "@/lib/dashboard-labels";
 import {
+  clientInvoiceHref,
   clientQuotesListHref,
   dashboardHref,
 } from "@/lib/dashboard-href";
 import { formatEur } from "@/lib/money";
-import type { ClientRecord } from "@/server/domain/ports/repositories";
-import type { QuoteRecord } from "@/server/domain/ports/repositories";
+import type {
+  ClientRecord,
+  InvoiceRecord,
+  QuoteRecord,
+} from "@/server/domain/ports/repositories";
 
 type Props = {
   quote: QuoteRecord;
   client: ClientRecord;
+  linkedInvoice: InvoiceRecord | null;
   dashboardSlug: string;
 };
 
-export function QuoteDetail({ quote, client, dashboardSlug }: Props) {
+export function QuoteDetail({
+  quote,
+  client,
+  linkedInvoice,
+  dashboardSlug,
+}: Props) {
   const id = quote.id;
 
   async function send() {
@@ -41,6 +52,10 @@ export function QuoteDetail({ quote, client, dashboardSlug }: Props) {
     "use server";
     await rejectQuoteAction(id);
   }
+  async function createInvoice() {
+    "use server";
+    await createInvoiceFromQuoteAction(id);
+  }
 
   return (
     <div>
@@ -53,9 +68,26 @@ export function QuoteDetail({ quote, client, dashboardSlug }: Props) {
                 <PrimaryButton>Marquer envoyé</PrimaryButton>
               </form>
             ) : null}
-            {quote.status === "sent" || quote.status === "accepted" ? (
+            {quote.status === "sent" ? (
               <form action={accept}>
                 <PrimaryButton>Accepter → facture</PrimaryButton>
+              </form>
+            ) : null}
+            {quote.status === "accepted" && linkedInvoice ? (
+              <Link
+                href={clientInvoiceHref(
+                  dashboardSlug,
+                  client.id,
+                  linkedInvoice.id,
+                )}
+                className="inline-flex items-center justify-center rounded-md bg-dash-btn px-4 py-2 text-sm font-medium text-dash-on-btn transition hover:bg-dash-btn-hover"
+              >
+                Voir facture {linkedInvoice.number}
+              </Link>
+            ) : null}
+            {quote.status === "accepted" && !linkedInvoice ? (
+              <form action={createInvoice}>
+                <PrimaryButton>Créer la facture</PrimaryButton>
               </form>
             ) : null}
             {quote.status === "draft" || quote.status === "sent" ? (
@@ -75,6 +107,18 @@ export function QuoteDetail({ quote, client, dashboardSlug }: Props) {
         >
           Tous les devis
         </Link>
+        {linkedInvoice ? (
+          <Link
+            href={clientInvoiceHref(
+              dashboardSlug,
+              client.id,
+              linkedInvoice.id,
+            )}
+            className="text-xs text-dash-muted hover:underline"
+          >
+            Facture {linkedInvoice.number}
+          </Link>
+        ) : null}
       </div>
 
       <Panel className="overflow-x-auto p-0">
@@ -112,15 +156,15 @@ export function QuoteDetail({ quote, client, dashboardSlug }: Props) {
       </Panel>
 
       {quote.notes ? (
-        <p className="mt-4 text-sm text-dash-muted whitespace-pre-wrap">
+        <p className="mt-4 whitespace-pre-wrap text-sm text-dash-muted">
           {quote.notes}
         </p>
       ) : null}
 
       <p className="mt-4 text-sm text-dash-muted">
         <Link
-          href={dashboardHref(dashboardSlug, `clients/${client.id}/overview`)}
-          className="text-dash-accent hover:underline"
+          href={dashboardHref(dashboardSlug, `clients/${client.id}/quotes`)}
+          className="hover:underline"
         >
           Fiche client
         </Link>

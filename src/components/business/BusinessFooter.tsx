@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { HOSTING_FEE_EUR, SETUP_FEE_EUR } from "@/data/fees";
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessFooter = () => {
   const year = new Date().getFullYear();
+  const { setupFee, hostingFee } = usePricing();
 
   return (
     <footer className="border-t border-cbtBorder px-6 py-10 md:px-10">
@@ -13,8 +16,8 @@ const BusinessFooter = () => {
             <span className="mx-2 opacity-40">·</span>
             Code by Toma
             <span className="mx-2 opacity-40">·</span>
-            Création {SETUP_FEE_EUR} € · Hébergement {HOSTING_FEE_EUR} €/mois ·
-            TJM
+            Création {setupFee.amount} € · Hébergement {hostingFee.amount} €/mois
+            · TJM
           </p>
           <p className="mt-2 text-[12px] text-mist/70" suppressHydrationWarning>
             © {year} Toma Chang (Code by Toma) — Tous droits réservés
@@ -45,15 +48,6 @@ const BusinessFooter = () => {
           >
             Confidentialité
           </Link>
-          <Link href="/connexion" className="transition-colors hover:text-snow">
-            Connexion
-          </Link>
-          <a
-            href="mailto:toma11chang@gmail.com"
-            className="transition-colors hover:text-snow"
-          >
-            toma11chang@gmail.com
-          </a>
         </nav>
       </div>
     </footer>

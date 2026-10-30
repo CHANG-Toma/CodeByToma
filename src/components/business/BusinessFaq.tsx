@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { offersFaq } from "@/data/businessOffers";
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessFaq = () => {
+  const { faq: offersFaq } = usePricing();
   const [open, setOpen] = useState<number | null>(null);
 
   return (

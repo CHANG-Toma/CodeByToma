@@ -57,7 +57,7 @@ export type InvoiceRecord = {
   number: string;
   sequentialNumber: number;
   clientId: string;
-  quoteId: string | null;
+  quoteId: string;
   status: InvoiceStatus;
   currency: string;
   issuedAt: Date | null;
@@ -171,7 +171,7 @@ export type IQuoteRepository = {
 
 export type InvoiceCreateInput = {
   clientId: string;
-  quoteId?: string | null;
+  quoteId: string;
   number: string;
   sequentialNumber: number;
   status: InvoiceStatus;
@@ -244,6 +244,11 @@ export type ISubscriptionRepository = {
 export type ICatalogOfferRepository = {
   listActive(): Promise<CatalogOfferRecord[]>;
   findByKind(kind: OfferKind): Promise<CatalogOfferRecord | null>;
+  updatePrice(
+    kind: OfferKind,
+    priceCents: number,
+    description?: string | null,
+  ): Promise<CatalogOfferRecord>;
 };
 
 export type IAuditLogRepository = {
@@ -273,6 +278,10 @@ export type IUserRepository = {
   findByClientId(
     clientId: string,
   ): Promise<Omit<AuthUserRecord, "passwordHash"> | null>;
+  updateProfile(
+    id: string,
+    data: { name: string | null },
+  ): Promise<Omit<AuthUserRecord, "passwordHash">>;
   createClientAccess(data: {
     email: string;
     passwordHash: string;

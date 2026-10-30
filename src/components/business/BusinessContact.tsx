@@ -3,8 +3,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, ArrowRight } from "lucide-react";
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessContact = () => {
+  const { setupFee, hostingFee } = usePricing();
+
   return (
     <section
       id="contact"
@@ -23,8 +26,9 @@ const BusinessContact = () => {
               Prêt à développer votre présence en ligne&nbsp;?
             </h2>
             <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-mist md:text-base">
-              Création 149 €, hébergement optionnel 30 €/mois, évolutions au
-              TJM — on chiffre selon votre besoin.
+              Création {setupFee.amount} €, hébergement optionnel{" "}
+              {hostingFee.amount} €/mois, évolutions au TJM — on chiffre selon
+              votre besoin.
             </p>
             <a
               href="mailto:toma11chang@gmail.com?subject=CodeByToma%20—%20Devis%20gratuit"

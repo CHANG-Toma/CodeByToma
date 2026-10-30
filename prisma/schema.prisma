@@ -153,8 +153,8 @@ model Invoice {
   sequentialNumber Int
   clientId        String
   client          Client          @relation(fields: [clientId], references: [id])
-  quoteId         String?
-  quote           Quote?          @relation(fields: [quoteId], references: [id])
+  quoteId         String
+  quote           Quote           @relation(fields: [quoteId], references: [id])
   status          InvoiceStatus   @default(draft)
   currency        String          @default("EUR")
   issuedAt        DateTime?

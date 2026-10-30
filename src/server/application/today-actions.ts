@@ -67,7 +67,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
     clients.map((c) => [c.id, { name: c.name, companyName: c.companyName }]),
   );
   const invoiceQuoteIds = new Set(
-    invoices.map((i) => i.quoteId).filter((id): id is string => Boolean(id)),
+    invoices.map((i) => i.quoteId),
   );
 
   const actions: TodayAction[] = [];

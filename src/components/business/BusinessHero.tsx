@@ -7,8 +7,10 @@ import { ArrowRight } from "lucide-react";
 import Aurora from "@/components/Aurora";
 import BlurText from "@/components/BlurText";
 import ShinyText from "@/components/ShinyText";
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessHero = () => {
+  const { setupFee, hostingFee } = usePricing();
   const logoGroupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,8 +90,9 @@ const BusinessHero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.2 }}
           >
-            Une présence en ligne professionnelle : création dès 149 €,
-            hébergement optionnel à 30 €/mois, évolutions au TJM.
+            Une présence en ligne professionnelle : création dès{" "}
+            {setupFee.amount} €, hébergement optionnel à {hostingFee.amount}{" "}
+            €/mois, évolutions au TJM.
           </motion.p>
 
           <motion.div

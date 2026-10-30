@@ -1,6 +1,11 @@
-import { ConflictError, NotFoundError, ValidationError } from "@/server/domain/errors";
+import {
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from "@/server/domain/errors";
 import {
   assertInvoiceTransition,
+  canMarkInvoicePaid,
   invoiceStatusAfterPayment,
   type InvoiceStatus,
 } from "@/server/domain/status-transitions";
@@ -43,14 +48,47 @@ export async function getInvoice(id: string): Promise<InvoiceRecord> {
   return invoice;
 }
 
+export async function findActiveInvoiceForQuote(
+  quoteId: string,
+): Promise<InvoiceRecord | null> {
+  const quote = await deps.quotes.findById(quoteId);
+  if (!quote) return null;
+  const invoices = await deps.invoices.list({ clientId: quote.clientId });
+  return (
+    invoices.find(
+      (i) => i.quoteId === quoteId && i.status !== "cancelled",
+    ) ?? null
+  );
+}
+
 export async function createInvoice(input: unknown): Promise<InvoiceRecord> {
   const parsed = invoiceCreateSchema.safeParse(input);
   if (!parsed.success) {
-    throw new ValidationError(parsed.error.issues[0]?.message ?? "Données invalides");
+    throw new ValidationError(
+      parsed.error.issues[0]?.message ?? "Données invalides",
+    );
   }
 
   const client = await deps.clients.findById(parsed.data.clientId);
   if (!client) throw new NotFoundError("Client", parsed.data.clientId);
+
+  const quote = await deps.quotes.findById(parsed.data.quoteId);
+  if (!quote) throw new NotFoundError("Devis", parsed.data.quoteId);
+  if (quote.clientId !== parsed.data.clientId) {
+    throw new ValidationError("Le devis n’appartient pas à ce client");
+  }
+  if (quote.status !== "accepted") {
+    throw new ConflictError("Le devis doit être accepté avant facturation");
+  }
+
+  const existing = await deps.invoices.list({ clientId: quote.clientId });
+  if (
+    existing.some(
+      (i) => i.quoteId === quote.id && i.status !== "cancelled",
+    )
+  ) {
+    throw new ConflictError("Une facture existe déjà pour ce devis");
+  }
 
   const lines = mapLines(parsed.data.lines);
   const totals = calculateDocumentTotals(lines);
@@ -66,7 +104,7 @@ export async function createInvoice(input: unknown): Promise<InvoiceRecord> {
 
   const invoice = await deps.invoices.create({
     clientId: parsed.data.clientId,
-    quoteId: parsed.data.quoteId ?? null,
+    quoteId: parsed.data.quoteId,
     number,
     sequentialNumber: sequential,
     status: issueNow ? "issued" : "draft",
@@ -83,7 +121,7 @@ export async function createInvoice(input: unknown): Promise<InvoiceRecord> {
     action: "invoice.created",
     entity: "Invoice",
     entityId: invoice.id,
-    metadata: { number: invoice.number },
+    metadata: { number: invoice.number, quoteId: quote.id },
   });
 
   return invoice;
@@ -98,8 +136,8 @@ export async function createInvoiceFromQuote(
     throw new ConflictError("Le devis doit être accepté avant facturation");
   }
 
-  const existing = await deps.invoices.list({ clientId: quote.clientId });
-  if (existing.some((i) => i.quoteId === quoteId && i.status !== "cancelled")) {
+  const existing = await findActiveInvoiceForQuote(quoteId);
+  if (existing) {
     throw new ConflictError("Une facture existe déjà pour ce devis");
   }
 
@@ -125,11 +163,22 @@ export async function transitionInvoice(
 ): Promise<InvoiceRecord> {
   const parsed = invoiceStatusSchema.safeParse(input);
   if (!parsed.success) {
-    throw new ValidationError(parsed.error.issues[0]?.message ?? "Statut invalide");
+    throw new ValidationError(
+      parsed.error.issues[0]?.message ?? "Statut invalide",
+    );
   }
 
   const invoice = await getInvoice(id);
   assertInvoiceTransition(invoice.status, parsed.data.status);
+
+  if (parsed.data.status === "paid") {
+    const paidCents = await deps.payments.sumByInvoice(id);
+    if (!canMarkInvoicePaid(invoice.totalCents, paidCents)) {
+      throw new ConflictError(
+        "Une facture ne peut être payée que si les paiements couvrent le total TTC",
+      );
+    }
+  }
 
   const patch: Parameters<typeof deps.invoices.update>[1] = {
     status: parsed.data.status,
@@ -138,6 +187,9 @@ export async function transitionInvoice(
     patch.issuedAt = new Date();
     patch.dueAt =
       invoice.dueAt ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  }
+  if (parsed.data.status === "paid") {
+    patch.paidCents = await deps.payments.sumByInvoice(id);
   }
 
   const updated = await deps.invoices.update(id, patch);
@@ -185,7 +237,6 @@ export async function getDashboardKpis() {
     deps.subscriptions.countActive(),
   ]);
 
-  // Also count issued past due as overdue candidates for KPI
   const issued = await deps.invoices.list({ status: "issued" });
   const lateIssued = issued.filter(
     (i) => i.dueAt && i.dueAt < now,

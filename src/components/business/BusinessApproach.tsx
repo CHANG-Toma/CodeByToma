@@ -2,9 +2,11 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { hostingFee, setupFee } from "@/data/pricing";
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessApproach = () => {
+  const { setupFee, hostingFee } = usePricing();
+
   return (
     <section
       id="approche"

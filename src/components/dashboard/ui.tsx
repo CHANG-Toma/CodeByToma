@@ -77,6 +77,12 @@ export function Field({
   required,
   defaultValue,
   placeholder,
+  pattern,
+  inputMode,
+  maxLength,
+  autoComplete,
+  step,
+  min,
 }: {
   label: string;
   name: string;
@@ -84,6 +90,12 @@ export function Field({
   required?: boolean;
   defaultValue?: string;
   placeholder?: string;
+  pattern?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  maxLength?: number;
+  autoComplete?: string;
+  step?: string | number;
+  min?: string | number;
 }) {
   return (
     <label className="block text-sm">
@@ -94,6 +106,12 @@ export function Field({
         required={required}
         defaultValue={defaultValue}
         placeholder={placeholder}
+        pattern={pattern}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        autoComplete={autoComplete}
+        step={step}
+        min={min}
         className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text outline-none ring-[#2d5a87]/30 placeholder:text-dash-muted2 focus:ring-2"
       />
     </label>
@@ -174,12 +192,15 @@ export function SecondaryButton({
 export function Panel({
   children,
   className,
+  id,
 }: {
   children: React.ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
     <div
+      id={id}
       className={cn(
         "rounded-lg border border-dash-border bg-dash-surface p-5 shadow-sm shadow-black/[0.03]",
         className,

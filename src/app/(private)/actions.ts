@@ -11,6 +11,7 @@ import * as invoicesApp from "@/server/application/invoices";
 import * as paymentsApp from "@/server/application/payments";
 import * as subscriptionsApp from "@/server/application/subscriptions";
 import * as remindersApp from "@/server/application/reminders";
+import * as settingsApp from "@/server/application/settings";
 import { getDashboardBasePath } from "@/server/infrastructure/auth/dashboard-path";
 import { clientInvoiceHref, dashboardHref } from "@/lib/dashboard-href";
 import {
@@ -217,25 +218,16 @@ export async function rejectQuoteAction(id: string) {
   }
 }
 
-export async function createInvoiceAction(
-  formData: FormData,
-): Promise<
-  { ok: true; id: string; clientId: string } | { ok: false; error: string }
-> {
+export async function createInvoiceFromQuoteAction(quoteId: string) {
   await requireAdmin();
   try {
-    const lines = JSON.parse(String(formData.get("linesJson") ?? "[]")) as unknown;
-    const invoice = await invoicesApp.createInvoice({
-      clientId: String(formData.get("clientId") ?? ""),
-      notes: String(formData.get("notes") ?? "") || null,
-      lines,
-      issueNow: formData.get("issueNow") !== "false",
-    });
+    const invoice = await invoicesApp.createInvoiceFromQuote(quoteId);
     revalidateDashboard("invoices");
     revalidateDashboard(`clients/${invoice.clientId}/invoices`);
-    return { ok: true, id: invoice.id, clientId: invoice.clientId };
+    revalidateDashboard(`clients/${invoice.clientId}/quotes`);
+    redirect(clientInvoiceHref(slug(), invoice.clientId, invoice.id));
   } catch (e) {
-    return toActionError(e);
+    rethrowRedirect(e);
   }
 }
 
@@ -406,5 +398,34 @@ export async function markReminderSentAction(input: {
     return { ok: true };
   } catch (e) {
     return toActionError(e);
+  }
+}
+
+export async function updateAdminProfileAction(formData: FormData) {
+  const session = await requireAdmin();
+  try {
+    await settingsApp.updateAdminProfile(session.sub, {
+      name: String(formData.get("name") ?? ""),
+    });
+    revalidateDashboard("profil");
+    revalidateDashboard();
+  } catch (e) {
+    rethrowRedirect(e);
+  }
+}
+
+export async function updateAdminFeesAction(formData: FormData) {
+  const session = await requireAdmin();
+  try {
+    await settingsApp.updateAdminFees(session.sub, {
+      setupEuros: String(formData.get("setupEuros") ?? ""),
+      hostingEuros: String(formData.get("hostingEuros") ?? ""),
+      tjmEuros: String(formData.get("tjmEuros") ?? ""),
+    });
+    revalidateDashboard("profil");
+    revalidateDashboard("quotes");
+    revalidatePath("/");
+  } catch (e) {
+    rethrowRedirect(e);
   }
 }

@@ -40,6 +40,10 @@ export function InvoiceDetail({
 }: Props) {
   const id = invoice.id;
   const remaining = Math.max(0, invoice.totalCents - invoice.paidCents);
+  const canRecordPayment =
+    remaining > 0 &&
+    invoice.status !== "cancelled" &&
+    invoice.status !== "draft";
 
   async function issue() {
     "use server";
@@ -95,14 +99,12 @@ export function InvoiceDetail({
         >
           Toutes les factures
         </Link>
-        {invoice.quoteId ? (
-          <Link
-            href={clientQuoteHref(dashboardSlug, client.id, invoice.quoteId)}
-            className="text-xs text-dash-muted hover:underline"
-          >
-            Devis lié
-          </Link>
-        ) : null}
+        <Link
+          href={clientQuoteHref(dashboardSlug, client.id, invoice.quoteId)}
+          className="text-xs text-dash-muted hover:underline"
+        >
+          Devis lié
+        </Link>
       </div>
 
       <Panel className="mb-6 overflow-x-auto p-0">
@@ -139,67 +141,75 @@ export function InvoiceDetail({
         </div>
       </Panel>
 
-      {remaining > 0 &&
-      invoice.status !== "cancelled" &&
-      invoice.status !== "draft" ? (
-        <Panel className="mb-6 max-w-xl">
-          <h2 className="mb-4 text-sm font-medium text-dash-text">
-            Enregistrer un paiement
-          </h2>
-          <form action={pay} className="grid gap-3 sm:grid-cols-2">
-            <Field
-              label="Montant (€)"
-              name="amountEuros"
-              type="number"
-              required
-              defaultValue={(remaining / 100).toFixed(2)}
-            />
-            <label className="block text-sm">
-              <span className="mb-1.5 block text-dash-muted">Méthode</span>
-              <select
-                name="method"
-                className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
-                defaultValue="bank_transfer"
-              >
-                {Object.entries(paymentMethodLabel).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Field label="Date" name="paidAt" type="date" />
-            <Field label="Référence" name="reference" />
-            <div className="sm:col-span-2">
-              <PrimaryButton>Enregistrer</PrimaryButton>
-            </div>
-          </form>
-        </Panel>
-      ) : null}
+      <Panel className="mb-6">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="text-sm font-medium text-dash-text">Paiements</h2>
+            <p className="mt-1 text-xs text-dash-muted">
+              {payments.length === 0
+                ? "Aucun paiement enregistré — la facture ne peut pas être payée sans paiement."
+                : `${payments.length} paiement${payments.length > 1 ? "s" : ""} · reste dû ${formatEur(remaining)}`}
+            </p>
+          </div>
+        </div>
 
-      <Panel>
-        <h2 className="mb-3 text-sm font-medium text-dash-text">Paiements</h2>
         {payments.length === 0 ? (
-          <p className="text-sm text-dash-muted">Aucun paiement.</p>
+          <p className="mb-4 text-sm text-dash-muted">Aucun paiement.</p>
         ) : (
-          <ul className="space-y-2 text-sm">
+          <ul className="mb-4 divide-y divide-dash-border rounded-md border border-dash-border">
             {payments.map((p) => (
               <li
                 key={p.id}
-                className="flex justify-between gap-2 text-dash-soft"
+                className="flex justify-between gap-2 px-4 py-3 text-sm text-dash-soft"
               >
                 <span>
                   {p.paidAt.toLocaleDateString("fr-FR")} —{" "}
                   {paymentMethodLabel[p.method] ?? p.method}
                   {p.reference ? ` (${p.reference})` : ""}
                 </span>
-                <span className="text-dash-text">
+                <span className="font-medium text-dash-text">
                   {formatEur(p.amountCents)}
                 </span>
               </li>
             ))}
           </ul>
         )}
+
+        {canRecordPayment ? (
+          <div className="border-t border-dash-border pt-4">
+            <h3 className="mb-3 text-sm font-medium text-dash-text">
+              Ajouter un paiement
+            </h3>
+            <form action={pay} className="grid max-w-xl gap-3 sm:grid-cols-2">
+              <Field
+                label="Montant (€)"
+                name="amountEuros"
+                type="number"
+                required
+                defaultValue={(remaining / 100).toFixed(2)}
+              />
+              <label className="block text-sm">
+                <span className="mb-1.5 block text-dash-muted">Méthode</span>
+                <select
+                  name="method"
+                  className="w-full rounded-md border border-dash-border bg-dash-input px-3 py-2 text-sm text-dash-text"
+                  defaultValue="bank_transfer"
+                >
+                  {Object.entries(paymentMethodLabel).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Field label="Date" name="paidAt" type="date" />
+              <Field label="Référence" name="reference" />
+              <div className="sm:col-span-2">
+                <PrimaryButton>Enregistrer le paiement</PrimaryButton>
+              </div>
+            </form>
+          </div>
+        ) : null}
       </Panel>
     </div>
   );

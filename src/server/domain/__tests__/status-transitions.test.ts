@@ -3,6 +3,7 @@ import {
   assertInvoiceTransition,
   assertQuoteTransition,
   assertSubscriptionTransition,
+  canMarkInvoicePaid,
   canTransitionInvoice,
   canTransitionQuote,
   canTransitionSubscription,
@@ -46,6 +47,16 @@ describe("invoiceStatusAfterPayment", () => {
     expect(invoiceStatusAfterPayment("issued", 21400, 10000)).toBe(
       "partially_paid",
     );
+  });
+
+  it("ne passe pas en paid sans paiement", () => {
+    expect(invoiceStatusAfterPayment("issued", 21400, 0)).toBe("issued");
+    expect(canMarkInvoicePaid(21400, 0)).toBe(false);
+  });
+
+  it("refuse paid si montant insuffisant", () => {
+    expect(canMarkInvoicePaid(21400, 10000)).toBe(false);
+    expect(canMarkInvoicePaid(21400, 21400)).toBe(true);
   });
 
   it("refuse un paiement sur draft", () => {

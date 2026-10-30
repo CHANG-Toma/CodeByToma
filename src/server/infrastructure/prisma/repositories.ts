@@ -224,7 +224,7 @@ export const invoiceRepository: IInvoiceRepository = {
     const row = await prisma.invoice.create({
       data: {
         clientId: data.clientId,
-        quoteId: data.quoteId ?? null,
+        quoteId: data.quoteId,
         number: data.number,
         sequentialNumber: data.sequentialNumber,
         status: data.status as PrismaInvoiceStatus,
@@ -454,6 +454,17 @@ export const catalogOfferRepository: ICatalogOfferRepository = {
     });
     return row ? mapCatalogOffer(row) : null;
   },
+
+  async updatePrice(kind, priceCents, description) {
+    const row = await prisma.catalogOffer.update({
+      where: { kind: kind as PrismaOfferKind },
+      data: {
+        priceCents,
+        ...(description !== undefined ? { description } : {}),
+      },
+    });
+    return mapCatalogOffer(row);
+  },
 };
 
 export const auditLogRepository: IAuditLogRepository = {
@@ -504,6 +515,20 @@ export const userRepository: IUserRepository = {
   async findByClientId(clientId) {
     return prisma.user.findUnique({
       where: { clientId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        clientId: true,
+      },
+    });
+  },
+
+  async updateProfile(id, data) {
+    return prisma.user.update({
+      where: { id },
+      data: { name: data.name },
       select: {
         id: true,
         email: true,

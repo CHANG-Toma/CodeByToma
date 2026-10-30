@@ -1,4 +1,10 @@
-import { offersFaq } from "@/data/businessOffers";
+import { offersFaq as defaultOffersFaq, type FaqItem } from "@/data/businessOffers";
+import type { FeesEur } from "@/data/pricing";
+import {
+  HOSTING_FEE_EUR,
+  SETUP_FEE_EUR,
+  TJM_FEE_EUR,
+} from "@/data/fees";
 import {
   CONTACT,
   SITE_DESCRIPTION,
@@ -8,6 +14,12 @@ import {
   SITE_TAGLINE,
   SITE_URL,
 } from "@/lib/seo";
+
+const DEFAULT_FEES: FeesEur = {
+  setup: SETUP_FEE_EUR,
+  hosting: HOSTING_FEE_EUR,
+  tjm: TJM_FEE_EUR,
+};
 
 const organization = {
   "@type": "Organization",
@@ -37,60 +49,6 @@ const organization = {
   },
 };
 
-const professionalService = {
-  "@type": "ProfessionalService",
-  "@id": `${SITE_URL}/#service`,
-  name: SITE_NAME,
-  alternateName: [...SITE_NAME_ALIASES],
-  description: SITE_DESCRIPTION,
-  url: SITE_URL,
-  image: `${SITE_URL}${SITE_LOGO.url}`,
-  telephone: CONTACT.phone,
-  email: CONTACT.email,
-  priceRange: "€€",
-  currenciesAccepted: "EUR",
-  paymentAccepted: "Virement, carte",
-  areaServed: [
-    { "@type": "Country", name: "France" },
-    { "@type": "AdministrativeArea", name: CONTACT.region },
-  ],
-  serviceType: [
-    "Création de sites web",
-    "Site vitrine",
-    "Hébergement de site web",
-    "Développement au TJM",
-  ],
-  provider: { "@id": `${SITE_URL}/#organization` },
-  offers: [
-    {
-      "@type": "Offer",
-      name: "Création du site",
-      price: "149",
-      priceCurrency: "EUR",
-      description:
-        "Conception et mise en ligne d'un site vitrine (structure, design, pages essentielles).",
-      url: `${SITE_URL}/#offres`,
-    },
-    {
-      "@type": "Offer",
-      name: "Hébergement",
-      price: "30",
-      priceCurrency: "EUR",
-      description:
-        "Site en ligne chez CodeByToma : HTTPS, sauvegardes, surveillance. Évolutions facturées au TJM.",
-      url: `${SITE_URL}/#offres`,
-    },
-    {
-      "@type": "Offer",
-      name: "Évolutions & projets (TJM)",
-      priceCurrency: "EUR",
-      description:
-        "Modifications, améliorations et projets sur-mesure — chiffrage au TJM ou forfait jours, hors hébergement.",
-      url: `${SITE_URL}/#offres`,
-    },
-  ],
-};
-
 const website = {
   "@type": "WebSite",
   "@id": `${SITE_URL}/#website`,
@@ -102,25 +60,86 @@ const website = {
   inLanguage: "fr-FR",
 };
 
-const faqPage = {
-  "@type": "FAQPage",
-  "@id": `${SITE_URL}/#faq`,
-  mainEntity: offersFaq.map((item) => ({
-    "@type": "Question",
-    name: item.q,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.a,
-    },
-  })),
-};
+export default function JsonLd({
+  faq = defaultOffersFaq,
+  fees = DEFAULT_FEES,
+}: {
+  faq?: FaqItem[];
+  fees?: FeesEur;
+}) {
+  const professionalService = {
+    "@type": "ProfessionalService",
+    "@id": `${SITE_URL}/#service`,
+    name: SITE_NAME,
+    alternateName: [...SITE_NAME_ALIASES],
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    image: `${SITE_URL}${SITE_LOGO.url}`,
+    telephone: CONTACT.phone,
+    email: CONTACT.email,
+    priceRange: "€€",
+    currenciesAccepted: "EUR",
+    paymentAccepted: "Virement, carte",
+    areaServed: [
+      { "@type": "Country", name: "France" },
+      { "@type": "AdministrativeArea", name: CONTACT.region },
+    ],
+    serviceType: [
+      "Création de sites web",
+      "Site vitrine",
+      "Hébergement de site web",
+      "Développement au TJM",
+    ],
+    provider: { "@id": `${SITE_URL}/#organization` },
+    offers: [
+      {
+        "@type": "Offer",
+        name: "Création du site",
+        price: String(fees.setup),
+        priceCurrency: "EUR",
+        description:
+          "Conception et mise en ligne d'un site vitrine (structure, design, pages essentielles).",
+        url: `${SITE_URL}/#offres`,
+      },
+      {
+        "@type": "Offer",
+        name: "Hébergement",
+        price: String(fees.hosting),
+        priceCurrency: "EUR",
+        description:
+          "Site en ligne chez CodeByToma : HTTPS, sauvegardes, surveillance. Évolutions facturées au TJM.",
+        url: `${SITE_URL}/#offres`,
+      },
+      {
+        "@type": "Offer",
+        name: "Évolutions & projets (TJM)",
+        price: String(fees.tjm),
+        priceCurrency: "EUR",
+        description:
+          "Modifications, améliorations et projets sur-mesure — chiffrage au TJM ou forfait jours, hors hébergement.",
+        url: `${SITE_URL}/#offres`,
+      },
+    ],
+  };
 
-const graph = {
-  "@context": "https://schema.org",
-  "@graph": [organization, professionalService, website, faqPage],
-};
+  const faqPage = {
+    "@type": "FAQPage",
+    "@id": `${SITE_URL}/#faq`,
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    })),
+  };
 
-export default function JsonLd() {
+  const graph = {
+    "@context": "https://schema.org",
+    "@graph": [organization, professionalService, website, faqPage],
+  };
+
   return (
     <script
       type="application/ld+json"

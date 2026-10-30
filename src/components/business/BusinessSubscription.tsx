@@ -3,18 +3,19 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
-import { hostingFee, setupFee } from "@/data/pricing";
-
-const points = [
-  `${setupFee.amount} € une seule fois pour créer votre site vitrine`,
-  `Hébergement chez moi : ${hostingFee.amount} €/mois (optionnel)`,
-  "Hébergement = mise en ligne, domaine, HTTPS, sauvegardes, surveillance",
-  "Modifications et améliorations : facturées au TJM, à part",
-  "Vous avez déjà un hébergeur ? Pas d’abonnement — projet / TJM seulement",
-  "Engagement hébergement 12 mois, puis reconduction",
-];
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessSubscription = () => {
+  const { setupFee, hostingFee } = usePricing();
+  const points = [
+    `${setupFee.amount} € une seule fois pour créer votre site vitrine`,
+    `Hébergement chez moi : ${hostingFee.amount} €/mois (optionnel)`,
+    "Hébergement = mise en ligne, domaine, HTTPS, sauvegardes, surveillance",
+    "Modifications et améliorations : facturées au TJM, à part",
+    "Vous avez déjà un hébergeur ? Pas d’abonnement — projet / TJM seulement",
+    "Engagement hébergement 12 mois, puis reconduction",
+  ];
+
   return (
     <section
       id="abonnement"

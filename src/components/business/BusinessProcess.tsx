@@ -2,24 +2,25 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { hostingFee, setupFee } from "@/data/pricing";
-
-const steps = [
-  {
-    title: "On crée votre site",
-    text: `${setupFee.amount} € une seule fois : design, pages essentielles, formulaire — prêt à accueillir vos clients.`,
-  },
-  {
-    title: "Hébergement si vous le souhaitez",
-    text: `Si le site est chez moi : ${hostingFee.amount} €/mois (mise en ligne, sécurité, sauvegardes). Sinon, vous gardez votre hébergeur — pas d’abonnement.`,
-  },
-  {
-    title: "Évolutions au TJM",
-    text: "Une modification, une amélioration ou un projet métier ? On chiffre à part, au taux journalier ou en forfait jours.",
-  },
-];
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessProcess = () => {
+  const { setupFee, hostingFee } = usePricing();
+  const steps = [
+    {
+      title: "On crée votre site",
+      text: `${setupFee.amount} € une seule fois : design, pages essentielles, formulaire — prêt à accueillir vos clients.`,
+    },
+    {
+      title: "Hébergement si vous le souhaitez",
+      text: `Si le site est chez moi : ${hostingFee.amount} €/mois (mise en ligne, sécurité, sauvegardes). Sinon, vous gardez votre hébergeur — pas d’abonnement.`,
+    },
+    {
+      title: "Évolutions au TJM",
+      text: "Une modification, une amélioration ou un projet métier ? On chiffre à part, au taux journalier ou en forfait jours.",
+    },
+  ];
+
   return (
     <section
       id="processus"

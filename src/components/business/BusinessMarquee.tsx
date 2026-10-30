@@ -1,22 +1,19 @@
-import { hostingFee, setupFee } from "@/data/pricing";
+"use client";
 
-const items = [
-  `Création ${setupFee.amount} €`,
-  `Hébergement ${hostingFee.amount} €/mois`,
-  "Évolutions au TJM",
-  "Sur-mesure",
-  "Devis gratuit",
-  "CodeByToma",
-];
-
-/** Une unité assez longue pour couvrir les grands écrans (animation = -50 %). */
-const buildTrack = () => {
-  const unit = items.join("  ·  ") + "  ·  ";
-  return Array.from({ length: 4 }, () => unit).join("");
-};
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessMarquee = () => {
-  const track = buildTrack();
+  const { setupFee, hostingFee } = usePricing();
+  const items = [
+    `Création ${setupFee.amount} €`,
+    `Hébergement ${hostingFee.amount} €/mois`,
+    "Évolutions au TJM",
+    "Sur-mesure",
+    "Devis gratuit",
+    "CodeByToma",
+  ];
+  const unit = items.join("  ·  ") + "  ·  ";
+  const track = Array.from({ length: 4 }, () => unit).join("");
 
   return (
     <div className="overflow-hidden border-y border-cbtBorder bg-surface/40 py-3.5">

@@ -1,13 +1,20 @@
 import Link from "next/link";
 import {
+  acceptQuoteAction,
+  rejectQuoteAction,
+  sendQuoteAction,
+} from "@/app/(private)/actions";
+import {
   EmptyState,
   Panel,
   PrimaryLink,
   StatusBadge,
 } from "@/components/dashboard/ui";
+import { RowActions, RowActionsHeader } from "@/components/dashboard/RowActions";
 import { quoteStatusLabel } from "@/lib/dashboard-labels";
 import { clientQuoteHref, dashboardHref } from "@/lib/dashboard-href";
 import { formatEur } from "@/lib/money";
+import { quoteListActions } from "@/lib/row-actions";
 import { listQuotes } from "@/server/application/quotes";
 
 type Props = {
@@ -49,31 +56,60 @@ export default async function ClientQuotesPage({ params }: Props) {
                 <th className="px-5 py-3 font-medium">Statut</th>
                 <th className="px-5 py-3 font-medium">Total TTC</th>
                 <th className="px-5 py-3 font-medium">Créé le</th>
+                <RowActionsHeader />
               </tr>
             </thead>
             <tbody>
-              {quotes.map((quote) => (
-                <tr key={quote.id} className="border-b border-dash-border">
-                  <td className="px-5 py-3">
-                    <Link
-                      href={clientQuoteHref(dashboardSlug, id, quote.id)}
-                      className="font-medium text-dash-text hover:underline"
-                    >
-                      {quote.number}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3">
-                    <StatusBadge
-                      label={quoteStatusLabel[quote.status]}
-                      tone={quoteTone(quote.status)}
+              {quotes.map((quote) => {
+                const quoteId = quote.id;
+                async function send() {
+                  "use server";
+                  await sendQuoteAction(quoteId);
+                }
+                async function accept() {
+                  "use server";
+                  await acceptQuoteAction(quoteId);
+                }
+                async function reject() {
+                  "use server";
+                  await rejectQuoteAction(quoteId);
+                }
+
+                return (
+                  <tr key={quote.id} className="border-b border-dash-border">
+                    <td className="px-5 py-3">
+                      <Link
+                        href={clientQuoteHref(dashboardSlug, id, quote.id)}
+                        className="font-medium text-dash-text hover:underline"
+                      >
+                        {quote.number}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3">
+                      <StatusBadge
+                        label={quoteStatusLabel[quote.status]}
+                        tone={quoteTone(quote.status)}
+                      />
+                    </td>
+                    <td className="px-5 py-3">{formatEur(quote.totalCents)}</td>
+                    <td className="px-5 py-3 text-dash-muted">
+                      {quote.createdAt.toLocaleDateString("fr-FR")}
+                    </td>
+                    <RowActions
+                      actions={quoteListActions({
+                        slug: dashboardSlug,
+                        clientId: id,
+                        quoteId: quote.id,
+                        status: quote.status,
+                        includeClientLink: false,
+                        sendAction: send,
+                        acceptAction: accept,
+                        rejectAction: reject,
+                      })}
                     />
-                  </td>
-                  <td className="px-5 py-3">{formatEur(quote.totalCents)}</td>
-                  <td className="px-5 py-3 text-dash-muted">
-                    {quote.createdAt.toLocaleDateString("fr-FR")}
-                  </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </Panel>

@@ -64,6 +64,7 @@ export function priceFromHours(
   return Math.round((tjmCents * hours) / hoursPerDay);
 }
 
+/** Prorata TJM : montant = TJM × heures / heures_par_jour, arrondi au centime. */
 export function priceFromSlot(
   start: TimeInput,
   end: TimeInput,
@@ -111,26 +112,34 @@ export type TjmLineDraft = {
   taxRatePercent: number;
 };
 
-export function lineFromFullDay(): TjmLineDraft {
+export function lineFromFullDay(
+  tjmCents: number = TJM_FEE_CENTS,
+): TjmLineDraft {
   return {
     label: labelFullDay(),
     quantity: 1,
-    unitPriceHtCents: priceFullDay(),
+    unitPriceHtCents: priceFullDay(tjmCents),
     taxRatePercent: 0,
   };
 }
 
-export function lineFromHalfDay(): TjmLineDraft {
+export function lineFromHalfDay(
+  tjmCents: number = TJM_FEE_CENTS,
+): TjmLineDraft {
   return {
     label: labelHalfDay(),
     quantity: 1,
-    unitPriceHtCents: priceHalfDay(),
+    unitPriceHtCents: priceHalfDay(tjmCents),
     taxRatePercent: 0,
   };
 }
 
-export function lineFromSlot(start: TimeInput, end: TimeInput): TjmLineDraft {
-  const { priceCents } = priceFromSlot(start, end);
+export function lineFromSlot(
+  start: TimeInput,
+  end: TimeInput,
+  tjmCents: number = TJM_FEE_CENTS,
+): TjmLineDraft {
+  const { priceCents } = priceFromSlot(start, end, tjmCents);
   return {
     label: labelFromSlot(start, end),
     quantity: 1,
@@ -139,11 +148,14 @@ export function lineFromSlot(start: TimeInput, end: TimeInput): TjmLineDraft {
   };
 }
 
-export function lineFromHours(hours: number): TjmLineDraft {
+export function lineFromHours(
+  hours: number,
+  tjmCents: number = TJM_FEE_CENTS,
+): TjmLineDraft {
   return {
     label: labelFromHours(hours),
     quantity: 1,
-    unitPriceHtCents: priceFromHours(hours),
+    unitPriceHtCents: priceFromHours(hours, tjmCents),
     taxRatePercent: 0,
   };
 }

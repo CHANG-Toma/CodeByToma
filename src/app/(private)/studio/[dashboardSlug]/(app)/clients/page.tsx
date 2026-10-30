@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { listClients } from "@/server/application/clients";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
+import { dashboardHref } from "@/lib/dashboard-href";
 import {
   EmptyState,
   PageHeader,
   Panel,
   PrimaryLink,
 } from "@/components/dashboard/ui";
+import { RowActions, RowActionsHeader } from "@/components/dashboard/RowActions";
+import { clientListActions } from "@/lib/row-actions";
 
 type Props = {
   params: Promise<{ dashboardSlug: string }>;
@@ -22,7 +24,6 @@ export default async function ClientsPage({ params, searchParams }: Props) {
     <div>
       <PageHeader
         title="Clients"
-        description="Contacts et fiches de facturation."
         actions={
           <PrimaryLink href={dashboardHref(dashboardSlug, "clients/new")}>
             Nouveau client
@@ -53,14 +54,21 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                 <th className="px-5 py-3 font-medium">Société</th>
                 <th className="px-5 py-3 font-medium">E-mail</th>
                 <th className="px-5 py-3 font-medium">Ville</th>
+                <RowActionsHeader />
               </tr>
             </thead>
             <tbody>
               {clients.map((c) => (
-                <tr key={c.id} className="border-b border-dash-border hover:bg-dash-hover">
+                <tr
+                  key={c.id}
+                  className="border-b border-dash-border hover:bg-dash-hover"
+                >
                   <td className="px-5 py-3">
                     <Link
-                      href={dashboardHref(dashboardSlug, `clients/${c.id}`)}
+                      href={dashboardHref(
+                        dashboardSlug,
+                        `clients/${c.id}/quotes`,
+                      )}
                       className="font-medium text-dash-text hover:underline"
                     >
                       {c.name}
@@ -73,6 +81,12 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                   <td className="px-5 py-3 text-dash-soft">
                     {c.billingCity ?? "—"}
                   </td>
+                  <RowActions
+                    actions={clientListActions({
+                      slug: dashboardSlug,
+                      clientId: c.id,
+                    })}
+                  />
                 </tr>
               ))}
             </tbody>

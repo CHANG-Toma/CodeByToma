@@ -12,6 +12,8 @@ import {
 import { defaultQuoteValidUntil } from "@/lib/dates";
 import { clientQuoteHref, dashboardHref } from "@/lib/dashboard-href";
 import { listClients } from "@/server/application/clients";
+import { getAdminSettings } from "@/server/application/settings";
+import { requireAdmin } from "@/server/infrastructure/auth/session";
 
 type Props = {
   params: Promise<{ dashboardSlug: string }>;
@@ -21,7 +23,11 @@ type Props = {
 export default async function NewQuotePage({ params, searchParams }: Props) {
   const { dashboardSlug } = await params;
   const { clientId } = await searchParams;
-  const clients = await listClients();
+  const session = await requireAdmin();
+  const [clients, settings] = await Promise.all([
+    listClients(),
+    getAdminSettings(session.sub),
+  ]);
   const validUntilDefault = defaultQuoteValidUntil();
 
   async function action(formData: FormData) {
@@ -82,7 +88,11 @@ export default async function NewQuotePage({ params, searchParams }: Props) {
               Catalogue, TJM ou créneau horaire.
             </p>
           </div>
-          <LinesEditor />
+          <LinesEditor
+            setupCents={settings.fees.setupCents}
+            hostingCents={settings.fees.hostingCents}
+            tjmCents={settings.fees.tjmCents}
+          />
         </Panel>
 
         <Panel>

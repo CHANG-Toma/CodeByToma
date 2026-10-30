@@ -4,6 +4,7 @@ import {
   Panel,
   StatusBadge,
 } from "@/components/dashboard/ui";
+import { RowActions, RowActionsHeader } from "@/components/dashboard/RowActions";
 import { paymentMethodLabel } from "@/lib/dashboard-labels";
 import { formatEur } from "@/lib/money";
 import { clientInvoiceHref } from "@/lib/dashboard-href";
@@ -39,6 +40,7 @@ export default async function ClientPaymentsPage({ params }: Props) {
                 <th className="px-5 py-3 font-medium">Méthode</th>
                 <th className="px-5 py-3 font-medium">Montant</th>
                 <th className="px-5 py-3 font-medium">Statut</th>
+                <RowActionsHeader />
               </tr>
             </thead>
             <tbody>
@@ -49,11 +51,7 @@ export default async function ClientPaymentsPage({ params }: Props) {
                   </td>
                   <td className="px-5 py-3">
                     <Link
-                      href={clientInvoiceHref(
-                        dashboardSlug,
-                        id,
-                        p.invoiceId,
-                      )}
+                      href={clientInvoiceHref(dashboardSlug, id, p.invoiceId)}
                       className="text-dash-text hover:underline"
                     >
                       {invoiceById.get(p.invoiceId)?.number ?? "Facture"}
@@ -69,6 +67,19 @@ export default async function ClientPaymentsPage({ params }: Props) {
                       tone={p.status === "completed" ? "ok" : "neutral"}
                     />
                   </td>
+                  <RowActions
+                    actions={[
+                      {
+                        kind: "link",
+                        label: "Voir facture",
+                        href: clientInvoiceHref(
+                          dashboardSlug,
+                          id,
+                          p.invoiceId,
+                        ),
+                      },
+                    ]}
+                  />
                 </tr>
               ))}
             </tbody>

@@ -1,5 +1,10 @@
 import Link from "next/link";
 import {
+  acceptQuoteAction,
+  rejectQuoteAction,
+  sendQuoteAction,
+} from "@/app/(private)/actions";
+import {
   EmptyState,
   PageHeader,
   Panel,
@@ -7,9 +12,11 @@ import {
   PrimaryLink,
   StatusBadge,
 } from "@/components/dashboard/ui";
+import { RowActions, RowActionsHeader } from "@/components/dashboard/RowActions";
 import { quoteStatusLabel } from "@/lib/dashboard-labels";
 import { clientQuoteHref, dashboardHref } from "@/lib/dashboard-href";
 import { formatEur } from "@/lib/money";
+import { quoteListActions } from "@/lib/row-actions";
 import { listQuotes } from "@/server/application/quotes";
 import { listClients } from "@/server/application/clients";
 
@@ -34,13 +41,14 @@ export default async function QuotesPage({ params, searchParams }: Props) {
     }),
     listClients(),
   ]);
-  const clientName = new Map(clients.map((c) => [c.id, c.companyName || c.name]));
+  const clientName = new Map(
+    clients.map((c) => [c.id, c.companyName || c.name]),
+  );
 
   return (
     <div>
       <PageHeader
         title="Devis"
-        description="Création, envoi et acceptation."
         actions={
           <PrimaryLink href={dashboardHref(dashboardSlug, "quotes/new")}>
             Nouveau devis
@@ -85,35 +93,63 @@ export default async function QuotesPage({ params, searchParams }: Props) {
                 <th className="px-5 py-3 font-medium">Statut</th>
                 <th className="px-5 py-3 font-medium">Total TTC</th>
                 <th className="px-5 py-3 font-medium">Créé le</th>
+                <RowActionsHeader />
               </tr>
             </thead>
             <tbody>
-              {quotes.map((quote) => (
-                <tr key={quote.id} className="border-b border-dash-border">
-                  <td className="px-5 py-3">
-                    <Link
-                      href={clientQuoteHref(
-                        dashboardSlug,
-                        quote.clientId,
-                        quote.id,
-                      )}
-                      className="font-medium text-dash-text hover:underline"
-                    >
-                      {quote.number}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3 text-dash-soft">
-                    {clientName.get(quote.clientId) ?? "—"}
-                  </td>
-                  <td className="px-5 py-3">
-                    <StatusBadge label={quoteStatusLabel[quote.status]} />
-                  </td>
-                  <td className="px-5 py-3">{formatEur(quote.totalCents)}</td>
-                  <td className="px-5 py-3 text-dash-muted">
-                    {quote.createdAt.toLocaleDateString("fr-FR")}
-                  </td>
-                </tr>
-              ))}
+              {quotes.map((quote) => {
+                const quoteId = quote.id;
+                async function send() {
+                  "use server";
+                  await sendQuoteAction(quoteId);
+                }
+                async function accept() {
+                  "use server";
+                  await acceptQuoteAction(quoteId);
+                }
+                async function reject() {
+                  "use server";
+                  await rejectQuoteAction(quoteId);
+                }
+
+                return (
+                  <tr key={quote.id} className="border-b border-dash-border">
+                    <td className="px-5 py-3">
+                      <Link
+                        href={clientQuoteHref(
+                          dashboardSlug,
+                          quote.clientId,
+                          quote.id,
+                        )}
+                        className="font-medium text-dash-text hover:underline"
+                      >
+                        {quote.number}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3 text-dash-soft">
+                      {clientName.get(quote.clientId) ?? "—"}
+                    </td>
+                    <td className="px-5 py-3">
+                      <StatusBadge label={quoteStatusLabel[quote.status]} />
+                    </td>
+                    <td className="px-5 py-3">{formatEur(quote.totalCents)}</td>
+                    <td className="px-5 py-3 text-dash-muted">
+                      {quote.createdAt.toLocaleDateString("fr-FR")}
+                    </td>
+                    <RowActions
+                      actions={quoteListActions({
+                        slug: dashboardSlug,
+                        clientId: quote.clientId,
+                        quoteId: quote.id,
+                        status: quote.status,
+                        sendAction: send,
+                        acceptAction: accept,
+                        rejectAction: reject,
+                      })}
+                    />
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </Panel>

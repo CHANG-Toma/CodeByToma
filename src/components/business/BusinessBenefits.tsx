@@ -3,19 +3,20 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
-import { hostingFee, setupFee } from "@/data/pricing";
-
-const benefits = [
-  `Création dès ${setupFee.amount} €`,
-  `Hébergement optionnel ${hostingFee.amount} €/mois`,
-  "Évolutions & améliorations au TJM",
-  "Design personnalisé",
-  "Un développeur Full-Stack dédié",
-  "Sur-mesure sur devis",
-  "Pas d’abonnement si vous hébergez ailleurs",
-];
+import { usePricing } from "@/components/business/PricingProvider";
 
 const BusinessBenefits = () => {
+  const { setupFee, hostingFee } = usePricing();
+  const benefits = [
+    `Création dès ${setupFee.amount} €`,
+    `Hébergement optionnel ${hostingFee.amount} €/mois`,
+    "Évolutions & améliorations au TJM",
+    "Design personnalisé",
+    "Un développeur Full-Stack dédié",
+    "Sur-mesure sur devis",
+    "Pas d’abonnement si vous hébergez ailleurs",
+  ];
+
   return (
     <section
       id="avantages"

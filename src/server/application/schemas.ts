@@ -15,10 +15,21 @@ export const lineInputSchema = z.object({
   position: z.number().int().nonnegative().optional(),
 });
 
+const phoneDigitsSchema = z
+  .union([z.string(), z.null(), z.undefined()])
+  .transform((v) => {
+    if (v == null) return null;
+    const trimmed = String(v).trim();
+    return trimmed.length === 0 ? null : trimmed;
+  })
+  .refine((v) => v === null || /^\d{1,40}$/.test(v), {
+    message: "Téléphone : chiffres uniquement",
+  });
+
 export const clientCreateSchema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email().max(320),
-  phone: z.string().max(40).optional().nullable(),
+  phone: phoneDigitsSchema,
   companyName: z.string().max(200).optional().nullable(),
   billingAddress: z.string().max(500).optional().nullable(),
   billingCity: z.string().max(120).optional().nullable(),
@@ -44,7 +55,7 @@ export const quoteStatusSchema = z.object({
 
 export const invoiceCreateSchema = z.object({
   clientId: z.string().min(1),
-  quoteId: z.string().optional().nullable(),
+  quoteId: z.string().min(1, "Un devis est obligatoire"),
   dueAt: z.coerce.date().optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
   lines: z.array(lineInputSchema).min(1),
@@ -95,11 +106,21 @@ export const clientAccessCreateSchema = z.object({
   name: z.string().min(1).max(200).optional().nullable(),
 });
 
+export const adminProfileUpdateSchema = z.object({
+  name: z.string().max(200),
+});
+
+export const adminFeesUpdateSchema = z.object({
+  setupEuros: z.coerce.number().positive().max(100_000),
+  hostingEuros: z.coerce.number().positive().max(10_000),
+  tjmEuros: z.coerce.number().positive().max(100_000),
+});
+
 /** Champs que le client peut modifier lui-même (pas les notes internes). */
 export const portalProfileUpdateSchema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email().max(320),
-  phone: z.string().max(40).optional().nullable(),
+  phone: phoneDigitsSchema,
   companyName: z.string().max(200).optional().nullable(),
   billingAddress: z.string().max(500).optional().nullable(),
   billingCity: z.string().max(120).optional().nullable(),

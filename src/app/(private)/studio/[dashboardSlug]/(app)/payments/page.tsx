@@ -7,9 +7,11 @@ import {
   PrimaryButton,
   StatusBadge,
 } from "@/components/dashboard/ui";
+import { RowActions, RowActionsHeader } from "@/components/dashboard/RowActions";
 import { paymentMethodLabel } from "@/lib/dashboard-labels";
 import { clientInvoiceHref } from "@/lib/dashboard-href";
 import { formatEur } from "@/lib/money";
+import { paymentListActions } from "@/lib/row-actions";
 import { listInvoices } from "@/server/application/invoices";
 import { listPayments } from "@/server/application/payments";
 import { createPaymentAction } from "@/app/(private)/actions";
@@ -109,23 +111,19 @@ export default async function PaymentsPage({ params }: Props) {
                 <th className="px-5 py-3 font-medium">Méthode</th>
                 <th className="px-5 py-3 font-medium">Montant</th>
                 <th className="px-5 py-3 font-medium">Statut</th>
+                <RowActionsHeader />
               </tr>
             </thead>
             <tbody>
-              {payments.map((p) => (
-                <tr key={p.id} className="border-b border-dash-border">
-                  <td className="px-5 py-3 text-dash-soft">
-                    {p.paidAt.toLocaleDateString("fr-FR")}
-                  </td>
-                  <td className="px-5 py-3">
-                    {(() => {
-                      const inv = invoiceById.get(p.invoiceId);
-                      if (!inv) {
-                        return (
-                          <span className="text-dash-muted">Facture</span>
-                        );
-                      }
-                      return (
+              {payments.map((p) => {
+                const inv = invoiceById.get(p.invoiceId);
+                return (
+                  <tr key={p.id} className="border-b border-dash-border">
+                    <td className="px-5 py-3 text-dash-soft">
+                      {p.paidAt.toLocaleDateString("fr-FR")}
+                    </td>
+                    <td className="px-5 py-3">
+                      {inv ? (
                         <Link
                           href={clientInvoiceHref(
                             dashboardSlug,
@@ -136,21 +134,34 @@ export default async function PaymentsPage({ params }: Props) {
                         >
                           {inv.number}
                         </Link>
-                      );
-                    })()}
-                  </td>
-                  <td className="px-5 py-3">
-                    {paymentMethodLabel[p.method] ?? p.method}
-                  </td>
-                  <td className="px-5 py-3">{formatEur(p.amountCents)}</td>
-                  <td className="px-5 py-3">
-                    <StatusBadge
-                      label={p.status}
-                      tone={p.status === "completed" ? "ok" : "neutral"}
+                      ) : (
+                        <span className="text-dash-muted">Facture</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3">
+                      {paymentMethodLabel[p.method] ?? p.method}
+                    </td>
+                    <td className="px-5 py-3">{formatEur(p.amountCents)}</td>
+                    <td className="px-5 py-3">
+                      <StatusBadge
+                        label={p.status}
+                        tone={p.status === "completed" ? "ok" : "neutral"}
+                      />
+                    </td>
+                    <RowActions
+                      actions={
+                        inv
+                          ? paymentListActions({
+                              slug: dashboardSlug,
+                              clientId: inv.clientId,
+                              invoiceId: inv.id,
+                            })
+                          : []
+                      }
                     />
-                  </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </Panel>

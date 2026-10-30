@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { PageHeader, Panel, StatusBadge } from "@/components/dashboard/ui";
-import { hostingFee, setupFee, tjmFee } from "@/data/pricing";
 import { formatEur } from "@/lib/money";
 import { dashboardHref } from "@/lib/dashboard-href";
+import {
+  feesToEuros,
+  getOperationalFees,
+} from "@/server/application/fees";
 import { getDashboardKpis } from "@/server/application/invoices";
 import { listTodayActions } from "@/server/application/today-actions";
 import {
@@ -32,10 +35,12 @@ function actionTone(
 
 export default async function DashboardHomePage({ params }: Props) {
   const { dashboardSlug } = await params;
-  const [kpis, todayActions] = await Promise.all([
+  const [kpis, todayActions, feesCents] = await Promise.all([
     getDashboardKpis(),
     listTodayActions(),
+    getOperationalFees(),
   ]);
+  const fees = feesToEuros(feesCents);
 
   const cards = [
     {
@@ -63,17 +68,17 @@ export default async function DashboardHomePage({ params }: Props) {
   const tariffRefs = [
     {
       label: "Création vitrine",
-      value: `${setupFee.amount} €`,
+      value: `${fees.setup} €`,
       hint: "Une fois",
     },
     {
       label: "Hébergement",
-      value: `${hostingFee.amount} €`,
+      value: `${fees.hosting} €`,
       hint: "/ mois · si chez toi",
     },
     {
       label: "Évolutions / projets",
-      value: `${tjmFee.amount} €`,
+      value: `${fees.tjm} €`,
       hint: "/ jour (TJM) · hors hébergement",
     },
   ];
@@ -82,7 +87,7 @@ export default async function DashboardHomePage({ params }: Props) {
     <div>
       <PageHeader
         title="Tableau de bord"
-        description="Création / TJM en devis · hébergement 30 €/mois seulement si tu héberges."
+        description={`Création / TJM en devis · hébergement ${fees.hosting} €/mois seulement si tu héberges.`}
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (

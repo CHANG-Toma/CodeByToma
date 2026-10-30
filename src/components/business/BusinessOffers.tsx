@@ -5,15 +5,8 @@ import { motion, useInView } from "framer-motion";
 import { Check, ArrowRight, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import {
-  setupFee,
-  hostingFee,
-  offersSection,
-  pricingOffers,
-  surMesureSection,
-  type PricingOfferCard,
-  type PricingFeature,
-} from "@/data/pricing";
+import { usePricing } from "@/components/business/PricingProvider";
+import type { PricingOfferCard, PricingFeature } from "@/data/pricing";
 import { showcaseProjects, type ShowcaseProject } from "@/data/businessOffers";
 
 const MAILTO = "mailto:toma11chang@gmail.com";
@@ -76,6 +69,7 @@ const OfferCard = ({
   card: PricingOfferCard;
   index: number;
 }) => {
+  const { setupFee, hostingFee } = usePricing();
   const isFeatured = card.featured === true;
 
   return (
@@ -148,32 +142,35 @@ const OfferCard = ({
   );
 };
 
-const SurMesureBanner = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 14 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.4 }}
-    className="mt-24 overflow-hidden rounded-2xl border border-cbtBorder bg-gradient-to-br from-cbtFill via-surface/60 to-transparent px-8 py-12 text-center md:px-12 md:py-14"
-  >
-    <p className="text-[12px] font-medium uppercase tracking-[0.16em] text-mist/70">
-      Sur-mesure
-    </p>
-    <h3 className="mx-auto mt-3 max-w-xl text-xl font-semibold tracking-tight text-snow md:text-2xl">
-      {surMesureSection.title}
-    </h3>
-    <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-mist">
-      {surMesureSection.text}
-    </p>
-    <a
-      href={mailtoHref(surMesureSection.ctaSubject)}
-      className="group mt-8 inline-flex items-center justify-center gap-2 rounded-md bg-snow px-5 py-2.5 text-[13px] font-medium text-ink transition-opacity hover:opacity-90"
+const SurMesureBanner = () => {
+  const { surMesureSection } = usePricing();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="mt-24 overflow-hidden rounded-2xl border border-cbtBorder bg-gradient-to-br from-cbtFill via-surface/60 to-transparent px-8 py-12 text-center md:px-12 md:py-14"
     >
-      {surMesureSection.cta}
-      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-    </a>
-  </motion.div>
-);
+      <p className="text-[12px] font-medium uppercase tracking-[0.16em] text-mist/70">
+        Sur-mesure
+      </p>
+      <h3 className="mx-auto mt-3 max-w-xl text-xl font-semibold tracking-tight text-snow md:text-2xl">
+        {surMesureSection.title}
+      </h3>
+      <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-mist">
+        {surMesureSection.text}
+      </p>
+      <a
+        href={mailtoHref(surMesureSection.ctaSubject)}
+        className="group mt-8 inline-flex items-center justify-center gap-2 rounded-md bg-snow px-5 py-2.5 text-[13px] font-medium text-ink transition-opacity hover:opacity-90"
+      >
+        {surMesureSection.cta}
+        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+      </a>
+    </motion.div>
+  );
+};
 
 const ProjectPreview = ({ project }: { project: ShowcaseProject }) => (
   <div
@@ -265,6 +262,12 @@ const ShowcaseCard = ({
 const BusinessOffers = () => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.12 });
+  const {
+    setupFee,
+    hostingFee,
+    offersSection,
+    pricingOffers,
+  } = usePricing();
 
   return (
     <section

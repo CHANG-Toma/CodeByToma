@@ -106,6 +106,7 @@ export function assertSubscriptionTransition(
 
 /**
  * Déduit le statut facture après un paiement (totaux en centimes).
+ * « payée » uniquement si au moins un paiement et total couvert.
  */
 export function invoiceStatusAfterPayment(
   current: InvoiceStatus,
@@ -116,6 +117,14 @@ export function invoiceStatusAfterPayment(
     throw new Error("Impossible d'enregistrer un paiement sur cette facture");
   }
   if (paidCents <= 0) return current;
-  if (paidCents >= totalCents) return "paid";
+  if (paidCents >= totalCents && totalCents > 0) return "paid";
   return "partially_paid";
+}
+
+/** Une facture ne peut être « payée » que si des paiements couvrent le TTC. */
+export function canMarkInvoicePaid(
+  totalCents: number,
+  paidCents: number,
+): boolean {
+  return paidCents > 0 && totalCents > 0 && paidCents >= totalCents;
 }

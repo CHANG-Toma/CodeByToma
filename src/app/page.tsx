@@ -11,6 +11,7 @@ import BusinessContact from "@/components/business/BusinessContact";
 import BusinessFooter from "@/components/business/BusinessFooter";
 import BusinessStickyCta from "@/components/business/BusinessStickyCta";
 import BusinessMarquee from "@/components/business/BusinessMarquee";
+import { PricingProvider } from "@/components/business/PricingProvider";
 import JsonLd from "@/components/seo/JsonLd";
 import {
   OG_IMAGE,
@@ -19,6 +20,11 @@ import {
   SITE_TITLE_HOME,
   SITE_URL,
 } from "@/lib/seo";
+import {
+  feesToEuros,
+  getOperationalFees,
+} from "@/server/application/fees";
+import { buildOffersFaq } from "@/data/businessOffers";
 
 export const metadata: Metadata = {
   title: {
@@ -53,32 +59,37 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const fees = feesToEuros(await getOperationalFees());
+  const faq = buildOffersFaq(fees);
+
   return (
     <>
-      <JsonLd />
-      <div className="business-theme relative min-h-screen bg-ink text-mist">
-        <a
-          href="#contenu-principal"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:bg-snow focus:px-3 focus:py-2 focus:text-[13px] focus:font-medium focus:text-ink"
-        >
-          Aller au contenu
-        </a>
-        <BusinessNav />
-        <main id="contenu-principal">
-          <BusinessHero />
-          <BusinessMarquee />
-          <BusinessBenefits />
-          <BusinessProcess />
-          <BusinessOffers />
-          <BusinessSubscription />
-          <BusinessApproach />
-          <BusinessFaq />
-          <BusinessContact />
-        </main>
-        <BusinessFooter />
-        <BusinessStickyCta />
-      </div>
+      <JsonLd faq={faq} fees={fees} />
+      <PricingProvider fees={fees}>
+        <div className="business-theme relative min-h-screen bg-ink text-mist">
+          <a
+            href="#contenu-principal"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:bg-snow focus:px-3 focus:py-2 focus:text-[13px] focus:font-medium focus:text-ink"
+          >
+            Aller au contenu
+          </a>
+          <BusinessNav />
+          <main id="contenu-principal">
+            <BusinessHero />
+            <BusinessMarquee />
+            <BusinessBenefits />
+            <BusinessProcess />
+            <BusinessOffers />
+            <BusinessSubscription />
+            <BusinessApproach />
+            <BusinessFaq />
+            <BusinessContact />
+          </main>
+          <BusinessFooter />
+          <BusinessStickyCta />
+        </div>
+      </PricingProvider>
     </>
   );
 }
