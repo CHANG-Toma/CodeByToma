@@ -122,7 +122,7 @@ describe("sortTodayActions", () => {
         amountCents: null,
         clientId: null,
         clientLabel: null,
-      },
+      } as TodayAction,
       {
         id: "a",
         kind: "invoice_overdue",
@@ -134,7 +134,7 @@ describe("sortTodayActions", () => {
         amountCents: null,
         clientId: null,
         clientLabel: null,
-      },
+      } as TodayAction,
     ];
     expect(sortTodayActions(actions).map((a) => a.id)).toEqual(["a", "b"]);
   });

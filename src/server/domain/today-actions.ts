@@ -47,11 +47,22 @@ export type TodayAction = {
   title: string;
   detail: string;
   href: string;
+  /** Lien vers le brouillon de relance, si applicable. */
+  remindHref?: string;
   dueAt: Date | null;
   amountCents: number | null;
   clientId: string | null;
   clientLabel: string | null;
 };
+
+export function isRemindableKind(kind: TodayActionKind): boolean {
+  return (
+    kind === "invoice_overdue" ||
+    kind === "quote_follow_up" ||
+    kind === "quote_expired" ||
+    kind === "quote_expiring"
+  );
+}
 
 function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());

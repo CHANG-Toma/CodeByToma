@@ -101,14 +101,9 @@ export default async function DashboardHomePage({ params }: Props) {
 
       <div className="mt-8">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-medium text-dash-soft">
-              À faire aujourd’hui
-            </h2>
-            <p className="mt-1 text-sm text-dash-muted">
-              Relances, retards et échéances — règles métier, sans bot.
-            </p>
-          </div>
+          <h2 className="text-sm font-medium text-dash-soft">
+            À faire aujourd’hui
+          </h2>
           {todayActions.length > 0 ? (
             <p className="text-xs text-dash-muted2">
               {todayActions.length} action
@@ -119,41 +114,35 @@ export default async function DashboardHomePage({ params }: Props) {
 
         {todayActions.length === 0 ? (
           <Panel>
-            <p className="text-sm font-medium text-dash-text">
-              Rien d’urgent pour l’instant
-            </p>
-            <p className="mt-1 text-sm text-dash-muted">
-              Pas de facture en retard, devis à relancer ni échéance
-              d’abonnement dans les 7 jours.
-            </p>
+            <p className="text-sm text-dash-muted">Rien à traiter pour le moment.</p>
           </Panel>
         ) : (
           <Panel className="overflow-x-auto p-0">
             <ul className="divide-y divide-dash-border">
               {todayActions.map((action) => (
-                <li key={action.id}>
-                  <Link
-                    href={action.href}
-                    className="flex flex-col gap-2 px-5 py-4 transition hover:bg-dash-hover sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0 space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <StatusBadge
-                          label={TODAY_ACTION_LABEL[action.kind]}
-                          tone={actionTone(action.kind)}
-                        />
-                        {action.clientLabel ? (
-                          <span className="text-xs text-dash-muted">
-                            {action.clientLabel}
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="truncate text-sm font-medium text-dash-text">
-                        {action.title}
-                      </p>
-                      <p className="text-xs text-dash-muted">{action.detail}</p>
+                <li
+                  key={action.id}
+                  className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <Link href={action.href} className="min-w-0 flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusBadge
+                        label={TODAY_ACTION_LABEL[action.kind]}
+                        tone={actionTone(action.kind)}
+                      />
+                      {action.clientLabel ? (
+                        <span className="text-xs text-dash-muted">
+                          {action.clientLabel}
+                        </span>
+                      ) : null}
                     </div>
-                    <div className="shrink-0 text-left sm:text-right">
+                    <p className="truncate text-sm font-medium text-dash-text hover:underline">
+                      {action.title}
+                    </p>
+                    <p className="text-xs text-dash-muted">{action.detail}</p>
+                  </Link>
+                  <div className="flex shrink-0 items-center gap-4">
+                    <div className="text-left sm:text-right">
                       {action.amountCents != null ? (
                         <p className="text-sm font-medium text-dash-text">
                           {formatEur(action.amountCents)}
@@ -165,7 +154,15 @@ export default async function DashboardHomePage({ params }: Props) {
                         </p>
                       ) : null}
                     </div>
-                  </Link>
+                    {action.remindHref ? (
+                      <Link
+                        href={action.remindHref}
+                        className="rounded-md border border-dash-border px-3 py-1.5 text-xs text-dash-soft transition hover:bg-dash-hover"
+                      >
+                        Relancer
+                      </Link>
+                    ) : null}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -177,10 +174,6 @@ export default async function DashboardHomePage({ params }: Props) {
         <h2 className="mb-3 text-sm font-medium text-dash-soft">
           Grille de référence
         </h2>
-        <p className="mb-4 max-w-2xl text-sm text-dash-muted">
-          Hébergement = infra uniquement. Toute modification ou amélioration se
-          facture au TJM (lignes de devis / facture), pas dans les 30 €.
-        </p>
         <div className="grid gap-4 sm:grid-cols-3">
           {tariffRefs.map((ref) => (
             <Panel key={ref.label}>

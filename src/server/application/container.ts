@@ -1,3 +1,4 @@
+import { LogMailer } from "@/server/infrastructure/mail/log-mailer";
 import { ManualPaymentGateway } from "@/server/infrastructure/payment/manual-payment-gateway";
 import {
   auditLogRepository,
@@ -10,7 +11,7 @@ import {
   userRepository,
 } from "@/server/infrastructure/prisma/repositories";
 
-/** Composition root MVP. IMailer / Stripe se brancheront ici plus tard. */
+/** Composition root MVP. SMTP/Resend se brancheront via IMailer. */
 export const deps = {
   clients: clientRepository,
   quotes: quoteRepository,
@@ -21,6 +22,7 @@ export const deps = {
   audit: auditLogRepository,
   users: userRepository,
   paymentGateway: new ManualPaymentGateway(),
+  mailer: new LogMailer(),
 };
 
 export type AppDeps = typeof deps;

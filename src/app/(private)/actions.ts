@@ -10,6 +10,7 @@ import * as quotesApp from "@/server/application/quotes";
 import * as invoicesApp from "@/server/application/invoices";
 import * as paymentsApp from "@/server/application/payments";
 import * as subscriptionsApp from "@/server/application/subscriptions";
+import * as remindersApp from "@/server/application/reminders";
 import { getDashboardBasePath } from "@/server/infrastructure/auth/dashboard-path";
 import { dashboardHref } from "@/lib/dashboard-href";
 import {
@@ -20,6 +21,7 @@ import {
 } from "@/server/infrastructure/auth/session";
 import { getClientIpKey } from "@/server/infrastructure/auth/client-ip";
 import { DomainError } from "@/server/domain/errors";
+import type { ReminderKind } from "@/server/domain/reminder-templates";
 import { postLoginPath } from "@/server/domain/roles";
 
 function slug() {
@@ -372,6 +374,27 @@ export async function updatePortalProfileAction(
       consentMarketing: formData.get("consentMarketing") === "on",
     });
     revalidatePortal("profil");
+    return { ok: true };
+  } catch (e) {
+    return toActionError(e);
+  }
+}
+
+export async function markReminderSentAction(input: {
+  entity: "quote" | "invoice";
+  entityId: string;
+  kind: ReminderKind;
+  channel?: "mailto" | "log" | "copy";
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    await remindersApp.markReminderSent({
+      entity: input.entity,
+      entityId: input.entityId,
+      kind: input.kind,
+      channel: input.channel ?? "mailto",
+    });
+    revalidateDashboard();
     return { ok: true };
   } catch (e) {
     return toActionError(e);

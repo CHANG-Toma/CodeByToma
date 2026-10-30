@@ -94,6 +94,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
         ? formatDaysLate(inv.dueAt, now)
         : "Échéance dépassée",
       href: dashboardHref(slug, `invoices/${inv.id}`),
+      remindHref: dashboardHref(slug, `reminders/invoice/${inv.id}`),
       dueAt: inv.dueAt,
       amountCents: remaining,
       clientId: inv.clientId,
@@ -120,6 +121,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
           ? `Validité au ${quote.validUntil.toLocaleDateString("fr-FR")}`
           : "Validité dépassée",
         href: dashboardHref(slug, `quotes/${quote.id}`),
+        remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
         dueAt: quote.validUntil,
         amountCents: quote.totalCents,
         clientId: quote.clientId,
@@ -148,6 +150,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
         title: `${TODAY_ACTION_LABEL.quote_follow_up} · ${quote.number}`,
         detail: `Envoyé il y a ${days} jour${days > 1 ? "s" : ""}`,
         href: dashboardHref(slug, `quotes/${quote.id}`),
+        remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
         dueAt: anchor,
         amountCents: quote.totalCents,
         clientId: quote.clientId,
@@ -172,6 +175,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
           ? `Expire le ${quote.validUntil.toLocaleDateString("fr-FR")}`
           : "Expiration proche",
         href: dashboardHref(slug, `quotes/${quote.id}`),
+        remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
         dueAt: quote.validUntil,
         amountCents: quote.totalCents,
         clientId: quote.clientId,
