@@ -99,7 +99,20 @@ const FadeContent: React.FC<FadeContentProps> = ({
       tl.kill();
       gsap.killTweensOf(el);
     };
-  }, []);
+  }, [
+    blur,
+    container,
+    delay,
+    disappearAfter,
+    disappearDuration,
+    disappearEase,
+    duration,
+    ease,
+    initialOpacity,
+    onComplete,
+    onDisappearanceComplete,
+    threshold,
+  ]);
 
   return (
     <div ref={ref} className={className} {...props}>
