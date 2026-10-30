@@ -1,3 +1,13 @@
 {
-    "prisma.pinToPrisma6": true
+    "prisma.pinToPrisma6": true,
+    "terminal.integrated.env.windows": {
+        "Path": "C:\\Users\\hauat\\AppData\\Local\\nodejs-v22.20.0;${env:Path}"
+    },
+    "terminal.integrated.profiles.windows": {
+        "Git Bash": {
+            "source": "Git Bash",
+            "args": ["--login", "-i"]
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "Git Bash"
 }
