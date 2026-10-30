@@ -1,5 +1,11 @@
 import type { MoneyCents } from "./money";
-import { hostingFee, setupFee } from "@/data/pricing";
+import {
+  HOSTING_FEE_CENTS,
+  SETUP_FEE_CENTS,
+  TJM_FEE_CENTS,
+  TJM_FEE_EUR,
+  HOSTING_FEE_EUR,
+} from "@/data/fees";
 
 export const OFFER_KINDS = ["setup", "hosting", "custom"] as const;
 
@@ -13,25 +19,25 @@ export type CatalogOfferSeed = {
   isActive?: boolean;
 };
 
-/** Source de vérité alignée sur src/data/pricing.ts (centimes). */
+/** Source de vérité alignée sur src/data/fees.ts (centimes). */
 export const CATALOG_OFFERS: readonly CatalogOfferSeed[] = [
   {
     kind: "setup",
     label: "Création du site",
     description: "Frais uniques de conception et mise en ligne (vitrine)",
-    priceCents: setupFee.amount * 100,
+    priceCents: SETUP_FEE_CENTS,
   },
   {
     kind: "hosting",
     label: "Hébergement mensuel",
-    description: `Hébergement chez CodeByToma — ${hostingFee.amount} €/mois (sans modifications)`,
-    priceCents: hostingFee.amount * 100,
+    description: `Hébergement chez CodeByToma — ${HOSTING_FEE_EUR} €/mois (sans modifications)`,
+    priceCents: HOSTING_FEE_CENTS,
   },
   {
     kind: "custom",
     label: "Prestation TJM (1 jour)",
-    description: "Évolutions, améliorations et sur-mesure — 380 €/jour indicatif",
-    priceCents: 38000,
+    description: `Évolutions, améliorations et sur-mesure — ${TJM_FEE_EUR} €/jour indicatif`,
+    priceCents: TJM_FEE_CENTS,
   },
 ] as const;
 

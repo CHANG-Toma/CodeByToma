@@ -352,7 +352,12 @@ export const paymentRepository: IPaymentRepository = {
 
   async list(filters) {
     const rows = await prisma.payment.findMany({
-      where: filters?.invoiceId ? { invoiceId: filters.invoiceId } : {},
+      where: {
+        ...(filters?.invoiceId ? { invoiceId: filters.invoiceId } : {}),
+        ...(filters?.clientId
+          ? { invoice: { clientId: filters.clientId } }
+          : {}),
+      },
       orderBy: { paidAt: "desc" },
     });
     return rows.map(mapPayment);

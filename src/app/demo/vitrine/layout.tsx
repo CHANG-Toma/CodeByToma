@@ -1,18 +1,29 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Outfit } from "next/font/google";
+import localFont from "next/font/local";
 
-const display = Cormorant_Garamond({
-  subsets: ["latin"],
+const display = localFont({
+  src: [
+    {
+      path: "../../../fonts/cormorant-garamond-latin-wght-normal.woff2",
+      weight: "400 700",
+      style: "normal",
+    },
+    {
+      path: "../../../fonts/cormorant-garamond-latin-wght-italic.woff2",
+      weight: "400 700",
+      style: "italic",
+    },
+  ],
   variable: "--font-aria-display",
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  display: "swap",
 });
 
-const body = Outfit({
-  subsets: ["latin"],
+const body = localFont({
+  src: "../../../fonts/outfit-latin-wght-normal.woff2",
   variable: "--font-aria-body",
-  weight: ["300", "400", "500", "600"],
+  weight: "300 600",
+  display: "swap",
 });
 
 export const metadata: Metadata = {

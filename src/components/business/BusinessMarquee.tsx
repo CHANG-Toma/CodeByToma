@@ -1,5 +1,3 @@
-"use client";
-
 import { hostingFee, setupFee } from "@/data/pricing";
 
 const items = [

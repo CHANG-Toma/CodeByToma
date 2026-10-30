@@ -5,10 +5,10 @@ import {
   StatusBadge,
 } from "@/components/dashboard/ui";
 import { paymentMethodLabel } from "@/lib/dashboard-labels";
-import { formatEur } from "@/server/domain/money";
+import { formatEur } from "@/lib/money";
+import { dashboardHref } from "@/lib/dashboard-href";
 import { listInvoices } from "@/server/application/invoices";
-import { listPayments } from "@/server/application/payments";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
+import { listPaymentsForClient } from "@/server/application/payments";
 
 type Props = {
   params: Promise<{ dashboardSlug: string; id: string }>;
@@ -16,12 +16,11 @@ type Props = {
 
 export default async function ClientPaymentsPage({ params }: Props) {
   const { dashboardSlug, id } = await params;
-  const [invoices, allPayments] = await Promise.all([
+  const [invoices, payments] = await Promise.all([
     listInvoices({ clientId: id }),
-    listPayments(),
+    listPaymentsForClient(id),
   ]);
   const invoiceById = new Map(invoices.map((i) => [i.id, i]));
-  const payments = allPayments.filter((p) => invoiceById.has(p.invoiceId));
 
   return (
     <div>
@@ -56,7 +55,7 @@ export default async function ClientPaymentsPage({ params }: Props) {
                       )}
                       className="text-dash-text hover:underline"
                     >
-                      {invoiceById.get(p.invoiceId)?.number ?? p.invoiceId}
+                      {invoiceById.get(p.invoiceId)?.number ?? "Facture"}
                     </Link>
                   </td>
                   <td className="px-5 py-3">

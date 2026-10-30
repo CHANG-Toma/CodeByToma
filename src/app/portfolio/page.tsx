@@ -1,5 +1,3 @@
-"use client";
-
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
@@ -10,7 +8,7 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
 
-const PortfolioPage = () => {
+export default function PortfolioPage() {
   return (
     <div className="min-h-screen relative portfolio-theme">
       <BackgroundAnimation />
@@ -26,6 +24,4 @@ const PortfolioPage = () => {
       </main>
     </div>
   );
-};
-
-export default PortfolioPage;
+}

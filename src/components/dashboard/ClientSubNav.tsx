@@ -10,7 +10,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
+import { dashboardHref } from "@/lib/dashboard-href";
 
 export type ClientTabCounts = {
   quotes: number;

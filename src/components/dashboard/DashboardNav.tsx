@@ -19,7 +19,7 @@ import { signOutAction } from "@/app/(private)/actions";
 import { DashboardThemeToggle } from "@/components/dashboard/DashboardThemeToggle";
 import { cn } from "@/lib/utils";
 import { SITE_LOGO } from "@/lib/seo";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
+import { dashboardHref } from "@/lib/dashboard-href";
 
 const SIDEBAR_KEY = "cbt-dashboard-sidebar-collapsed";
 

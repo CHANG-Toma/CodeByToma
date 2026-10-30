@@ -7,8 +7,7 @@ import {
   SecondaryButton,
 } from "@/components/dashboard/ui";
 import { getClientDetail } from "@/server/application/clients";
-import { deps } from "@/server/application/container";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
+import { dashboardHref } from "@/lib/dashboard-href";
 
 type Props = {
   children: React.ReactNode;
@@ -25,10 +24,7 @@ export default async function ClientLayout({ children, params }: Props) {
     notFound();
   }
 
-  const { client, quotes, invoices, subscriptions } = detail;
-  const payments = await deps.payments.list();
-  const invoiceIds = new Set(invoices.map((i) => i.id));
-  const clientPayments = payments.filter((p) => invoiceIds.has(p.invoiceId));
+  const { client, quotes, invoices, subscriptions, payments } = detail;
 
   async function remove() {
     "use server";
@@ -64,7 +60,7 @@ export default async function ClientLayout({ children, params }: Props) {
         counts={{
           quotes: quotes.length,
           invoices: invoices.length,
-          payments: clientPayments.length,
+          payments: payments.length,
           subscriptions: subscriptions.length,
         }}
       />

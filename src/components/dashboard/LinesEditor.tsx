@@ -1,8 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { calculateDocumentTotals } from "@/server/domain/totals";
-import { formatEur } from "@/server/domain/money";
+import { calculateDocumentTotals } from "@/lib/document-totals";
+import { formatEur } from "@/lib/money";
+import {
+  HOSTING_FEE_CENTS,
+  SETUP_FEE_CENTS,
+  TJM_FEE_CENTS,
+  TJM_HALF_DAY_CENTS,
+} from "@/data/fees";
 
 export type LineDraft = {
   label: string;
@@ -12,10 +18,10 @@ export type LineDraft = {
 };
 
 const PRESETS: Array<{ label: string; unitPriceHtCents: number }> = [
-  { label: "Création du site", unitPriceHtCents: 14900 },
-  { label: "Hébergement — 1 mois", unitPriceHtCents: 3000 },
-  { label: "Prestation TJM — 1 jour", unitPriceHtCents: 38000 },
-  { label: "Prestation TJM — ½ jour", unitPriceHtCents: 19000 },
+  { label: "Création du site", unitPriceHtCents: SETUP_FEE_CENTS },
+  { label: "Hébergement — 1 mois", unitPriceHtCents: HOSTING_FEE_CENTS },
+  { label: "Prestation TJM — 1 jour", unitPriceHtCents: TJM_FEE_CENTS },
+  { label: "Prestation TJM — ½ jour", unitPriceHtCents: TJM_HALF_DAY_CENTS },
 ];
 
 type Props = {
@@ -34,7 +40,7 @@ export function LinesEditor({
           {
             label: "Création du site",
             quantity: 1,
-            unitPriceHtCents: 14900,
+            unitPriceHtCents: SETUP_FEE_CENTS,
             taxRatePercent: 0,
           },
         ],

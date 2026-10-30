@@ -1,7 +1,5 @@
-"use client";
-
-import React from "react";
 import Link from "next/link";
+import { HOSTING_FEE_EUR, SETUP_FEE_EUR } from "@/data/fees";
 
 const BusinessFooter = () => {
   const year = new Date().getFullYear();
@@ -15,13 +13,17 @@ const BusinessFooter = () => {
             <span className="mx-2 opacity-40">·</span>
             Code by Toma
             <span className="mx-2 opacity-40">·</span>
-            Création 149 € · Hébergement 30 €/mois · TJM
+            Création {SETUP_FEE_EUR} € · Hébergement {HOSTING_FEE_EUR} €/mois ·
+            TJM
           </p>
           <p className="mt-2 text-[12px] text-mist/70" suppressHydrationWarning>
             © {year} Toma Chang (Code by Toma) — Tous droits réservés
           </p>
         </div>
-        <nav aria-label="Pied de page" className="flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-mist">
+        <nav
+          aria-label="Pied de page"
+          className="flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-mist"
+        >
           <a href="#processus" className="transition-colors hover:text-snow">
             Méthode
           </a>

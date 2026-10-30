@@ -213,7 +213,10 @@ export type IInvoiceRepository = {
 
 export type IPaymentRepository = {
   findById(id: string): Promise<PaymentRecord | null>;
-  list(filters?: { invoiceId?: string }): Promise<PaymentRecord[]>;
+  list(filters?: {
+    invoiceId?: string;
+    clientId?: string;
+  }): Promise<PaymentRecord[]>;
   create(
     data: Omit<PaymentRecord, "id" | "createdAt" | "updatedAt">,
   ): Promise<PaymentRecord>;

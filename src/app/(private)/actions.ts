@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import * as clientsApp from "@/server/application/clients";
 import * as clientAccessApp from "@/server/application/client-access";
 import * as portalApp from "@/server/application/portal";
@@ -9,10 +10,8 @@ import * as quotesApp from "@/server/application/quotes";
 import * as invoicesApp from "@/server/application/invoices";
 import * as paymentsApp from "@/server/application/payments";
 import * as subscriptionsApp from "@/server/application/subscriptions";
-import {
-  getDashboardBasePath,
-  dashboardHref,
-} from "@/server/infrastructure/auth/dashboard-path";
+import { getDashboardBasePath } from "@/server/infrastructure/auth/dashboard-path";
+import { dashboardHref } from "@/lib/dashboard-href";
 import {
   requireAdmin,
   requireClient,
@@ -40,6 +39,13 @@ function toActionError(e: unknown): { ok: false; error: string } {
     return { ok: false, error: e.message };
   }
   return { ok: false, error: "Une erreur est survenue" };
+}
+
+function rethrowRedirect(e: unknown): never {
+  if (isRedirectError(e)) throw e;
+  throw e instanceof DomainError
+    ? new Error(e.message)
+    : new Error("Une erreur est survenue");
 }
 
 export async function signInAction(
@@ -117,9 +123,13 @@ export async function updateClientAction(
 
 export async function deleteClientAction(id: string) {
   await requireAdmin();
-  await clientsApp.deleteClient(id);
-  revalidateDashboard("clients");
-  redirect(dashboardHref(slug(), "clients"));
+  try {
+    await clientsApp.deleteClient(id);
+    revalidateDashboard("clients");
+    redirect(dashboardHref(slug(), "clients"));
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function createClientAccessAction(
@@ -168,24 +178,36 @@ export async function createQuoteAction(
 
 export async function sendQuoteAction(id: string) {
   await requireAdmin();
-  await quotesApp.transitionQuote(id, { status: "sent" });
-  revalidateDashboard(`quotes/${id}`);
-  revalidateDashboard("quotes");
+  try {
+    await quotesApp.transitionQuote(id, { status: "sent" });
+    revalidateDashboard(`quotes/${id}`);
+    revalidateDashboard("quotes");
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function acceptQuoteAction(id: string) {
   await requireAdmin();
-  const invoice = await quotesApp.acceptQuoteAndCreateInvoice(id);
-  revalidateDashboard(`quotes/${id}`);
-  revalidateDashboard("quotes");
-  revalidateDashboard("invoices");
-  redirect(dashboardHref(slug(), `invoices/${invoice.id}`));
+  try {
+    const invoice = await quotesApp.acceptQuoteAndCreateInvoice(id);
+    revalidateDashboard(`quotes/${id}`);
+    revalidateDashboard("quotes");
+    revalidateDashboard("invoices");
+    redirect(dashboardHref(slug(), `invoices/${invoice.id}`));
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function rejectQuoteAction(id: string) {
   await requireAdmin();
-  await quotesApp.transitionQuote(id, { status: "rejected" });
-  revalidateDashboard(`quotes/${id}`);
+  try {
+    await quotesApp.transitionQuote(id, { status: "rejected" });
+    revalidateDashboard(`quotes/${id}`);
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function createInvoiceAction(
@@ -209,14 +231,22 @@ export async function createInvoiceAction(
 
 export async function issueInvoiceAction(id: string) {
   await requireAdmin();
-  await invoicesApp.transitionInvoice(id, { status: "issued" });
-  revalidateDashboard(`invoices/${id}`);
+  try {
+    await invoicesApp.transitionInvoice(id, { status: "issued" });
+    revalidateDashboard(`invoices/${id}`);
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function cancelInvoiceAction(id: string) {
   await requireAdmin();
-  await invoicesApp.transitionInvoice(id, { status: "cancelled" });
-  revalidateDashboard(`invoices/${id}`);
+  try {
+    await invoicesApp.transitionInvoice(id, { status: "cancelled" });
+    revalidateDashboard(`invoices/${id}`);
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function createPaymentAction(
@@ -270,38 +300,58 @@ export async function createSubscriptionAction(
 
 export async function pauseSubscriptionAction(id: string) {
   await requireAdmin();
-  await subscriptionsApp.transitionSubscription(id, { status: "paused" });
-  revalidateDashboard("subscriptions");
+  try {
+    await subscriptionsApp.transitionSubscription(id, { status: "paused" });
+    revalidateDashboard("subscriptions");
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function resumeSubscriptionAction(id: string) {
   await requireAdmin();
-  await subscriptionsApp.transitionSubscription(id, { status: "active" });
-  revalidateDashboard("subscriptions");
+  try {
+    await subscriptionsApp.transitionSubscription(id, { status: "active" });
+    revalidateDashboard("subscriptions");
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function cancelSubscriptionAction(id: string) {
   await requireAdmin();
-  await subscriptionsApp.transitionSubscription(id, { status: "cancelled" });
-  revalidateDashboard("subscriptions");
+  try {
+    await subscriptionsApp.transitionSubscription(id, { status: "cancelled" });
+    revalidateDashboard("subscriptions");
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 /* ——— Espace client ——— */
 
 export async function acceptPortalQuoteAction(id: string) {
-  const session = await requireClient();
-  const invoice = await portalApp.acceptPortalQuote(session.clientId, id);
-  revalidatePortal("devis");
-  revalidatePortal(`devis/${id}`);
-  revalidatePortal("factures");
-  redirect(`/espace/factures/${invoice.id}`);
+  try {
+    const session = await requireClient();
+    const invoice = await portalApp.acceptPortalQuote(session.clientId, id);
+    revalidatePortal("devis");
+    revalidatePortal(`devis/${id}`);
+    revalidatePortal("factures");
+    redirect(`/espace/factures/${invoice.id}`);
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function rejectPortalQuoteAction(id: string) {
-  const session = await requireClient();
-  await portalApp.rejectPortalQuote(session.clientId, id);
-  revalidatePortal("devis");
-  revalidatePortal(`devis/${id}`);
+  try {
+    const session = await requireClient();
+    await portalApp.rejectPortalQuote(session.clientId, id);
+    revalidatePortal("devis");
+    revalidatePortal(`devis/${id}`);
+  } catch (e) {
+    rethrowRedirect(e);
+  }
 }
 
 export async function updatePortalProfileAction(

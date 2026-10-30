@@ -9,9 +9,13 @@ export class DomainError extends Error {
 }
 
 export class NotFoundError extends DomainError {
+  /** Id interne — ne jamais exposer au client HTTP. */
+  readonly entityId?: string;
+
   constructor(entity: string, id?: string) {
-    super("NOT_FOUND", id ? `${entity} introuvable (${id})` : `${entity} introuvable`);
+    super("NOT_FOUND", `${entity} introuvable`);
     this.name = "NotFoundError";
+    this.entityId = id;
   }
 }
 

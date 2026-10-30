@@ -8,6 +8,12 @@ export async function listPayments(invoiceId?: string): Promise<PaymentRecord[]>
   return deps.payments.list(invoiceId ? { invoiceId } : undefined);
 }
 
+export async function listPaymentsForClient(
+  clientId: string,
+): Promise<PaymentRecord[]> {
+  return deps.payments.list({ clientId });
+}
+
 export async function createPayment(input: unknown): Promise<PaymentRecord> {
   const parsed = paymentCreateSchema.safeParse(input);
   if (!parsed.success) {

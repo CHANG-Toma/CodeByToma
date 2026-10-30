@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+export { dashboardHref } from "@/lib/dashboard-href";
 
 /**
  * Valide le segment d'URL secret. Mauvais slug → 404 (pas 401 révélateur).
@@ -17,9 +18,4 @@ export function assertValidDashboardSlug(slug: string): void {
   if (slug !== expected) {
     notFound();
   }
-}
-
-export function dashboardHref(slug: string, path = ""): string {
-  const clean = path.replace(/^\/+/, "");
-  return clean ? `/${slug}/${clean}` : `/${slug}`;
 }

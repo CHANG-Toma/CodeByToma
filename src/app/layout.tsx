@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -14,10 +14,11 @@ import {
   SITE_URL,
 } from "@/lib/seo";
 
-const figtree = Figtree({
+/** Self-hosted: avoids Turbopack next/font/google kit-URL bug (vercel/next.js#99114). */
+const figtree = localFont({
+  src: "../fonts/figtree-latin-wght-normal.woff2",
   variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: "400 700",
   display: "swap",
 });
 

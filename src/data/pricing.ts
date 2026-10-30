@@ -1,3 +1,9 @@
+import {
+  HOSTING_FEE_EUR,
+  SETUP_FEE_EUR,
+  TJM_FEE_EUR,
+} from "@/data/fees";
+
 export type PricingFeature = {
   text: string;
   detail?: string;
@@ -21,30 +27,28 @@ export type PricingOfferCard = {
 
 /** Création vitrine — frais uniques. */
 export const setupFee = {
-  amount: 149,
-  label: "Création du site : 149 €",
+  amount: SETUP_FEE_EUR,
+  label: `Création du site : ${SETUP_FEE_EUR} €`,
   detail: "frais uniques pour un site vitrine",
-  shortLine: "149 € de création · une seule fois",
-  plainExplanation:
-    "149 € une seule fois pour concevoir et mettre en ligne votre site vitrine. L’hébergement chez CodeByToma est optionnel (30 €/mois). Les modifications et améliorations se facturent à part, au TJM.",
+  shortLine: `${SETUP_FEE_EUR} € de création · une seule fois`,
+  plainExplanation: `${SETUP_FEE_EUR} € une seule fois pour concevoir et mettre en ligne votre site vitrine. L’hébergement chez CodeByToma est optionnel (${HOSTING_FEE_EUR} €/mois). Les modifications et améliorations se facturent à part, au TJM.`,
 };
 
 /** Hébergement uniquement — si le client veut que tu héberges. */
 export const hostingFee = {
-  amount: 30,
-  label: "Hébergement : 30 €/mois",
+  amount: HOSTING_FEE_EUR,
+  label: `Hébergement : ${HOSTING_FEE_EUR} €/mois`,
   detail: "uniquement si le site est hébergé chez CodeByToma",
-  shortLine: "30 €/mois · hébergement",
-  plainExplanation:
-    "30 € par mois pour garder votre site en ligne chez moi : hébergement, nom de domaine, HTTPS, sauvegardes et surveillance. Aucune modification de contenu ni d’évolution n’est incluse.",
+  shortLine: `${HOSTING_FEE_EUR} €/mois · hébergement`,
+  plainExplanation: `${HOSTING_FEE_EUR} € par mois pour garder votre site en ligne chez moi : hébergement, nom de domaine, HTTPS, sauvegardes et surveillance. Aucune modification de contenu ni d’évolution n’est incluse.`,
 };
 
 /** TJM de référence (évolutions / projets) — distinct de l’hébergement. */
 export const tjmFee = {
-  amount: 380,
-  label: "TJM : 380 € / jour",
+  amount: TJM_FEE_EUR,
+  label: `TJM : ${TJM_FEE_EUR} € / jour`,
   detail: "Modifications, améliorations et sur-mesure — hors hébergement",
-  shortLine: "380 € / jour (TJM)",
+  shortLine: `${TJM_FEE_EUR} € / jour (TJM)`,
 };
 
 /** Formulations courtes réutilisées sur le site. */
@@ -60,8 +64,7 @@ export const pricingSummary = {
 export const offersSection = {
   label: "Tarifs",
   heading: "Simple : création, hébergement, puis TJM si besoin",
-  description:
-    "Vous payez la création une fois. Si vous voulez que j’héberge le site, c’est 30 €/mois. Toute modification ou amélioration se facture à part, au taux journalier — pas dans l’hébergement.",
+  description: `Vous payez la création une fois. Si vous voulez que j’héberge le site, c’est ${HOSTING_FEE_EUR} €/mois. Toute modification ou amélioration se facture à part, au taux journalier — pas dans l’hébergement.`,
   commitment:
     "Hébergement : engagement initial 12 mois, puis reconduction. Résiliation selon le contrat.",
   evolutionNote:
@@ -75,7 +78,7 @@ export const pricingOffers: PricingOfferCard[] = [
     title: "Création",
     tagline: "Votre site vitrine conçu et mis en ligne.",
     summary: "Design, pages essentielles et formulaire de contact — une seule fois.",
-    price: "149 €",
+    price: `${SETUP_FEE_EUR} €`,
     period: " une fois",
     features: [
       { text: "Site vitrine (jusqu’à ~3–5 pages)" },
@@ -92,7 +95,7 @@ export const pricingOffers: PricingOfferCard[] = [
     tagline: "Uniquement si vous voulez que j’héberge le site chez moi.",
     summary:
       "Le site reste en ligne, sécurisé et surveillé. Pas de modifications incluses.",
-    price: "30 €",
+    price: `${HOSTING_FEE_EUR} €`,
     period: "/mois",
     features: [
       {
@@ -113,7 +116,7 @@ export const pricingOffers: PricingOfferCard[] = [
       },
     ],
     cta: "Choisir l’hébergement",
-    ctaSubject: "CodeByToma — Hébergement 30 €/mois",
+    ctaSubject: `CodeByToma — Hébergement ${HOSTING_FEE_EUR} €/mois`,
     featured: true,
     badge: "Optionnel",
   },
@@ -123,7 +126,7 @@ export const pricingOffers: PricingOfferCard[] = [
     tagline: "Améliorations, nouvelles fonctions, sur-mesure.",
     summary:
       "Tout ce qui n’est pas de l’hébergement : au TJM ou en forfait jours, sur devis.",
-    price: "380 €",
+    price: `${TJM_FEE_EUR} €`,
     period: "/jour",
     features: [
       { text: "Modifications de contenu ou de design" },
@@ -134,7 +137,7 @@ export const pricingOffers: PricingOfferCard[] = [
       },
       { text: "Forfait jours possible si le périmètre est clair" },
       {
-        text: "Jamais inclus dans les 30 € d’hébergement",
+        text: `Jamais inclus dans les ${HOSTING_FEE_EUR} € d’hébergement`,
       },
     ],
     cta: "Parler de mon projet",
