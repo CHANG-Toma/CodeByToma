@@ -12,6 +12,7 @@ import * as paymentsApp from "@/server/application/payments";
 import * as subscriptionsApp from "@/server/application/subscriptions";
 import * as remindersApp from "@/server/application/reminders";
 import * as settingsApp from "@/server/application/settings";
+import * as assistantApp from "@/server/application/assistant";
 import { getDashboardBasePath } from "@/server/infrastructure/auth/dashboard-path";
 import { clientInvoiceHref, dashboardHref } from "@/lib/dashboard-href";
 import {
@@ -425,6 +426,32 @@ export async function updateAdminFeesAction(formData: FormData) {
     revalidateDashboard("profil");
     revalidateDashboard("quotes");
     revalidatePath("/");
+  } catch (e) {
+    rethrowRedirect(e);
+  }
+}
+
+export async function markAssistantItemUsedAction(formData: FormData) {
+  await requireAdmin();
+  try {
+    await assistantApp.setAssistantItemStatus(
+      String(formData.get("id") ?? ""),
+      "used",
+    );
+    revalidateDashboard("opportunites");
+  } catch (e) {
+    rethrowRedirect(e);
+  }
+}
+
+export async function dismissAssistantItemAction(formData: FormData) {
+  await requireAdmin();
+  try {
+    await assistantApp.setAssistantItemStatus(
+      String(formData.get("id") ?? ""),
+      "dismissed",
+    );
+    revalidateDashboard("opportunites");
   } catch (e) {
     rethrowRedirect(e);
   }

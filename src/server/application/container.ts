@@ -1,6 +1,7 @@
 import { LogMailer } from "@/server/infrastructure/mail/log-mailer";
 import { ManualPaymentGateway } from "@/server/infrastructure/payment/manual-payment-gateway";
 import {
+  assistantRepository,
   auditLogRepository,
   catalogOfferRepository,
   clientRepository,
@@ -21,6 +22,7 @@ export const deps = {
   catalog: catalogOfferRepository,
   audit: auditLogRepository,
   users: userRepository,
+  assistant: assistantRepository,
   paymentGateway: new ManualPaymentGateway(),
   mailer: new LogMailer(),
 };

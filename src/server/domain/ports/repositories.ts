@@ -1,3 +1,9 @@
+import type {
+  AssistantBatchKind,
+  AssistantBatchRecord,
+  AssistantItemRecord,
+  AssistantItemStatus,
+} from "../assistant";
 import type { OfferKind } from "../catalog";
 import type { UserRole } from "../roles";
 import type {
@@ -259,6 +265,35 @@ export type IAuditLogRepository = {
     entityId?: string | null;
     metadata?: Record<string, unknown> | null;
   }): Promise<void>;
+};
+
+export type AssistantItemCreateInput = {
+  title: string;
+  summary?: string | null;
+  detail?: string | null;
+  sourceUrl?: string | null;
+  commercialAction?: string | null;
+  draftEmailSubject?: string | null;
+  draftEmailBody?: string | null;
+  externalKey?: string | null;
+};
+
+export type IAssistantRepository = {
+  createBatch(input: {
+    kind: AssistantBatchKind;
+    title?: string | null;
+    periodLabel?: string | null;
+    items: AssistantItemCreateInput[];
+  }): Promise<AssistantBatchRecord>;
+  listBatches(filters?: {
+    kind?: AssistantBatchKind;
+    limit?: number;
+  }): Promise<AssistantBatchRecord[]>;
+  listProspectKeys(): Promise<string[]>;
+  updateItemStatus(
+    id: string,
+    status: AssistantItemStatus,
+  ): Promise<AssistantItemRecord>;
 };
 
 export type AuthUserRecord = {

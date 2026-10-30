@@ -110,6 +110,28 @@ export const adminProfileUpdateSchema = z.object({
   name: z.string().max(200),
 });
 
+export const assistantIngestSchema = z.object({
+  kind: z.enum(["veille", "prospection"]),
+  title: z.string().max(300).optional().nullable(),
+  periodLabel: z.string().max(120).optional().nullable(),
+  items: z
+    .array(
+      z.object({
+        title: z.string().min(1).max(300),
+        summary: z.string().max(4000).optional().nullable(),
+        detail: z.string().max(4000).optional().nullable(),
+        sourceUrl: z.string().max(2000).optional().nullable(),
+        commercialAction: z.string().max(2000).optional().nullable(),
+        draftEmailSubject: z.string().max(300).optional().nullable(),
+        draftEmailBody: z.string().max(10000).optional().nullable(),
+        externalKey: z.string().min(2).max(200).optional().nullable(),
+      }),
+    )
+    .min(1)
+    .max(30),
+});
+
+
 export const adminFeesUpdateSchema = z.object({
   setupEuros: z.coerce.number().positive().max(100_000),
   hostingEuros: z.coerce.number().positive().max(10_000),

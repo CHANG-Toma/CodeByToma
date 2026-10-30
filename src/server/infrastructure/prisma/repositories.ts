@@ -10,6 +10,7 @@ import { formatInvoiceNumber } from "@/server/domain/invoice-numbering";
 import type { OfferKind } from "@/server/domain/catalog";
 import type {
   ClientFilters,
+  IAssistantRepository,
   IAuditLogRepository,
   ICatalogOfferRepository,
   IClientRepository,
@@ -23,6 +24,8 @@ import type {
 } from "@/server/domain/ports/repositories";
 import { prisma } from "./client";
 import {
+  mapAssistantBatch,
+  mapAssistantItem,
   mapCatalogOffer,
   mapClient,
   mapInvoice,
@@ -556,5 +559,77 @@ export const userRepository: IUserRepository = {
         clientId: true,
       },
     });
+  },
+};
+
+export const assistantRepository: IAssistantRepository = {
+  async createBatch(input) {
+    const existingKeys = input.items
+      .map((i) => i.externalKey)
+      .filter((k): k is string => Boolean(k));
+
+    const already = existingKeys.length
+      ? await prisma.assistantItem.findMany({
+          where: { externalKey: { in: existingKeys } },
+          select: { externalKey: true },
+        })
+      : [];
+    const skip = new Set(
+      already.map((r) => r.externalKey).filter(Boolean) as string[],
+    );
+
+    const items = input.items.filter(
+      (i) => !i.externalKey || !skip.has(i.externalKey),
+    );
+
+    const row = await prisma.assistantBatch.create({
+      data: {
+        kind: input.kind,
+        title: input.title ?? null,
+        periodLabel: input.periodLabel ?? null,
+        items: {
+          create: items.map((i) => ({
+            title: i.title,
+            summary: i.summary ?? null,
+            detail: i.detail ?? null,
+            sourceUrl: i.sourceUrl ?? null,
+            commercialAction: i.commercialAction ?? null,
+            draftEmailSubject: i.draftEmailSubject ?? null,
+            draftEmailBody: i.draftEmailBody ?? null,
+            externalKey: i.externalKey ?? null,
+          })),
+        },
+      },
+      include: { items: true },
+    });
+    return mapAssistantBatch(row);
+  },
+
+  async listBatches(filters) {
+    const rows = await prisma.assistantBatch.findMany({
+      where: filters?.kind ? { kind: filters.kind } : undefined,
+      include: { items: { orderBy: { createdAt: "asc" } } },
+      orderBy: { createdAt: "desc" },
+      take: filters?.limit ?? 20,
+    });
+    return rows.map(mapAssistantBatch);
+  },
+
+  async listProspectKeys() {
+    const rows = await prisma.assistantItem.findMany({
+      where: { externalKey: { not: null } },
+      select: { externalKey: true },
+    });
+    return rows
+      .map((r) => r.externalKey)
+      .filter((k): k is string => Boolean(k));
+  },
+
+  async updateItemStatus(id, status) {
+    const row = await prisma.assistantItem.update({
+      where: { id },
+      data: { status },
+    });
+    return mapAssistantItem(row);
   },
 };

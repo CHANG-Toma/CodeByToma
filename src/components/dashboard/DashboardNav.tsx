@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   PanelLeftClose,
   PanelLeftOpen,
+  Radar,
   Receipt,
   RefreshCw,
   Users,
@@ -27,6 +28,7 @@ const NAV = [
   { href: "invoices", label: "Factures", icon: Receipt },
   { href: "payments", label: "Paiements", icon: CreditCard },
   { href: "subscriptions", label: "Abonnements", icon: RefreshCw },
+  { href: "opportunites", label: "Veille & prospection", icon: Radar },
 ] as const;
 
 type Props = {

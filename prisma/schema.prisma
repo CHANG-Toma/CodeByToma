@@ -250,3 +250,47 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
 }
+
+/// Lots déposés par l’assistant externe (veille / prospection).
+enum AssistantBatchKind {
+  veille
+  prospection
+}
+
+enum AssistantItemStatus {
+  new
+  used
+  dismissed
+}
+
+model AssistantBatch {
+  id          String             @id @default(cuid())
+  kind        AssistantBatchKind
+  title       String?
+  periodLabel String?
+  createdAt   DateTime           @default(now())
+  items       AssistantItem[]
+
+  @@index([kind, createdAt])
+}
+
+model AssistantItem {
+  id                 String              @id @default(cuid())
+  batchId            String
+  batch              AssistantBatch      @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  title              String
+  summary            String?
+  detail             String?
+  sourceUrl          String?
+  commercialAction   String?
+  draftEmailSubject  String?
+  draftEmailBody     String?
+  /// Clé stable pour dédupliquer les prospects (ex. slug-ville).
+  externalKey        String?             @unique
+  status             AssistantItemStatus @default(new)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([batchId])
+  @@index([status])
+}

@@ -1,4 +1,6 @@
 import type {
+  AssistantBatch,
+  AssistantItem,
   CatalogOffer,
   Client,
   Invoice,
@@ -8,6 +10,10 @@ import type {
   QuoteLine,
   Subscription,
 } from "@prisma/client";
+import type {
+  AssistantBatchRecord,
+  AssistantItemRecord,
+} from "@/server/domain/assistant";
 import type {
   CatalogOfferRecord,
   ClientRecord,
@@ -150,5 +156,36 @@ export function mapCatalogOffer(o: CatalogOffer): CatalogOfferRecord {
     priceCents: o.priceCents,
     currency: o.currency,
     isActive: o.isActive,
+  };
+}
+
+export function mapAssistantItem(item: AssistantItem): AssistantItemRecord {
+  return {
+    id: item.id,
+    batchId: item.batchId,
+    title: item.title,
+    summary: item.summary,
+    detail: item.detail,
+    sourceUrl: item.sourceUrl,
+    commercialAction: item.commercialAction,
+    draftEmailSubject: item.draftEmailSubject,
+    draftEmailBody: item.draftEmailBody,
+    externalKey: item.externalKey,
+    status: item.status,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+  };
+}
+
+export function mapAssistantBatch(
+  batch: AssistantBatch & { items: AssistantItem[] },
+): AssistantBatchRecord {
+  return {
+    id: batch.id,
+    kind: batch.kind,
+    title: batch.title,
+    periodLabel: batch.periodLabel,
+    createdAt: batch.createdAt,
+    items: batch.items.map(mapAssistantItem),
   };
 }
