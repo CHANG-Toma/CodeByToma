@@ -12,7 +12,7 @@ import * as paymentsApp from "@/server/application/payments";
 import * as subscriptionsApp from "@/server/application/subscriptions";
 import * as remindersApp from "@/server/application/reminders";
 import { getDashboardBasePath } from "@/server/infrastructure/auth/dashboard-path";
-import { dashboardHref } from "@/lib/dashboard-href";
+import { clientInvoiceHref, dashboardHref } from "@/lib/dashboard-href";
 import {
   requireAdmin,
   requireClient,
@@ -158,7 +158,9 @@ export async function createClientAccessAction(
 
 export async function createQuoteAction(
   formData: FormData,
-): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; id: string; clientId: string } | { ok: false; error: string }
+> {
   await requireAdmin();
   try {
     const linesRaw = String(formData.get("linesJson") ?? "[]");
@@ -172,7 +174,8 @@ export async function createQuoteAction(
       lines,
     });
     revalidateDashboard("quotes");
-    return { ok: true, id: quote.id };
+    revalidateDashboard(`clients/${quote.clientId}/quotes`);
+    return { ok: true, id: quote.id, clientId: quote.clientId };
   } catch (e) {
     return toActionError(e);
   }
@@ -196,7 +199,9 @@ export async function acceptQuoteAction(id: string) {
     revalidateDashboard(`quotes/${id}`);
     revalidateDashboard("quotes");
     revalidateDashboard("invoices");
-    redirect(dashboardHref(slug(), `invoices/${invoice.id}`));
+    revalidateDashboard(`clients/${invoice.clientId}/quotes`);
+    revalidateDashboard(`clients/${invoice.clientId}/invoices`);
+    redirect(clientInvoiceHref(slug(), invoice.clientId, invoice.id));
   } catch (e) {
     rethrowRedirect(e);
   }
@@ -214,7 +219,9 @@ export async function rejectQuoteAction(id: string) {
 
 export async function createInvoiceAction(
   formData: FormData,
-): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; id: string; clientId: string } | { ok: false; error: string }
+> {
   await requireAdmin();
   try {
     const lines = JSON.parse(String(formData.get("linesJson") ?? "[]")) as unknown;
@@ -225,7 +232,8 @@ export async function createInvoiceAction(
       issueNow: formData.get("issueNow") !== "false",
     });
     revalidateDashboard("invoices");
-    return { ok: true, id: invoice.id };
+    revalidateDashboard(`clients/${invoice.clientId}/invoices`);
+    return { ok: true, id: invoice.id, clientId: invoice.clientId };
   } catch (e) {
     return toActionError(e);
   }

@@ -7,8 +7,8 @@ import {
   PrimaryButton,
   TextArea,
 } from "@/components/dashboard/ui";
+import { clientInvoiceHref } from "@/lib/dashboard-href";
 import { listClients } from "@/server/application/clients";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
 
 type Props = {
   params: Promise<{ dashboardSlug: string }>;
@@ -24,7 +24,7 @@ export default async function NewInvoicePage({ params, searchParams }: Props) {
     "use server";
     const result = await createInvoiceAction(formData);
     if (result.ok) {
-      redirect(dashboardHref(dashboardSlug, `invoices/${result.id}`));
+      redirect(clientInvoiceHref(dashboardSlug, result.clientId, result.id));
     }
   }
 

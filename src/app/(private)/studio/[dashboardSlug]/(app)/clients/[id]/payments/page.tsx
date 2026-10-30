@@ -6,7 +6,7 @@ import {
 } from "@/components/dashboard/ui";
 import { paymentMethodLabel } from "@/lib/dashboard-labels";
 import { formatEur } from "@/lib/money";
-import { dashboardHref } from "@/lib/dashboard-href";
+import { clientInvoiceHref } from "@/lib/dashboard-href";
 import { listInvoices } from "@/server/application/invoices";
 import { listPaymentsForClient } from "@/server/application/payments";
 
@@ -49,9 +49,10 @@ export default async function ClientPaymentsPage({ params }: Props) {
                   </td>
                   <td className="px-5 py-3">
                     <Link
-                      href={dashboardHref(
+                      href={clientInvoiceHref(
                         dashboardSlug,
-                        `invoices/${p.invoiceId}`,
+                        id,
+                        p.invoiceId,
                       )}
                       className="text-dash-text hover:underline"
                     >

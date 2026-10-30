@@ -4,7 +4,7 @@ import { markReminderSentAction } from "@/app/(private)/actions";
 import { ReminderDraftActions } from "@/components/dashboard/ReminderDraftActions";
 import { PageHeader, Panel } from "@/components/dashboard/ui";
 import { formatEur } from "@/lib/money";
-import { dashboardHref } from "@/lib/dashboard-href";
+import { clientInvoiceHref } from "@/lib/dashboard-href";
 import { prepareInvoiceReminder } from "@/server/application/reminders";
 import { DomainError } from "@/server/domain/errors";
 
@@ -42,7 +42,11 @@ export default async function InvoiceReminderPage({ params }: Props) {
         description={reminder.clientLabel}
         actions={
           <Link
-            href={dashboardHref(dashboardSlug, `invoices/${id}`)}
+            href={clientInvoiceHref(
+              dashboardSlug,
+              reminder.clientId,
+              reminder.entityId,
+            )}
             className="text-sm text-dash-soft hover:underline"
           >
             Voir la facture

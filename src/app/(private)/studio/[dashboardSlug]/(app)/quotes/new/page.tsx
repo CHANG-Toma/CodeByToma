@@ -10,7 +10,7 @@ import {
   TextArea,
 } from "@/components/dashboard/ui";
 import { defaultQuoteValidUntil } from "@/lib/dates";
-import { dashboardHref } from "@/lib/dashboard-href";
+import { clientQuoteHref, dashboardHref } from "@/lib/dashboard-href";
 import { listClients } from "@/server/application/clients";
 
 type Props = {
@@ -28,7 +28,7 @@ export default async function NewQuotePage({ params, searchParams }: Props) {
     "use server";
     const result = await createQuoteAction(formData);
     if (result.ok) {
-      redirect(dashboardHref(dashboardSlug, `quotes/${result.id}`));
+      redirect(clientQuoteHref(dashboardSlug, result.clientId, result.id));
     }
   }
 

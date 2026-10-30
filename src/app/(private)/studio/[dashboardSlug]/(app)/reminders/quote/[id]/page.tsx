@@ -4,7 +4,7 @@ import { markReminderSentAction } from "@/app/(private)/actions";
 import { ReminderDraftActions } from "@/components/dashboard/ReminderDraftActions";
 import { PageHeader, Panel } from "@/components/dashboard/ui";
 import { formatEur } from "@/lib/money";
-import { dashboardHref } from "@/lib/dashboard-href";
+import { clientQuoteHref } from "@/lib/dashboard-href";
 import { prepareQuoteReminder } from "@/server/application/reminders";
 import { DomainError } from "@/server/domain/errors";
 
@@ -42,7 +42,11 @@ export default async function QuoteReminderPage({ params }: Props) {
         description={reminder.clientLabel}
         actions={
           <Link
-            href={dashboardHref(dashboardSlug, `quotes/${id}`)}
+            href={clientQuoteHref(
+              dashboardSlug,
+              reminder.clientId,
+              reminder.entityId,
+            )}
             className="text-sm text-dash-soft hover:underline"
           >
             Voir le devis

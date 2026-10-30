@@ -8,11 +8,11 @@ import {
   StatusBadge,
 } from "@/components/dashboard/ui";
 import { paymentMethodLabel } from "@/lib/dashboard-labels";
-import { formatEur } from "@/server/domain/money";
+import { clientInvoiceHref } from "@/lib/dashboard-href";
+import { formatEur } from "@/lib/money";
 import { listInvoices } from "@/server/application/invoices";
 import { listPayments } from "@/server/application/payments";
 import { createPaymentAction } from "@/app/(private)/actions";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
 import { revalidatePath } from "next/cache";
 
 type Props = { params: Promise<{ dashboardSlug: string }> };
@@ -30,7 +30,7 @@ export default async function PaymentsPage({ params }: Props) {
       i.status === "partially_paid" ||
       i.status === "overdue",
   );
-  const invoiceNumber = new Map(invoices.map((i) => [i.id, i.number]));
+  const invoiceById = new Map(invoices.map((i) => [i.id, i]));
 
   async function pay(formData: FormData) {
     "use server";
@@ -118,15 +118,26 @@ export default async function PaymentsPage({ params }: Props) {
                     {p.paidAt.toLocaleDateString("fr-FR")}
                   </td>
                   <td className="px-5 py-3">
-                    <Link
-                      href={dashboardHref(
-                        dashboardSlug,
-                        `invoices/${p.invoiceId}`,
-                      )}
-                      className="text-dash-text hover:underline"
-                    >
-                      {invoiceNumber.get(p.invoiceId) ?? p.invoiceId}
-                    </Link>
+                    {(() => {
+                      const inv = invoiceById.get(p.invoiceId);
+                      if (!inv) {
+                        return (
+                          <span className="text-dash-muted">Facture</span>
+                        );
+                      }
+                      return (
+                        <Link
+                          href={clientInvoiceHref(
+                            dashboardSlug,
+                            inv.clientId,
+                            inv.id,
+                          )}
+                          className="text-dash-text hover:underline"
+                        >
+                          {inv.number}
+                        </Link>
+                      );
+                    })()}
                   </td>
                   <td className="px-5 py-3">
                     {paymentMethodLabel[p.method] ?? p.method}

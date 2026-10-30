@@ -8,10 +8,10 @@ import {
   StatusBadge,
 } from "@/components/dashboard/ui";
 import { quoteStatusLabel } from "@/lib/dashboard-labels";
-import { formatEur } from "@/server/domain/money";
+import { clientQuoteHref, dashboardHref } from "@/lib/dashboard-href";
+import { formatEur } from "@/lib/money";
 import { listQuotes } from "@/server/application/quotes";
 import { listClients } from "@/server/application/clients";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
 
 type Props = {
   params: Promise<{ dashboardSlug: string }>;
@@ -92,7 +92,11 @@ export default async function QuotesPage({ params, searchParams }: Props) {
                 <tr key={quote.id} className="border-b border-dash-border">
                   <td className="px-5 py-3">
                     <Link
-                      href={dashboardHref(dashboardSlug, `quotes/${quote.id}`)}
+                      href={clientQuoteHref(
+                        dashboardSlug,
+                        quote.clientId,
+                        quote.id,
+                      )}
                       className="font-medium text-dash-text hover:underline"
                     >
                       {quote.number}

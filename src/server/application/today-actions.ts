@@ -1,4 +1,8 @@
-import { dashboardHref } from "@/lib/dashboard-href";
+import {
+  clientInvoiceHref,
+  clientQuoteHref,
+  dashboardHref,
+} from "@/lib/dashboard-href";
 import {
   isInvoiceOverdue,
   isQuoteExpired,
@@ -93,7 +97,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
       detail: inv.dueAt
         ? formatDaysLate(inv.dueAt, now)
         : "Échéance dépassée",
-      href: dashboardHref(slug, `invoices/${inv.id}`),
+      href: clientInvoiceHref(slug, inv.clientId, inv.id),
       remindHref: dashboardHref(slug, `reminders/invoice/${inv.id}`),
       dueAt: inv.dueAt,
       amountCents: remaining,
@@ -120,7 +124,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
         detail: quote.validUntil
           ? `Validité au ${quote.validUntil.toLocaleDateString("fr-FR")}`
           : "Validité dépassée",
-        href: dashboardHref(slug, `quotes/${quote.id}`),
+        href: clientQuoteHref(slug, quote.clientId, quote.id),
         remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
         dueAt: quote.validUntil,
         amountCents: quote.totalCents,
@@ -149,7 +153,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
         priority: TODAY_ACTION_PRIORITY.quote_follow_up,
         title: `${TODAY_ACTION_LABEL.quote_follow_up} · ${quote.number}`,
         detail: `Envoyé il y a ${days} jour${days > 1 ? "s" : ""}`,
-        href: dashboardHref(slug, `quotes/${quote.id}`),
+        href: clientQuoteHref(slug, quote.clientId, quote.id),
         remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
         dueAt: anchor,
         amountCents: quote.totalCents,
@@ -174,7 +178,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
         detail: quote.validUntil
           ? `Expire le ${quote.validUntil.toLocaleDateString("fr-FR")}`
           : "Expiration proche",
-        href: dashboardHref(slug, `quotes/${quote.id}`),
+        href: clientQuoteHref(slug, quote.clientId, quote.id),
         remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
         dueAt: quote.validUntil,
         amountCents: quote.totalCents,
@@ -220,7 +224,7 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
       priority: TODAY_ACTION_PRIORITY.accepted_quote_without_invoice,
       title: `${TODAY_ACTION_LABEL.accepted_quote_without_invoice} · ${quote.number}`,
       detail: "Créer la facture associée",
-      href: dashboardHref(slug, `quotes/${quote.id}`),
+      href: clientQuoteHref(slug, quote.clientId, quote.id),
       dueAt: quote.acceptedAt,
       amountCents: quote.totalCents,
       clientId: quote.clientId,

@@ -6,9 +6,9 @@ import {
   StatusBadge,
 } from "@/components/dashboard/ui";
 import { invoiceStatusLabel } from "@/lib/dashboard-labels";
-import { formatEur } from "@/server/domain/money";
+import { clientInvoiceHref, dashboardHref } from "@/lib/dashboard-href";
+import { formatEur } from "@/lib/money";
 import { listInvoices } from "@/server/application/invoices";
-import { dashboardHref } from "@/server/infrastructure/auth/dashboard-path";
 
 type Props = {
   params: Promise<{ dashboardSlug: string; id: string }>;
@@ -50,7 +50,7 @@ export default async function ClientInvoicesPage({ params }: Props) {
                 <tr key={inv.id} className="border-b border-dash-border">
                   <td className="px-5 py-3">
                     <Link
-                      href={dashboardHref(dashboardSlug, `invoices/${inv.id}`)}
+                      href={clientInvoiceHref(dashboardSlug, id, inv.id)}
                       className="font-medium text-dash-text hover:underline"
                     >
                       {inv.number}
