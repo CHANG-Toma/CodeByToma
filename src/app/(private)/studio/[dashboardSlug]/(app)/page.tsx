@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AnimatedMetric } from "@/components/dashboard/AnimatedMetric";
 import { PageHeader, Panel, StatusBadge } from "@/components/dashboard/ui";
 import { formatEur } from "@/lib/money";
 import { dashboardHref } from "@/lib/dashboard-href";
@@ -45,22 +46,26 @@ export default async function DashboardHomePage({ params }: Props) {
   const cards = [
     {
       label: "CA encaissé (mois)",
-      value: formatEur(kpis.revenueCents),
+      value: kpis.revenueCents,
+      format: "currency" as const,
       href: "payments",
     },
     {
       label: "Factures en retard",
-      value: String(kpis.overdueInvoices),
+      value: kpis.overdueInvoices,
+      format: "number" as const,
       href: "invoices",
     },
     {
       label: "Devis en attente",
-      value: String(kpis.pendingQuotes),
+      value: kpis.pendingQuotes,
+      format: "number" as const,
       href: "quotes",
     },
     {
       label: "Abonnements actifs",
-      value: String(kpis.activeSubscriptions),
+      value: kpis.activeSubscriptions,
+      format: "number" as const,
       href: "clients",
     },
   ];
@@ -92,12 +97,12 @@ export default async function DashboardHomePage({ params }: Props) {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
           <Link key={card.label} href={dashboardHref(dashboardSlug, card.href)}>
-            <Panel className="transition hover:border-sky-500/30">
+            <Panel className="h-full hover:-translate-y-0.5 hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-950/10 motion-reduce:transform-none">
               <p className="text-xs uppercase tracking-wide text-dash-muted">
                 {card.label}
               </p>
               <p className="mt-3 text-2xl font-semibold text-dash-text">
-                {card.value}
+                <AnimatedMetric value={card.value} format={card.format} />
               </p>
             </Panel>
           </Link>

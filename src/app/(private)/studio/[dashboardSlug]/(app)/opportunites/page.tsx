@@ -1,7 +1,10 @@
+import type { CSSProperties } from "react";
+import { ExternalLink, Sparkles } from "lucide-react";
 import {
   dismissAssistantItemAction,
   markAssistantItemUsedAction,
 } from "@/app/(private)/actions";
+import { AssistantDraftPanel } from "@/components/dashboard/AssistantDraftPanel";
 import {
   EmptyState,
   PageHeader,
@@ -10,6 +13,7 @@ import {
   SecondaryButton,
   StatusBadge,
 } from "@/components/dashboard/ui";
+import { getProspectSignal } from "@/lib/assistant-presentation";
 import { listAssistantBatches } from "@/server/application/assistant";
 import { requireAdmin } from "@/server/infrastructure/auth/session";
 
@@ -58,27 +62,48 @@ export default async function OpportunitesPage({
           description="Les routines hebdo et prospection apparaîtront ici dès qu’elles auront déposé un lot."
         />
       ) : (
-        batches.map((batch) => (
-          <Panel key={batch.id} className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusBadge
-                label={batch.kind === "veille" ? "Veille" : "Prospection"}
-                tone={batch.kind === "veille" ? "info" : "ok"}
-              />
-              <h2 className="text-sm font-medium text-dash-text">
-                {batch.title ??
-                  (batch.kind === "veille"
-                    ? "Veille hebdomadaire"
-                    : "Prospection")}
-              </h2>
-              {batch.periodLabel ? (
-                <span className="text-xs text-dash-muted">
-                  {batch.periodLabel}
-                </span>
-              ) : null}
-              <span className="text-xs text-dash-muted2">
-                {batch.createdAt.toLocaleString("fr-FR")}
-              </span>
+        batches.map((batch, batchIndex) => (
+          <Panel
+            key={batch.id}
+            className="nori-batch-card space-y-4"
+            style={
+              { "--nori-index": Math.min(batchIndex, 8) } as CSSProperties
+            }
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge
+                  label={batch.kind === "veille" ? "Veille" : "Prospection"}
+                  tone={batch.kind === "veille" ? "info" : "ok"}
+                />
+                <h2 className="text-sm font-medium text-dash-text">
+                  {batch.title ??
+                    (batch.kind === "veille"
+                      ? "Veille hebdomadaire"
+                      : "Prospection")}
+                </h2>
+                {batch.periodLabel ? (
+                  <span className="text-xs text-dash-muted">
+                    {batch.periodLabel}
+                  </span>
+                ) : null}
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/[0.06] px-2.5 py-1 text-[11px] text-dash-muted">
+                <span
+                  className="nori-status-dot h-1.5 w-1.5 rounded-full bg-sky-400"
+                  aria-hidden
+                />
+                <Sparkles className="h-3 w-3 text-sky-400" aria-hidden />
+                <span>Généré par Nori</span>
+                <span aria-hidden>·</span>
+                <time dateTime={batch.createdAt.toISOString()}>
+                  {batch.createdAt.toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </time>
+              </div>
             </div>
 
             {batch.items.length === 0 ? (
@@ -87,9 +112,26 @@ export default async function OpportunitesPage({
                 ignorés).
               </p>
             ) : (
-              <ul className="divide-y divide-dash-border rounded-md border border-dash-border">
-                {batch.items.map((item) => (
-                  <li key={item.id} className="space-y-3 px-4 py-4">
+              <ul className="grid gap-3">
+                {batch.items.map((item, itemIndex) => {
+                  const prospectSignal =
+                    batch.kind === "prospection"
+                      ? getProspectSignal(item)
+                      : null;
+
+                  return (
+                  <li
+                    key={item.id}
+                    className="nori-item-card space-y-3 rounded-lg border border-dash-border bg-dash-input/25 px-4 py-4"
+                    style={
+                      {
+                        "--nori-index": Math.min(
+                          batchIndex * 2 + itemIndex + 1,
+                          10,
+                        ),
+                      } as CSSProperties
+                    }
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="font-medium text-dash-text">
@@ -114,52 +156,45 @@ export default async function OpportunitesPage({
                           <a
                             href={item.sourceUrl}
                             target="_blank"
-                            rel="noreferrer"
-                            className="mt-2 inline-block text-xs text-dash-muted hover:underline"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center gap-1.5 text-xs text-dash-muted transition hover:text-dash-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dash-btn"
                           >
                             Source
+                            <ExternalLink className="h-3 w-3" aria-hidden />
                           </a>
                         ) : null}
                       </div>
-                      <StatusBadge
-                        label={
-                          item.status === "new"
-                            ? "Nouveau"
-                            : item.status === "used"
-                              ? "Utilisé"
-                              : "Ignoré"
-                        }
-                        tone={
-                          item.status === "new"
-                            ? "info"
-                            : item.status === "used"
-                              ? "ok"
-                              : "neutral"
-                        }
-                      />
+                      <div className="flex flex-wrap justify-end gap-2">
+                        {prospectSignal ? (
+                          <StatusBadge
+                            label={prospectSignal.label}
+                            tone={prospectSignal.tone}
+                          />
+                        ) : null}
+                        <StatusBadge
+                          label={
+                            item.status === "new"
+                              ? "Nouveau"
+                              : item.status === "used"
+                                ? "Utilisé"
+                                : "Ignoré"
+                          }
+                          tone={
+                            item.status === "new"
+                              ? "info"
+                              : item.status === "used"
+                                ? "ok"
+                                : "neutral"
+                          }
+                        />
+                      </div>
                     </div>
 
                     {item.draftEmailSubject || item.draftEmailBody ? (
-                      <div className="rounded-md border border-dash-border bg-dash-input/40 px-3 py-3 text-sm">
-                        {item.draftEmailSubject ? (
-                          <p className="font-medium text-dash-text">
-                            Objet : {item.draftEmailSubject}
-                          </p>
-                        ) : null}
-                        {item.draftEmailBody ? (
-                          <pre className="mt-2 whitespace-pre-wrap font-sans text-dash-soft">
-                            {item.draftEmailBody}
-                          </pre>
-                        ) : null}
-                        {item.draftEmailSubject && item.draftEmailBody ? (
-                          <a
-                            href={`mailto:?subject=${encodeURIComponent(item.draftEmailSubject)}&body=${encodeURIComponent(item.draftEmailBody)}`}
-                            className="mt-3 inline-flex text-xs text-dash-soft underline"
-                          >
-                            Ouvrir dans la messagerie
-                          </a>
-                        ) : null}
-                      </div>
+                      <AssistantDraftPanel
+                        subject={item.draftEmailSubject}
+                        body={item.draftEmailBody}
+                      />
                     ) : null}
 
                     {item.status === "new" ? (
@@ -175,7 +210,8 @@ export default async function OpportunitesPage({
                       </div>
                     ) : null}
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             )}
           </Panel>
@@ -199,9 +235,10 @@ function FilterChip({
       href={href}
       className={
         active
-          ? "rounded-md bg-dash-active px-3 py-1.5 text-dash-text"
-          : "rounded-md border border-dash-border px-3 py-1.5 text-dash-muted hover:bg-dash-hover"
+          ? "rounded-md bg-dash-active px-3 py-1.5 text-dash-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dash-btn"
+          : "rounded-md border border-dash-border px-3 py-1.5 text-dash-muted transition hover:-translate-y-0.5 hover:bg-dash-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dash-btn motion-reduce:transform-none"
       }
+      aria-current={active ? "page" : undefined}
     >
       {label}
     </a>
