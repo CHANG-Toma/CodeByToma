@@ -2,7 +2,7 @@ import type {
   IPaymentGateway,
   PaymentIntentInput,
   PaymentIntentResult,
-} from "@/server/domain/ports/payment-gateway";
+} from "@/server/domain/ports/payment-gateway"; 
 
 /** Enregistrement manuel — pas de PSP au MVP. */
 export class ManualPaymentGateway implements IPaymentGateway {
