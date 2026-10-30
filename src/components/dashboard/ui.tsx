@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const primaryBtnClass =
-  "inline-flex items-center justify-center rounded-md bg-dash-btn px-4 py-2 text-sm font-medium text-dash-on-btn transition hover:bg-dash-btn-hover";
+  "inline-flex items-center justify-center rounded-md bg-dash-btn px-4 py-2 text-sm font-medium text-dash-on-btn transition hover:-translate-y-0.5 hover:bg-dash-btn-hover hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dash-btn focus-visible:ring-offset-2 focus-visible:ring-offset-dash-bg active:translate-y-0 motion-reduce:transform-none";
 
 export function PageHeader({
   title,
@@ -182,7 +182,7 @@ export function SecondaryButton({
     <button
       type="submit"
       formAction={formAction}
-      className="inline-flex items-center justify-center rounded-md border border-dash-border px-4 py-2 text-sm text-dash-soft transition hover:bg-dash-hover"
+      className="inline-flex items-center justify-center rounded-md border border-dash-border px-4 py-2 text-sm text-dash-soft transition hover:-translate-y-0.5 hover:bg-dash-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dash-btn active:translate-y-0 motion-reduce:transform-none"
     >
       {children}
     </button>
@@ -193,16 +193,19 @@ export function Panel({
   children,
   className,
   id,
+  style,
 }: {
   children: React.ReactNode;
   className?: string;
   id?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <div
       id={id}
+      style={style}
       className={cn(
-        "rounded-lg border border-dash-border bg-dash-surface p-5 shadow-sm shadow-black/[0.03]",
+        "rounded-lg border border-dash-border bg-dash-surface p-5 shadow-sm shadow-black/[0.03] transition-[border-color,box-shadow,transform] duration-200",
         className,
       )}
     >

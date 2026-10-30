@@ -208,3 +208,180 @@
   --dash-btn-text: #ffffff;
   --dash-glow: rgba(27, 42, 74, 0.06);
 }
+
+.dashboard-ambient {
+  background-image:
+    radial-gradient(
+      ellipse 60% 42% at 18% 0%,
+      var(--dash-glow),
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 34% 28% at 92% 82%,
+      color-mix(in srgb, var(--dash-glow) 60%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(
+      color-mix(in srgb, var(--dash-text) 2.5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--dash-text) 2.5%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: auto, auto, 48px 48px, 48px 48px;
+  animation: dashboard-grid-drift 28s linear infinite;
+  opacity: 0.85;
+}
+
+.nori-batch-card {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--dash-surface), var(--dash-surface)) padding-box,
+    linear-gradient(
+        125deg,
+        color-mix(in srgb, var(--dash-border) 90%, transparent),
+        color-mix(in srgb, #38bdf8 18%, transparent),
+        color-mix(in srgb, var(--dash-border) 90%, transparent)
+      )
+      border-box;
+  backdrop-filter: blur(14px);
+  animation: nori-card-in 480ms both;
+  animation-delay: calc(var(--nori-index, 0) * 65ms);
+}
+
+.nori-batch-card:hover {
+  background:
+    linear-gradient(var(--dash-surface), var(--dash-surface)) padding-box,
+    linear-gradient(
+        125deg,
+        color-mix(in srgb, #38bdf8 48%, transparent),
+        color-mix(in srgb, #818cf8 38%, transparent),
+        color-mix(in srgb, #38bdf8 18%, transparent)
+      )
+      border-box;
+  box-shadow:
+    0 18px 48px -28px rgba(14, 165, 233, 0.3),
+    0 0 0 1px color-mix(in srgb, #38bdf8 5%, transparent);
+}
+
+.nori-item-card {
+  animation: nori-card-in 420ms both;
+  animation-delay: calc(var(--nori-index, 0) * 55ms);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.nori-item-card:hover {
+  border-color: color-mix(in srgb, #38bdf8 22%, var(--dash-border));
+  background-color: color-mix(in srgb, var(--dash-input) 82%, #38bdf8 3%);
+  transform: translateY(-1px);
+}
+
+.nori-status-dot {
+  box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.25);
+  animation: nori-dot-pulse 2.4s ease-out infinite;
+}
+
+.nori-orb {
+  isolation: isolate;
+  animation: nori-breathe 3.8s ease-in-out infinite;
+  transition:
+    transform 220ms ease,
+    filter 220ms ease;
+}
+
+.nori-orb::before {
+  position: absolute;
+  z-index: -1;
+  inset: -6px;
+  content: "";
+  border-radius: 9999px;
+  background: rgba(56, 189, 248, 0.12);
+  filter: blur(8px);
+}
+
+.nori-orb:hover {
+  filter: brightness(1.12);
+  transform: translateY(-2px) scale(1.04);
+}
+
+.nori-popover {
+  transform-origin: bottom right;
+  animation: nori-popover-in 180ms ease-out both;
+}
+
+@keyframes dashboard-grid-drift {
+  from {
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 0,
+      0 0,
+      48px 48px,
+      48px 48px;
+  }
+}
+
+@keyframes nori-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nori-dot-pulse {
+  60%,
+  100% {
+    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0);
+  }
+}
+
+@keyframes nori-breathe {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px -8px rgba(14, 165, 233, 0.24);
+  }
+  50% {
+    box-shadow: 0 8px 30px -5px rgba(14, 165, 233, 0.42);
+  }
+}
+
+@keyframes nori-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-ambient,
+  .nori-batch-card,
+  .nori-item-card,
+  .nori-status-dot,
+  .nori-orb,
+  .nori-popover {
+    animation: none;
+  }
+
+  .nori-item-card:hover,
+  .nori-orb:hover {
+    transform: none;
+  }
+}

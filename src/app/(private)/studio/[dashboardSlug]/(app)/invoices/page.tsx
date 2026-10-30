@@ -12,7 +12,7 @@ import {
 } from "@/components/dashboard/ui";
 import { RowActions, RowActionsHeader } from "@/components/dashboard/RowActions";
 import { invoiceStatusLabel } from "@/lib/dashboard-labels";
-import { clientInvoiceHref, dashboardHref } from "@/lib/dashboard-href";
+import { clientInvoiceHref } from "@/lib/dashboard-href";
 import { formatEur } from "@/lib/money";
 import { invoiceListActions } from "@/lib/row-actions";
 import { listClients } from "@/server/application/clients";

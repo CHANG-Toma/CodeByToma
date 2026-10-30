@@ -2,7 +2,9 @@ import {
   DashboardMobileNav,
   DashboardSidebar,
 } from "@/components/dashboard/DashboardNav";
+import { NoriPresence } from "@/components/dashboard/NoriPresence";
 import { deps } from "@/server/application/container";
+import { getNoriSummary } from "@/server/application/nori-summary";
 import { getSession } from "@/server/infrastructure/auth/session";
 
 type Props = {
@@ -12,18 +14,17 @@ type Props = {
 
 export async function DashboardShell({ slug, children }: Props) {
   const session = await getSession();
-  const user = session ? await deps.users.findById(session.sub) : null;
+  const [user, noriSummary] = await Promise.all([
+    session ? deps.users.findById(session.sub) : null,
+    getNoriSummary(),
+  ]);
   const displayName = user?.name ?? "CodeByToma";
 
   return (
     <div className="dashboard-theme min-h-screen">
       <div
-        className="pointer-events-none fixed inset-0"
+        className="dashboard-ambient pointer-events-none fixed inset-0"
         aria-hidden
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 40% at 20% 0%, var(--dash-glow), transparent 55%)",
-        }}
       />
       <div className="relative flex min-h-screen">
         <DashboardSidebar slug={slug} displayName={displayName} />
@@ -34,6 +35,7 @@ export async function DashboardShell({ slug, children }: Props) {
           </div>
         </div>
       </div>
+      <NoriPresence slug={slug} summary={noriSummary} />
     </div>
   );
 }
