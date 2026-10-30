@@ -4,10 +4,19 @@ import { useMemo, useState } from "react";
 import { calculateDocumentTotals } from "@/lib/document-totals";
 import { formatEur } from "@/lib/money";
 import {
+  lineFromFullDay,
+  lineFromHalfDay,
+  lineFromHours,
+  lineFromSlot,
+  priceFromHours,
+  priceFromSlot,
+} from "@/lib/tjm-pricing";
+import {
   HOSTING_FEE_CENTS,
   SETUP_FEE_CENTS,
   TJM_FEE_CENTS,
   TJM_HALF_DAY_CENTS,
+  TJM_FEE_EUR,
 } from "@/data/fees";
 
 export type LineDraft = {
@@ -29,24 +38,45 @@ type Props = {
   initialLines?: LineDraft[];
 };
 
+type SlotMode = "slot" | "hours";
+
+const EMPTY_START: LineDraft[] = [];
+
 export function LinesEditor({
   name = "linesJson",
   initialLines,
 }: Props) {
   const [lines, setLines] = useState<LineDraft[]>(
-    initialLines?.length
-      ? initialLines
-      : [
-          {
-            label: "Création du site",
-            quantity: 1,
-            unitPriceHtCents: SETUP_FEE_CENTS,
-            taxRatePercent: 0,
-          },
-        ],
+    initialLines ?? EMPTY_START,
   );
 
+  const [slotStart, setSlotStart] = useState("09:00");
+  const [slotEnd, setSlotEnd] = useState("12:00");
+  const [hoursInput, setHoursInput] = useState("3");
+  const [mode, setMode] = useState<SlotMode>("slot");
+  const [calcError, setCalcError] = useState<string | null>(null);
+
   const totals = useMemo(() => calculateDocumentTotals(lines), [lines]);
+
+  const preview = useMemo(() => {
+    try {
+      if (mode === "slot") {
+        const result = priceFromSlot(slotStart, slotEnd);
+        return { ok: true as const, ...result };
+      }
+      const hours = Number(String(hoursInput).replace(",", "."));
+      return {
+        ok: true as const,
+        hours,
+        priceCents: priceFromHours(hours),
+      };
+    } catch (e) {
+      return {
+        ok: false as const,
+        message: e instanceof Error ? e.message : "Créneau invalide",
+      };
+    }
+  }, [mode, slotStart, slotEnd, hoursInput]);
 
   function update(index: number, patch: Partial<LineDraft>) {
     setLines((prev) =>
@@ -54,31 +84,190 @@ export function LinesEditor({
     );
   }
 
+  function addLine(line: LineDraft) {
+    setCalcError(null);
+    setLines((prev) => [...prev, line]);
+  }
+
+  function addCustomTjm() {
+    try {
+      if (mode === "slot") {
+        addLine(lineFromSlot(slotStart, slotEnd));
+      } else {
+        const hours = Number(String(hoursInput).replace(",", "."));
+        addLine(lineFromHours(hours));
+      }
+    } catch (e) {
+      setCalcError(e instanceof Error ? e.message : "Créneau invalide");
+    }
+  }
+
   return (
     <div className="space-y-4">
       <input type="hidden" name={name} value={JSON.stringify(lines)} />
-      <div className="flex flex-wrap gap-2">
-        {PRESETS.map((p) => (
+
+      <div className="space-y-3 rounded-md border border-dash-border bg-dash-hover/40 p-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <p className="text-sm font-medium text-dash-text">TJM</p>
+          <p className="text-xs text-dash-muted">{TJM_FEE_EUR} € / jour</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
           <button
-            key={p.label}
             type="button"
             className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
-            onClick={() =>
-              setLines((prev) => [
-                ...prev,
-                {
-                  label: p.label,
-                  quantity: 1,
-                  unitPriceHtCents: p.unitPriceHtCents,
-                  taxRatePercent: 0,
-                },
-              ])
-            }
+            onClick={() => addLine(lineFromFullDay())}
           >
-            + {p.label.split("—")[0].trim()}
+            1 jour
           </button>
-        ))}
+          <button
+            type="button"
+            className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
+            onClick={() => addLine(lineFromHalfDay())}
+          >
+            ½ jour
+          </button>
+          <button
+            type="button"
+            className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
+            onClick={() => addLine(lineFromSlot(9, 12))}
+          >
+            Matin 9–12
+          </button>
+          <button
+            type="button"
+            className="rounded border border-dash-border px-2 py-1 text-xs text-dash-soft hover:bg-dash-hover"
+            onClick={() => addLine(lineFromSlot(14, 18))}
+          >
+            Après-midi 14–18
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-2 text-xs">
+          <button
+            type="button"
+            className={
+              mode === "slot"
+                ? "text-dash-text underline"
+                : "text-dash-muted hover:text-dash-soft"
+            }
+            onClick={() => setMode("slot")}
+          >
+            Créneau
+          </button>
+          <span className="text-dash-muted2">·</span>
+          <button
+            type="button"
+            className={
+              mode === "hours"
+                ? "text-dash-text underline"
+                : "text-dash-muted hover:text-dash-soft"
+            }
+            onClick={() => setMode("hours")}
+          >
+            Heures
+          </button>
+        </div>
+
+        {mode === "slot" ? (
+          <div className="flex flex-wrap items-end gap-2">
+            <label className="text-xs text-dash-muted">
+              Début
+              <input
+                type="time"
+                value={slotStart}
+                onChange={(e) => setSlotStart(e.target.value)}
+                className="mt-1 block rounded-md border border-dash-border bg-dash-input px-2 py-1.5 text-sm text-dash-text"
+              />
+            </label>
+            <label className="text-xs text-dash-muted">
+              Fin
+              <input
+                type="time"
+                value={slotEnd}
+                onChange={(e) => setSlotEnd(e.target.value)}
+                className="mt-1 block rounded-md border border-dash-border bg-dash-input px-2 py-1.5 text-sm text-dash-text"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={addCustomTjm}
+              className="rounded-md border border-dash-border px-3 py-1.5 text-xs text-dash-soft hover:bg-dash-hover"
+            >
+              Ajouter la ligne
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-end gap-2">
+            <label className="text-xs text-dash-muted">
+              Nombre d’heures
+              <input
+                type="number"
+                min={0.25}
+                step={0.25}
+                value={hoursInput}
+                onChange={(e) => setHoursInput(e.target.value)}
+                className="mt-1 block w-28 rounded-md border border-dash-border bg-dash-input px-2 py-1.5 text-sm text-dash-text"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={addCustomTjm}
+              className="rounded-md border border-dash-border px-3 py-1.5 text-xs text-dash-soft hover:bg-dash-hover"
+            >
+              Ajouter la ligne
+            </button>
+          </div>
+        )}
+
+        {preview.ok ? (
+          <p className="text-xs text-dash-muted">
+            Aperçu : {formatEur(preview.priceCents)}
+            {preview.hours != null
+              ? ` · ${preview.hours} h`
+              : null}
+          </p>
+        ) : (
+          <p className="text-xs text-rose-600 dark:text-rose-300">
+            {preview.message}
+          </p>
+        )}
+        {calcError ? (
+          <p className="text-xs text-rose-600 dark:text-rose-300">{calcError}</p>
+        ) : null}
       </div>
+
+      <div>
+        <p className="mb-2 text-xs text-dash-muted">Catalogue</p>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((p) => (
+            <button
+              key={p.label}
+              type="button"
+              className="rounded-md border border-dash-border px-2.5 py-1.5 text-xs text-dash-soft transition hover:bg-dash-hover"
+              onClick={() =>
+                setLines((prev) => [
+                  ...prev,
+                  {
+                    label: p.label,
+                    quantity: 1,
+                    unitPriceHtCents: p.unitPriceHtCents,
+                    taxRatePercent: 0,
+                  },
+                ])
+              }
+            >
+              + {p.label.split("—")[0].trim()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {lines.length === 0 ? (
+        <p className="rounded-md border border-dashed border-dash-border px-4 py-8 text-center text-sm text-dash-muted">
+          Aucune ligne — choisis un preset ou un créneau TJM.
+        </p>
+      ) : null}
 
       {lines.map((line, index) => (
         <div
@@ -129,13 +318,24 @@ export function LinesEditor({
         </div>
       ))}
 
-      <div className="text-right text-sm text-dash-soft">
-        <p>HT : {formatEur(totals.subtotalCents)}</p>
-        <p>TVA : {formatEur(totals.taxCents)}</p>
-        <p className="font-medium text-dash-text">
-          TTC : {formatEur(totals.totalCents)}
-        </p>
-      </div>
+      {lines.length > 0 ? (
+        <div className="flex justify-end border-t border-dash-border pt-4">
+          <div className="min-w-[10rem] space-y-1 text-right text-sm">
+            <div className="flex justify-between gap-8 text-dash-soft">
+              <span>HT</span>
+              <span>{formatEur(totals.subtotalCents)}</span>
+            </div>
+            <div className="flex justify-between gap-8 text-dash-soft">
+              <span>TVA</span>
+              <span>{formatEur(totals.taxCents)}</span>
+            </div>
+            <div className="flex justify-between gap-8 text-base font-medium text-dash-text">
+              <span>TTC</span>
+              <span>{formatEur(totals.totalCents)}</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

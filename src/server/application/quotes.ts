@@ -1,3 +1,4 @@
+import { addYears } from "@/lib/dates";
 import { ConflictError, NotFoundError, ValidationError } from "@/server/domain/errors";
 import { formatQuoteNumber } from "@/server/domain/invoice-numbering";
 import {
@@ -62,7 +63,7 @@ export async function createQuote(input: unknown): Promise<QuoteRecord> {
   const quote = await deps.quotes.create({
     clientId: parsed.data.clientId,
     number,
-    validUntil: parsed.data.validUntil ?? null,
+    validUntil: parsed.data.validUntil ?? addYears(new Date(), 1),
     notes: parsed.data.notes ?? null,
     subtotalCents: totals.subtotalCents,
     taxCents: totals.taxCents,
