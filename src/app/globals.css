@@ -99,6 +99,40 @@
     font-family: var(--font-body), system-ui, sans-serif;
     color: var(--cbt-mist);
     background-color: var(--cbt-ink);
+
+    /* Hero & barre de navigation (sur le hero) — contrastes lisibles */
+    --cbt-hero-fg: var(--cbt-snow);
+    --cbt-hero-fg-muted: var(--cbt-mist);
+    --cbt-hero-fg-accent: color-mix(in srgb, var(--cbt-snow) 78%, var(--cbt-mist));
+    --cbt-hero-eyebrow: #b8c5d6;
+    --cbt-hero-shine: #e8edf4;
+    --cbt-hero-aurora-opacity: 0.42;
+    --cbt-hero-btn-border: var(--cbt-border-strong);
+    --cbt-nav-fg: var(--cbt-hero-fg-muted);
+    --cbt-nav-fg-strong: var(--cbt-hero-fg);
+    --cbt-nav-control-fg: var(--cbt-hero-fg-muted);
+    --cbt-nav-control-border: var(--cbt-border);
+  }
+
+  .light .business-theme {
+    --cbt-hero-fg: #111827;
+    --cbt-hero-fg-muted: #374151;
+    --cbt-hero-fg-accent: #1f2937;
+    --cbt-hero-eyebrow: #4b5563;
+    --cbt-hero-shine: #111827;
+    --cbt-hero-aurora-opacity: 0.22;
+    --cbt-hero-btn-border: rgba(17, 24, 39, 0.28);
+    --cbt-nav-fg: #374151;
+    --cbt-nav-fg-strong: #111827;
+    --cbt-nav-control-fg: #374151;
+    --cbt-nav-control-border: rgba(17, 24, 39, 0.18);
+  }
+
+  .business-nav-over-hero {
+    --cbt-nav-fg: var(--cbt-hero-fg-muted);
+    --cbt-nav-fg-strong: var(--cbt-hero-fg);
+    --cbt-nav-control-fg: var(--cbt-hero-fg-muted);
+    --cbt-nav-control-border: var(--cbt-hero-btn-border);
   }
 
   .business-theme .font-display,

@@ -1,17 +1,31 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useTheme } from "next-themes";
 import Aurora from "@/components/Aurora";
 import BlurText from "@/components/BlurText";
 import ShinyText from "@/components/ShinyText";
 import { usePricing } from "@/components/business/PricingProvider";
+import logoCodeByToma from "../../../public/images/logo-codebytoma.png";
+
+const heroTitleDone = [{ filter: "blur(0px)", opacity: 1, y: 0 }] as const;
 
 const BusinessHero = () => {
   const { setupFee, hostingFee } = usePricing();
+  const { resolvedTheme } = useTheme();
   const logoGroupRef = useRef<HTMLDivElement>(null);
+  const isLight = resolvedTheme === "light";
+
+  const auroraStops = useMemo(
+    () =>
+      isLight
+        ? ["#b8c2d0", "#dbe4ef", "#8fa0b5"]
+        : ["#3d4d66", "#5a6d8a", "#1a2433"],
+    [isLight]
+  );
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -42,15 +56,19 @@ const BusinessHero = () => {
     >
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute inset-0 bg-ink" />
-        <div className="absolute inset-0 opacity-70">
+        <div
+          className="absolute inset-0"
+          style={{ opacity: "var(--cbt-hero-aurora-opacity)" }}
+        >
           <Aurora
-            colorStops={["#8892b0", "#e6f1ff", "#233554"]}
-            amplitude={0.95}
-            blend={0.55}
+            colorStops={auroraStops}
+            amplitude={isLight ? 0.65 : 0.85}
+            blend={isLight ? 0.42 : 0.5}
             speed={0.65}
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-transparent to-ink" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/45 to-ink" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,transparent_40%,var(--cbt-ink)_88%)]" />
       </div>
 
       <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 md:grid-cols-[1.2fr_0.8fr] md:gap-16">
@@ -58,9 +76,9 @@ const BusinessHero = () => {
           <ShinyText
             text="CodeByToma · Code by Toma · Sites & accompagnement"
             speed={3}
-            color="#8892b0"
-            shineColor="#e6f1ff"
-            className="text-[12px] font-medium uppercase tracking-[0.16em]"
+            color="var(--cbt-hero-eyebrow)"
+            shineColor="var(--cbt-hero-shine)"
+            className="text-[12px] font-medium uppercase tracking-[0.16em] text-heroEyebrow"
           />
 
           <div className="mt-4">
@@ -71,7 +89,8 @@ const BusinessHero = () => {
                 delay={50}
                 animateBy="words"
                 direction="top"
-                className="text-[2.35rem] font-semibold leading-[1.12] tracking-tight text-snow sm:text-5xl md:text-[3.1rem]"
+                animationTo={[...heroTitleDone]}
+                className="text-[2.35rem] font-semibold leading-[1.12] tracking-tight text-heroFg sm:text-5xl md:text-[3.1rem]"
               />
               <BlurText
                 as="span"
@@ -79,13 +98,14 @@ const BusinessHero = () => {
                 delay={70}
                 animateBy="words"
                 direction="top"
-                className="mt-1 text-[2.35rem] font-normal leading-[1.12] tracking-tight text-mist sm:text-5xl md:text-[3.1rem]"
+                animationTo={[...heroTitleDone]}
+                className="mt-1 text-[2.35rem] font-normal leading-[1.12] tracking-tight text-heroFgAccent sm:text-5xl md:text-[3.1rem]"
               />
             </h1>
           </div>
 
           <motion.p
-            className="mt-6 max-w-lg text-[15px] leading-relaxed text-mist md:text-base"
+            className="mt-6 max-w-lg text-[15px] leading-relaxed text-heroFgMuted md:text-base"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.2 }}
@@ -110,7 +130,7 @@ const BusinessHero = () => {
             </a>
             <a
               href="#offres"
-              className="rounded-md border border-cbtBorder px-5 py-2.5 text-[13px] font-medium text-snow transition-colors hover:border-cbtBorderStrong"
+              className="rounded-md border border-[color:var(--cbt-hero-btn-border)] px-5 py-2.5 text-[13px] font-medium text-heroFg transition-colors hover:border-cbtBorderStrong"
             >
               Découvrir nos offres
             </a>
@@ -193,7 +213,7 @@ const BusinessHero = () => {
               </motion.div>
               <div className="relative h-52 w-52 overflow-hidden rounded-full border border-cbtBorder bg-snow shadow-[0_0_40px_-12px_var(--cbt-snow)] md:h-64 md:w-64">
                 <Image
-                  src="/images/logo-codebytoma.png"
+                  src={logoCodeByToma}
                   alt="Logo Code By Toma — Développeur Informatique"
                   fill
                   sizes="(max-width: 768px) 208px, 256px"

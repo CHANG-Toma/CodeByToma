@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
 import ThemeToggle from "./ThemeToggle";
-import { SITE_LOGO } from "@/lib/seo";
+import logoCodeByToma from "../../../public/images/logo-codebytoma.png";
 
 const navItems = [
   { name: "Méthode", href: "#processus" },
@@ -97,21 +97,26 @@ const BusinessNav = () => {
     <header
       className={cn(
         "fixed top-0 z-[100] w-full px-6 py-4 transition-colors duration-300 md:px-10",
-        scrolled ? "border-b border-cbtBorder bg-ink/90 backdrop-blur-md" : "bg-transparent"
+        scrolled
+          ? "border-b border-cbtBorder bg-ink/90 backdrop-blur-md"
+          : "business-nav-over-hero bg-transparent"
       )}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between">
         <a
           href="#accueil"
-          className="inline-flex items-center gap-2.5 text-sm font-semibold tracking-[0.02em] text-snow"
+          className={cn(
+            "inline-flex items-center gap-2.5 text-sm font-semibold tracking-[0.02em]",
+            scrolled ? "text-snow" : "text-[color:var(--cbt-nav-fg-strong)]"
+          )}
         >
           <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-snow">
             <Image
-              src={SITE_LOGO.url}
+              src={logoCodeByToma}
               alt=""
-              fill
-              sizes="32px"
-              className="scale-[1.38] rounded-full object-cover object-center"
+              width={32}
+              height={32}
+              className="h-full w-full scale-[1.38] rounded-full object-cover object-center"
               priority
             />
           </span>
@@ -136,12 +141,17 @@ const BusinessNav = () => {
           })}
           <a
             href="/connexion"
-            className="ml-1 rounded-md px-3 py-1.5 text-[13px] text-mist transition-colors hover:text-snow"
+            className={cn(
+              "ml-1 rounded-md px-3 py-1.5 text-[13px] transition-colors",
+              scrolled
+                ? "text-mist hover:text-snow"
+                : "text-[color:var(--cbt-nav-fg)] hover:text-[color:var(--cbt-nav-fg-strong)]"
+            )}
           >
             Connexion
           </a>
           <div className="ml-1">
-            <ThemeToggle />
+            <ThemeToggle overHero={!scrolled} />
           </div>
           <a
             href="#contact"
@@ -153,12 +163,16 @@ const BusinessNav = () => {
         <div className="flex items-center gap-2 md:hidden">
           <a
             href="/connexion"
-            className="rounded-md px-2 py-1 text-[13px] text-mist"
+            className="rounded-md px-2 py-1 text-[13px] text-[color:var(--cbt-nav-fg)]"
           >
             Connexion
           </a>
-          <ThemeToggle />
-          <button onClick={() => setIsOpen(true)} className="text-snow" aria-label="Menu">
+          <ThemeToggle overHero={!scrolled} />
+          <button
+            onClick={() => setIsOpen(true)}
+            className="text-[color:var(--cbt-nav-fg-strong)]"
+            aria-label="Menu"
+          >
             <Menu className="h-5 w-5" />
           </button>
         </div>

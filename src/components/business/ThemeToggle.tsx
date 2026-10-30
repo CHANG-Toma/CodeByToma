@@ -5,7 +5,11 @@ import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ThemeToggle = () => {
+type ThemeToggleProps = {
+  overHero?: boolean;
+};
+
+const ThemeToggle = ({ overHero = false }: ThemeToggleProps) => {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -17,7 +21,12 @@ const ThemeToggle = () => {
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-cbtBorder text-mist transition-colors hover:border-cbtBorderStrong hover:text-snow"
+      className={cn(
+        "inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors",
+        overHero
+          ? "border-[color:var(--cbt-nav-control-border)] text-[color:var(--cbt-nav-control-fg)] hover:border-cbtBorderStrong hover:text-[color:var(--cbt-nav-fg-strong)]"
+          : "border-cbtBorder text-mist hover:border-cbtBorderStrong hover:text-snow"
+      )}
       aria-label={
         mounted
           ? isDark
