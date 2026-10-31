@@ -62,6 +62,7 @@ Page publique confidentialité : `/confidentialite`.
 |--------|------|
 | `npm run db:up` | Démarre Postgres (Docker Compose) |
 | `npm run db:migrate` | Applique les migrations (`prisma migrate deploy`) |
+| `npm run build` | Build Next.js ; sur Vercel **production**, lance `migrate deploy` avant le build |
 | `npm run db:seed` | Catalogue offres + admin + démos |
 | `npm test` | Tests unitaires (totaux, statuts, n° facture) |
 
