@@ -59,6 +59,21 @@ enum UserRole {
   client
 }
 
+enum BotTaskResponsible {
+  ceo_finance
+  commercial_tech
+  marketing
+  toma
+}
+
+enum BotTaskStatus {
+  todo
+  in_progress
+  to_validate
+  done
+  blocked
+}
+
 model User {
   id           String     @id @default(cuid())
   email        String     @unique
@@ -93,6 +108,7 @@ model Client {
   quotes            Quote[]
   invoices          Invoice[]
   subscriptions     Subscription[]
+  botTasks          BotTask[]
   user              User?
 
   @@index([email])
@@ -275,6 +291,33 @@ model AssistantBatch {
   items       AssistantItem[]
 
   @@index([kind, createdAt])
+}
+
+/// Préférences admin (singleton).
+model AdminPreference {
+  id                      String   @id @default("default")
+  monthlyRevenueGoalCents Int?
+  updatedAt               DateTime @updatedAt
+}
+
+/// Tâches dashboard (bots + saisie manuelle).
+model BotTask {
+  id          String             @id @default(cuid())
+  /// Identifiant stable côté assistant (PATCH idempotent).
+  externalId  String?            @unique
+  title       String
+  detail      String?
+  responsible BotTaskResponsible
+  status      BotTaskStatus      @default(todo)
+  dueAt       DateTime?
+  clientId    String?
+  client      Client?            @relation(fields: [clientId], references: [id])
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([status])
+  @@index([responsible])
+  @@index([dueAt])
 }
 
 model AssistantItem {

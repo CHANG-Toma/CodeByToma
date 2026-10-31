@@ -3,6 +3,7 @@ import {
   isInvoiceOverdue,
   isQuoteExpired,
   isQuoteExpiringSoon,
+  getQuoteFollowUpMilestone,
   isQuoteFollowUpDue,
   isSubscriptionDueSoon,
   sortTodayActions,
@@ -36,6 +37,32 @@ describe("isInvoiceOverdue", () => {
         now,
       }),
     ).toBe(false);
+  });
+});
+
+describe("getQuoteFollowUpMilestone", () => {
+  it("signale J+3", () => {
+    expect(
+      getQuoteFollowUpMilestone({
+        status: "sent",
+        sentAt: new Date("2026-10-27"),
+        createdAt: new Date("2026-10-27"),
+        validUntil: new Date("2026-11-30"),
+        now,
+      }),
+    ).toBe(3);
+  });
+
+  it("signale J+7 après une semaine", () => {
+    expect(
+      getQuoteFollowUpMilestone({
+        status: "sent",
+        sentAt: new Date("2026-10-20"),
+        createdAt: new Date("2026-10-20"),
+        validUntil: new Date("2026-11-30"),
+        now,
+      }),
+    ).toBe(7);
   });
 });
 

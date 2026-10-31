@@ -3,6 +3,10 @@
  * Aucun LLM — priorités métier facturation / suivi.
  */
 
+/** Relances devis sans réponse : J+3 puis J+7 (et au-delà). */
+export const QUOTE_FOLLOW_UP_MILESTONES = [3, 7] as const;
+export type QuoteFollowUpMilestone = (typeof QUOTE_FOLLOW_UP_MILESTONES)[number];
+/** @deprecated préférer getQuoteFollowUpMilestone */
 export const QUOTE_FOLLOW_UP_AFTER_DAYS = 7;
 export const QUOTE_EXPIRING_WITHIN_DAYS = 7;
 export const SUBSCRIPTION_DUE_WITHIN_DAYS = 7;
@@ -53,6 +57,12 @@ export type TodayAction = {
   amountCents: number | null;
   clientId: string | null;
   clientLabel: string | null;
+  /** Brouillon de relance (devis / facture), affiché sur l’accueil. */
+  reminderDraft?: {
+    mailtoHref: string;
+    subject: string;
+    text: string;
+  };
 };
 
 export function isRemindableKind(kind: TodayActionKind): boolean {
@@ -104,6 +114,30 @@ export function isQuoteExpired(input: {
   return Boolean(input.validUntil && input.validUntil < input.now);
 }
 
+export function getQuoteFollowUpMilestone(input: {
+  status: string;
+  sentAt: Date | null;
+  createdAt: Date;
+  validUntil: Date | null;
+  now: Date;
+}): QuoteFollowUpMilestone | null {
+  if (input.status !== "sent") return null;
+  if (
+    isQuoteExpired({
+      status: input.status,
+      validUntil: input.validUntil,
+      now: input.now,
+    })
+  ) {
+    return null;
+  }
+  const anchor = input.sentAt ?? input.createdAt;
+  const days = daysBetween(anchor, input.now);
+  if (days >= 7) return 7;
+  if (days >= 3) return 3;
+  return null;
+}
+
 export function isQuoteFollowUpDue(input: {
   status: string;
   sentAt: Date | null;
@@ -112,14 +146,21 @@ export function isQuoteFollowUpDue(input: {
   now: Date;
   afterDays?: number;
 }): boolean {
-  if (input.status !== "sent") return false;
-  // Expiré = autre action dédiée
-  if (isQuoteExpired({ status: input.status, validUntil: input.validUntil, now: input.now })) {
-    return false;
+  if (input.afterDays != null) {
+    if (input.status !== "sent") return false;
+    if (
+      isQuoteExpired({
+        status: input.status,
+        validUntil: input.validUntil,
+        now: input.now,
+      })
+    ) {
+      return false;
+    }
+    const anchor = input.sentAt ?? input.createdAt;
+    return daysBetween(anchor, input.now) >= input.afterDays;
   }
-  const afterDays = input.afterDays ?? QUOTE_FOLLOW_UP_AFTER_DAYS;
-  const anchor = input.sentAt ?? input.createdAt;
-  return daysBetween(anchor, input.now) >= afterDays;
+  return getQuoteFollowUpMilestone(input) !== null;
 }
 
 export function isQuoteExpiringSoon(input: {

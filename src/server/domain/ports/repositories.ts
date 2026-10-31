@@ -4,6 +4,11 @@ import type {
   AssistantItemRecord,
   AssistantItemStatus,
 } from "../assistant";
+import type {
+  BotTaskRecord,
+  BotTaskResponsible,
+  BotTaskStatus,
+} from "../tasks";
 import type { OfferKind } from "../catalog";
 import type { UserRole } from "../roles";
 import type {
@@ -214,6 +219,7 @@ export type IInvoiceRepository = {
   ): Promise<InvoiceRecord>;
   nextSequential(year: number): Promise<{ sequential: number; number: string }>;
   sumPaidInPeriod(from: Date, to: Date): Promise<number>;
+  sumInvoicedInPeriod(from: Date, to: Date): Promise<number>;
   countByStatus(status: InvoiceStatus): Promise<number>;
 };
 
@@ -303,6 +309,42 @@ export type AuthUserRecord = {
   name: string | null;
   role: UserRole;
   clientId: string | null;
+};
+
+export type IAdminPreferenceRepository = {
+  get(): Promise<{ monthlyRevenueGoalCents: number | null }>;
+  setMonthlyRevenueGoalCents(cents: number | null): Promise<void>;
+};
+
+export type BotTaskCreateInput = {
+  externalId?: string | null;
+  title: string;
+  detail?: string | null;
+  responsible: BotTaskResponsible;
+  status?: BotTaskStatus;
+  dueAt?: Date | null;
+  clientId?: string | null;
+};
+
+export type IBotTaskRepository = {
+  findById(id: string): Promise<BotTaskRecord | null>;
+  findByExternalId(externalId: string): Promise<BotTaskRecord | null>;
+  list(filters?: {
+    status?: BotTaskStatus;
+    responsible?: BotTaskResponsible;
+  }): Promise<BotTaskRecord[]>;
+  create(data: BotTaskCreateInput): Promise<BotTaskRecord>;
+  update(
+    id: string,
+    data: Partial<
+      Omit<BotTaskCreateInput, "externalId"> & { externalId?: string | null }
+    >,
+  ): Promise<BotTaskRecord>;
+  upsertByExternalId(
+    externalId: string,
+    create: BotTaskCreateInput,
+    update: Partial<Omit<BotTaskCreateInput, "externalId">>,
+  ): Promise<BotTaskRecord>;
 };
 
 export type IUserRepository = {

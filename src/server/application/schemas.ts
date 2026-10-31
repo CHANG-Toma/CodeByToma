@@ -138,6 +138,77 @@ export const adminFeesUpdateSchema = z.object({
   tjmEuros: z.coerce.number().positive().max(100_000),
 });
 
+const botResponsibleSchema = z.enum([
+  "ceo_finance",
+  "commercial_tech",
+  "marketing",
+  "toma",
+]);
+
+const botStatusSchema = z.enum([
+  "todo",
+  "in_progress",
+  "to_validate",
+  "done",
+  "blocked",
+]);
+
+const optionalDueAtSchema = z
+  .union([z.string().min(1).max(40), z.literal(""), z.null()])
+  .optional()
+  .transform((v) => {
+    if (v === "" || v === null || v === undefined) return null;
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) {
+      throw new Error("Date d’échéance invalide");
+    }
+    return d;
+  });
+
+export const botTaskUpsertSchema = z.object({
+  title: z.string().min(1).max(300),
+  detail: z.string().max(10000).optional().nullable(),
+  responsible: botResponsibleSchema,
+  status: botStatusSchema.optional(),
+  dueAt: optionalDueAtSchema,
+  clientId: z.string().min(1).optional().nullable(),
+});
+
+export const botTaskUpdateSchema = z.object({
+  title: z.string().min(1).max(300).optional(),
+  detail: z.string().max(10000).optional().nullable(),
+  responsible: botResponsibleSchema.optional(),
+  status: botStatusSchema.optional(),
+  dueAt: optionalDueAtSchema,
+  clientId: z.string().min(1).optional().nullable(),
+});
+
+export const assistantTaskCreateSchema = z.object({
+  externalId: z.string().min(2).max(200).optional().nullable(),
+  title: z.string().min(1).max(300),
+  detail: z.string().max(10000).optional().nullable(),
+  responsible: botResponsibleSchema,
+  status: botStatusSchema.optional(),
+  dueAt: optionalDueAtSchema,
+  clientId: z.string().min(1).optional().nullable(),
+});
+
+export const assistantTaskPatchSchema = z.object({
+  externalId: z.string().min(2).max(200),
+  title: z.string().min(1).max(300).optional(),
+  detail: z.string().max(10000).optional().nullable(),
+  responsible: botResponsibleSchema.optional(),
+  status: botStatusSchema.optional(),
+  dueAt: optionalDueAtSchema,
+  clientId: z.string().min(1).optional().nullable(),
+});
+
+export const adminRevenueGoalSchema = z.object({
+  goalEuros: z
+    .union([z.coerce.number().nonnegative().max(1_000_000), z.literal("")])
+    .transform((v) => (v === "" ? null : Math.round(v * 100))),
+});
+
 /** Champs que le client peut modifier lui-même (pas les notes internes). */
 export const portalProfileUpdateSchema = z.object({
   name: z.string().min(1).max(200),

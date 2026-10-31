@@ -13,6 +13,8 @@ import * as subscriptionsApp from "@/server/application/subscriptions";
 import * as remindersApp from "@/server/application/reminders";
 import * as settingsApp from "@/server/application/settings";
 import * as assistantApp from "@/server/application/assistant";
+import * as tasksApp from "@/server/application/tasks";
+import type { BotTaskStatus } from "@/server/domain/tasks";
 import { getDashboardBasePath } from "@/server/infrastructure/auth/dashboard-path";
 import { clientInvoiceHref, dashboardHref } from "@/lib/dashboard-href";
 import {
@@ -454,5 +456,73 @@ export async function dismissAssistantItemAction(formData: FormData) {
     revalidateDashboard("opportunites");
   } catch (e) {
     rethrowRedirect(e);
+  }
+}
+
+export async function updateAdminRevenueGoalAction(formData: FormData) {
+  const session = await requireAdmin();
+  try {
+    await settingsApp.updateAdminRevenueGoal(session.sub, {
+      goalEuros: String(formData.get("goalEuros") ?? ""),
+    });
+    revalidateDashboard("profil");
+    revalidateDashboard();
+  } catch (e) {
+    rethrowRedirect(e);
+  }
+}
+
+export async function createBotTaskAction(
+  formData: FormData,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    await tasksApp.createBotTaskManual({
+      title: String(formData.get("title") ?? ""),
+      detail: String(formData.get("detail") ?? "") || null,
+      responsible: String(formData.get("responsible") ?? "toma"),
+      status: String(formData.get("status") ?? "todo"),
+      dueAt: String(formData.get("dueAt") ?? "") || null,
+      clientId: String(formData.get("clientId") ?? "") || null,
+    });
+    revalidateDashboard("taches");
+    return { ok: true };
+  } catch (e) {
+    return toActionError(e);
+  }
+}
+
+export async function updateBotTaskAction(
+  id: string,
+  formData: FormData,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    await tasksApp.updateBotTaskManual(id, {
+      title: String(formData.get("title") ?? ""),
+      detail: String(formData.get("detail") ?? "") || null,
+      responsible: String(formData.get("responsible") ?? ""),
+      status: String(formData.get("status") ?? ""),
+      dueAt: String(formData.get("dueAt") ?? "") || null,
+      clientId: String(formData.get("clientId") ?? "") || null,
+    });
+    revalidateDashboard("taches");
+    return { ok: true };
+  } catch (e) {
+    return toActionError(e);
+  }
+}
+
+export async function setBotTaskStatusAction(
+  taskId: string,
+  status: BotTaskStatus,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    await tasksApp.setBotTaskStatus(taskId, status);
+    revalidateDashboard("taches");
+    return { ok: true };
+  } catch (e) {
+    return toActionError(e);
   }
 }
