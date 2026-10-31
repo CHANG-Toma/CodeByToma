@@ -7,7 +7,10 @@ import {
   feesToEuros,
   getOperationalFees,
 } from "@/server/application/fees";
+import { getDashboardRevenueOutlook } from "@/server/application/finance";
 import { getDashboardKpis } from "@/server/application/invoices";
+import { RevenueGoalBar } from "@/components/dashboard/RevenueGoalBar";
+import { TodayActionReminderActions } from "@/components/dashboard/TodayActionReminderActions";
 import { listTodayActions } from "@/server/application/today-actions";
 import {
   TODAY_ACTION_LABEL,
@@ -36,10 +39,11 @@ function actionTone(
 
 export default async function DashboardHomePage({ params }: Props) {
   const { dashboardSlug } = await params;
-  const [kpis, todayActions, feesCents] = await Promise.all([
+  const [kpis, todayActions, feesCents, revenueOutlook] = await Promise.all([
     getDashboardKpis(),
     listTodayActions(),
     getOperationalFees(),
+    getDashboardRevenueOutlook(),
   ]);
   const fees = feesToEuros(feesCents);
 
@@ -95,18 +99,36 @@ export default async function DashboardHomePage({ params }: Props) {
         description={`Création / TJM en devis · hébergement ${fees.hosting} €/mois seulement si tu héberges.`}
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {cards.map((card) => (
-          <Link key={card.label} href={dashboardHref(dashboardSlug, card.href)}>
-            <Panel className="h-full hover:-translate-y-0.5 hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-950/10 motion-reduce:transform-none">
+        {cards.map((card) => {
+          const isRevenue = card.label.startsWith("CA encaissé");
+          const inner = (
+            <>
               <p className="text-xs uppercase tracking-wide text-dash-muted">
                 {card.label}
               </p>
               <p className="mt-3 text-2xl font-semibold text-dash-text">
                 <AnimatedMetric value={card.value} format={card.format} />
               </p>
-            </Panel>
-          </Link>
-        ))}
+              {isRevenue ? (
+                <RevenueGoalBar
+                  collectedCents={revenueOutlook.collectedCents}
+                  expectedCents={revenueOutlook.expectedRevenueCents}
+                  goalCents={revenueOutlook.monthlyRevenueGoalCents}
+                />
+              ) : null}
+            </>
+          );
+          return (
+            <Link
+              key={card.label}
+              href={dashboardHref(dashboardSlug, card.href)}
+            >
+              <Panel className="h-full hover:-translate-y-0.5 hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-950/10 motion-reduce:transform-none">
+                {inner}
+              </Panel>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="mt-8">
@@ -164,7 +186,13 @@ export default async function DashboardHomePage({ params }: Props) {
                         </p>
                       ) : null}
                     </div>
-                    {action.remindHref ? (
+                    {action.reminderDraft ? (
+                      <TodayActionReminderActions
+                        mailtoHref={action.reminderDraft.mailtoHref}
+                        subject={action.reminderDraft.subject}
+                        text={action.reminderDraft.text}
+                      />
+                    ) : action.remindHref ? (
                       <Link
                         href={action.remindHref}
                         className="rounded-md border border-dash-border px-3 py-1.5 text-xs text-dash-soft transition hover:bg-dash-hover"

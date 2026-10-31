@@ -10,8 +10,10 @@ import { formatInvoiceNumber } from "@/server/domain/invoice-numbering";
 import type { OfferKind } from "@/server/domain/catalog";
 import type {
   ClientFilters,
+  IAdminPreferenceRepository,
   IAssistantRepository,
   IAuditLogRepository,
+  IBotTaskRepository,
   ICatalogOfferRepository,
   IClientRepository,
   IInvoiceRepository,
@@ -26,6 +28,7 @@ import { prisma } from "./client";
 import {
   mapAssistantBatch,
   mapAssistantItem,
+  mapBotTask,
   mapCatalogOffer,
   mapClient,
   mapInvoice,
@@ -340,6 +343,17 @@ export const invoiceRepository: IInvoiceRepository = {
     return agg._sum.amountCents ?? 0;
   },
 
+  async sumInvoicedInPeriod(from, to) {
+    const agg = await prisma.invoice.aggregate({
+      where: {
+        status: { notIn: ["draft", "cancelled"] },
+        issuedAt: { gte: from, lt: to },
+      },
+      _sum: { totalCents: true },
+    });
+    return agg._sum.totalCents ?? 0;
+  },
+
   async countByStatus(status) {
     return prisma.invoice.count({
       where: { status: status as PrismaInvoiceStatus },
@@ -559,6 +573,117 @@ export const userRepository: IUserRepository = {
         clientId: true,
       },
     });
+  },
+};
+
+export const adminPreferenceRepository: IAdminPreferenceRepository = {
+  async get() {
+    const row = await prisma.adminPreference.findUnique({
+      where: { id: "default" },
+    });
+    return { monthlyRevenueGoalCents: row?.monthlyRevenueGoalCents ?? null };
+  },
+
+  async setMonthlyRevenueGoalCents(cents) {
+    await prisma.adminPreference.upsert({
+      where: { id: "default" },
+      create: { monthlyRevenueGoalCents: cents },
+      update: { monthlyRevenueGoalCents: cents },
+    });
+  },
+};
+
+export const botTaskRepository: IBotTaskRepository = {
+  async findById(id) {
+    const row = await prisma.botTask.findUnique({ where: { id } });
+    return row ? mapBotTask(row) : null;
+  },
+
+  async findByExternalId(externalId) {
+    const row = await prisma.botTask.findUnique({ where: { externalId } });
+    return row ? mapBotTask(row) : null;
+  },
+
+  async list(filters) {
+    const rows = await prisma.botTask.findMany({
+      where: {
+        ...(filters?.status ? { status: filters.status } : {}),
+        ...(filters?.responsible ? { responsible: filters.responsible } : {}),
+      },
+      orderBy: [{ status: "asc" }, { dueAt: "asc" }, { updatedAt: "desc" }],
+    });
+    return rows.map(mapBotTask);
+  },
+
+  async create(data) {
+    const row = await prisma.botTask.create({
+      data: {
+        externalId: data.externalId ?? null,
+        title: data.title,
+        detail: data.detail ?? null,
+        responsible: data.responsible,
+        status: data.status ?? "todo",
+        dueAt: data.dueAt ?? null,
+        clientId: data.clientId ?? null,
+      },
+    });
+    return mapBotTask(row);
+  },
+
+  async update(id, data) {
+    const row = await prisma.botTask.update({
+      where: { id },
+      data: {
+        ...(data.title !== undefined ? { title: data.title } : {}),
+        ...(data.detail !== undefined ? { detail: data.detail } : {}),
+        ...(data.responsible !== undefined
+          ? { responsible: data.responsible }
+          : {}),
+        ...(data.status !== undefined ? { status: data.status } : {}),
+        ...(data.dueAt !== undefined ? { dueAt: data.dueAt } : {}),
+        ...(data.clientId !== undefined ? { clientId: data.clientId } : {}),
+        ...(data.externalId !== undefined
+          ? { externalId: data.externalId }
+          : {}),
+      },
+    });
+    return mapBotTask(row);
+  },
+
+  async upsertByExternalId(externalId, create, update) {
+    const existing = await prisma.botTask.findUnique({
+      where: { externalId },
+    });
+    if (existing) {
+      const row = await prisma.botTask.update({
+        where: { id: existing.id },
+        data: {
+          ...(update.title !== undefined ? { title: update.title } : {}),
+          ...(update.detail !== undefined ? { detail: update.detail } : {}),
+          ...(update.responsible !== undefined
+            ? { responsible: update.responsible }
+            : {}),
+          ...(update.status !== undefined ? { status: update.status } : {}),
+          ...(update.dueAt !== undefined ? { dueAt: update.dueAt } : {}),
+          ...(update.clientId !== undefined
+            ? { clientId: update.clientId }
+            : {}),
+        },
+      });
+      return mapBotTask(row);
+    }
+    const row = await prisma.botTask.create({
+      data: {
+        externalId,
+        title: create.title,
+        detail: create.detail ?? null,
+        responsible: create.responsible,
+        status: create.status ?? "todo",
+        dueAt: create.dueAt ?? null,
+        clientId: create.clientId ?? null,
+      },
+    });
+    return mapBotTask(row);
   },
 };
 

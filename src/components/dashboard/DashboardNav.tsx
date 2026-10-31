@@ -12,6 +12,7 @@ import {
   Radar,
   Receipt,
   RefreshCw,
+  ListTodo,
   Users,
 } from "lucide-react";
 import { DashboardThemeToggle } from "@/components/dashboard/DashboardThemeToggle";
@@ -29,6 +30,7 @@ const NAV = [
   { href: "payments", label: "Paiements", icon: CreditCard },
   { href: "subscriptions", label: "Abonnements", icon: RefreshCw },
   { href: "opportunites", label: "Veille & prospection", icon: Radar },
+  { href: "taches", label: "Tâches", icon: ListTodo },
 ] as const;
 
 type Props = {

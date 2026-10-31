@@ -4,10 +4,10 @@ import {
   dashboardHref,
 } from "@/lib/dashboard-href";
 import {
+  getQuoteFollowUpMilestone,
   isInvoiceOverdue,
   isQuoteExpired,
   isQuoteExpiringSoon,
-  isQuoteFollowUpDue,
   isSubscriptionDueSoon,
   sortTodayActions,
   TODAY_ACTION_LABEL,
@@ -15,12 +15,16 @@ import {
   type TodayAction,
 } from "@/server/domain/today-actions";
 import { getDashboardBasePath } from "@/server/infrastructure/auth/dashboard-path";
+import { buildTodayReminderDraft } from "./today-reminder-draft";
 import { deps } from "./container";
 
-function clientLabel(
-  clients: Map<string, { name: string; companyName: string | null }>,
-  clientId: string,
-): string {
+type ClientRow = {
+  name: string;
+  email: string;
+  companyName: string | null;
+};
+
+function clientLabel(clients: Map<string, ClientRow>, clientId: string): string {
   const c = clients.get(clientId);
   if (!c) return "Client";
   return c.companyName || c.name;
@@ -64,7 +68,10 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
   ]);
 
   const clientMap = new Map(
-    clients.map((c) => [c.id, { name: c.name, companyName: c.companyName }]),
+    clients.map((c) => [
+      c.id,
+      { name: c.name, email: c.email, companyName: c.companyName },
+    ]),
   );
   const invoiceQuoteIds = new Set(
     invoices.map((i) => i.quoteId),
@@ -79,6 +86,29 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
     actions.push(action);
   }
 
+  function withReminder(
+    action: TodayAction,
+    input: {
+      kind: TodayAction["kind"];
+      clientId: string;
+      documentNumber: string;
+      amountCents: number;
+      dueOrValidUntil: Date | null;
+    },
+  ): TodayAction {
+    const client = clientMap.get(input.clientId);
+    if (!client) return action;
+    const draft = buildTodayReminderDraft({
+      kind: input.kind,
+      clientName: client.name,
+      clientEmail: client.email,
+      documentNumber: input.documentNumber,
+      amountCents: input.amountCents,
+      dueOrValidUntil: input.dueOrValidUntil,
+    });
+    return draft ? { ...action, reminderDraft: draft } : action;
+  }
+
   const lateInvoices = [
     ...overdueInvoices,
     ...issuedInvoices,
@@ -89,21 +119,32 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
 
   for (const inv of lateInvoices) {
     const remaining = Math.max(0, inv.totalCents - inv.paidCents);
-    push({
-      id: `invoice_overdue:${inv.id}`,
-      kind: "invoice_overdue",
-      priority: TODAY_ACTION_PRIORITY.invoice_overdue,
-      title: `${TODAY_ACTION_LABEL.invoice_overdue} · ${inv.number}`,
-      detail: inv.dueAt
-        ? formatDaysLate(inv.dueAt, now)
-        : "Échéance dépassée",
-      href: clientInvoiceHref(slug, inv.clientId, inv.id),
-      remindHref: dashboardHref(slug, `reminders/invoice/${inv.id}`),
-      dueAt: inv.dueAt,
-      amountCents: remaining,
-      clientId: inv.clientId,
-      clientLabel: clientLabel(clientMap, inv.clientId),
-    });
+    push(
+      withReminder(
+        {
+          id: `invoice_overdue:${inv.id}`,
+          kind: "invoice_overdue",
+          priority: TODAY_ACTION_PRIORITY.invoice_overdue,
+          title: `${TODAY_ACTION_LABEL.invoice_overdue} · ${inv.number}`,
+          detail: inv.dueAt
+            ? formatDaysLate(inv.dueAt, now)
+            : "Échéance dépassée",
+          href: clientInvoiceHref(slug, inv.clientId, inv.id),
+          remindHref: dashboardHref(slug, `reminders/invoice/${inv.id}`),
+          dueAt: inv.dueAt,
+          amountCents: remaining,
+          clientId: inv.clientId,
+          clientLabel: clientLabel(clientMap, inv.clientId),
+        },
+        {
+          kind: "invoice_overdue",
+          clientId: inv.clientId,
+          documentNumber: inv.number,
+          amountCents: remaining,
+          dueOrValidUntil: inv.dueAt,
+        },
+      ),
+    );
   }
 
   for (const quote of sentQuotes) {
@@ -116,50 +157,74 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
         now,
       })
     ) {
-      push({
-        id: `quote_expired:${quote.id}`,
-        kind: "quote_expired",
-        priority: TODAY_ACTION_PRIORITY.quote_expired,
-        title: `${TODAY_ACTION_LABEL.quote_expired} · ${quote.number}`,
-        detail: quote.validUntil
-          ? `Validité au ${quote.validUntil.toLocaleDateString("fr-FR")}`
-          : "Validité dépassée",
-        href: clientQuoteHref(slug, quote.clientId, quote.id),
-        remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
-        dueAt: quote.validUntil,
-        amountCents: quote.totalCents,
-        clientId: quote.clientId,
-        clientLabel: label,
-      });
+      push(
+        withReminder(
+          {
+            id: `quote_expired:${quote.id}`,
+            kind: "quote_expired",
+            priority: TODAY_ACTION_PRIORITY.quote_expired,
+            title: `${TODAY_ACTION_LABEL.quote_expired} · ${quote.number}`,
+            detail: quote.validUntil
+              ? `Validité au ${quote.validUntil.toLocaleDateString("fr-FR")}`
+              : "Validité dépassée",
+            href: clientQuoteHref(slug, quote.clientId, quote.id),
+            remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
+            dueAt: quote.validUntil,
+            amountCents: quote.totalCents,
+            clientId: quote.clientId,
+            clientLabel: label,
+          },
+          {
+            kind: "quote_expired",
+            clientId: quote.clientId,
+            documentNumber: quote.number,
+            amountCents: quote.totalCents,
+            dueOrValidUntil: quote.validUntil,
+          },
+        ),
+      );
       continue;
     }
 
-    if (
-      isQuoteFollowUpDue({
-        status: quote.status,
-        sentAt: quote.sentAt,
-        createdAt: quote.createdAt,
-        validUntil: quote.validUntil,
-        now,
-      })
-    ) {
+    const milestone = getQuoteFollowUpMilestone({
+      status: quote.status,
+      sentAt: quote.sentAt,
+      createdAt: quote.createdAt,
+      validUntil: quote.validUntil,
+      now,
+    });
+    if (milestone) {
       const anchor = quote.sentAt ?? quote.createdAt;
       const days = Math.floor(
         (now.getTime() - anchor.getTime()) / (24 * 60 * 60 * 1000),
       );
-      push({
-        id: `quote_follow_up:${quote.id}`,
-        kind: "quote_follow_up",
-        priority: TODAY_ACTION_PRIORITY.quote_follow_up,
-        title: `${TODAY_ACTION_LABEL.quote_follow_up} · ${quote.number}`,
-        detail: `Envoyé il y a ${days} jour${days > 1 ? "s" : ""}`,
-        href: clientQuoteHref(slug, quote.clientId, quote.id),
-        remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
-        dueAt: anchor,
-        amountCents: quote.totalCents,
-        clientId: quote.clientId,
-        clientLabel: label,
-      });
+      push(
+        withReminder(
+          {
+            id: `quote_follow_up:${quote.id}:${milestone}`,
+            kind: "quote_follow_up",
+            priority: TODAY_ACTION_PRIORITY.quote_follow_up,
+            title: `${TODAY_ACTION_LABEL.quote_follow_up} · ${quote.number}`,
+            detail:
+              milestone === 3
+                ? `Sans réponse depuis ${days} jours (J+3)`
+                : `Sans réponse depuis ${days} jours (J+7)`,
+            href: clientQuoteHref(slug, quote.clientId, quote.id),
+            remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
+            dueAt: anchor,
+            amountCents: quote.totalCents,
+            clientId: quote.clientId,
+            clientLabel: label,
+          },
+          {
+            kind: "quote_follow_up",
+            clientId: quote.clientId,
+            documentNumber: quote.number,
+            amountCents: quote.totalCents,
+            dueOrValidUntil: quote.validUntil,
+          },
+        ),
+      );
       continue;
     }
 
@@ -170,21 +235,32 @@ export async function listTodayActions(now = new Date()): Promise<TodayAction[]>
         now,
       })
     ) {
-      push({
-        id: `quote_expiring:${quote.id}`,
-        kind: "quote_expiring",
-        priority: TODAY_ACTION_PRIORITY.quote_expiring,
-        title: `${TODAY_ACTION_LABEL.quote_expiring} · ${quote.number}`,
-        detail: quote.validUntil
-          ? `Expire le ${quote.validUntil.toLocaleDateString("fr-FR")}`
-          : "Expiration proche",
-        href: clientQuoteHref(slug, quote.clientId, quote.id),
-        remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
-        dueAt: quote.validUntil,
-        amountCents: quote.totalCents,
-        clientId: quote.clientId,
-        clientLabel: label,
-      });
+      push(
+        withReminder(
+          {
+            id: `quote_expiring:${quote.id}`,
+            kind: "quote_expiring",
+            priority: TODAY_ACTION_PRIORITY.quote_expiring,
+            title: `${TODAY_ACTION_LABEL.quote_expiring} · ${quote.number}`,
+            detail: quote.validUntil
+              ? `Expire le ${quote.validUntil.toLocaleDateString("fr-FR")}`
+              : "Expiration proche",
+            href: clientQuoteHref(slug, quote.clientId, quote.id),
+            remindHref: dashboardHref(slug, `reminders/quote/${quote.id}`),
+            dueAt: quote.validUntil,
+            amountCents: quote.totalCents,
+            clientId: quote.clientId,
+            clientLabel: label,
+          },
+          {
+            kind: "quote_expiring",
+            clientId: quote.clientId,
+            documentNumber: quote.number,
+            amountCents: quote.totalCents,
+            dueOrValidUntil: quote.validUntil,
+          },
+        ),
+      );
     }
   }
 

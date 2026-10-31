@@ -1,6 +1,7 @@
 import type {
   AssistantBatch,
   AssistantItem,
+  BotTask,
   CatalogOffer,
   Client,
   Invoice,
@@ -10,6 +11,7 @@ import type {
   QuoteLine,
   Subscription,
 } from "@prisma/client";
+import type { BotTaskRecord } from "@/server/domain/tasks";
 import type {
   AssistantBatchRecord,
   AssistantItemRecord,
@@ -174,6 +176,21 @@ export function mapAssistantItem(item: AssistantItem): AssistantItemRecord {
     status: item.status,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
+  };
+}
+
+export function mapBotTask(row: BotTask): BotTaskRecord {
+  return {
+    id: row.id,
+    externalId: row.externalId,
+    title: row.title,
+    detail: row.detail,
+    responsible: row.responsible,
+    status: row.status,
+    dueAt: row.dueAt,
+    clientId: row.clientId,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   };
 }
 

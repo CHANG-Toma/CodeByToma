@@ -1,6 +1,7 @@
 import {
   updateAdminFeesAction,
   updateAdminProfileAction,
+  updateAdminRevenueGoalAction,
 } from "@/app/(private)/actions";
 import {
   Field,
@@ -31,6 +32,11 @@ export default async function ProfilPage({ params }: Props) {
     await updateAdminFeesAction(formData);
   }
 
+  async function saveRevenueGoal(formData: FormData) {
+    "use server";
+    await updateAdminRevenueGoalAction(formData);
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <PageHeader
@@ -59,6 +65,32 @@ export default async function ProfilPage({ params }: Props) {
             </span>
           </label>
           <PrimaryButton>Enregistrer le profil</PrimaryButton>
+        </form>
+      </Panel>
+
+      <Panel>
+        <h2 className="mb-1 text-sm font-medium text-dash-text">
+          Objectif de CA (mois)
+        </h2>
+        <p className="mb-4 text-xs text-dash-muted">
+          Affiché sur l’accueil à côté du CA encaissé. Laisse vide pour masquer
+          la barre de progression.
+        </p>
+        <form action={saveRevenueGoal} className="flex flex-wrap items-end gap-4">
+          <Field
+            label="Objectif (€)"
+            name="goalEuros"
+            type="number"
+            step="1"
+            min="0"
+            placeholder="ex. 5000"
+            defaultValue={
+              settings.monthlyRevenueGoalCents != null
+                ? String(settings.monthlyRevenueGoalCents / 100)
+                : ""
+            }
+          />
+          <PrimaryButton>Enregistrer l’objectif</PrimaryButton>
         </form>
       </Panel>
 

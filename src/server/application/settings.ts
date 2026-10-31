@@ -9,6 +9,7 @@ import { getOperationalFees } from "./fees";
 import {
   adminFeesUpdateSchema,
   adminProfileUpdateSchema,
+  adminRevenueGoalSchema,
 } from "./schemas";
 
 export type AdminSettings = {
@@ -22,6 +23,7 @@ export type AdminSettings = {
     hostingCents: number;
     tjmCents: number;
   };
+  monthlyRevenueGoalCents: number | null;
   offers: CatalogOfferRecord[];
 };
 
@@ -38,16 +40,44 @@ export async function getAdminSettings(
     throw new UnauthorizedError("Accès réservé");
   }
 
-  const [fees, offers] = await Promise.all([
+  const [fees, offers, prefs] = await Promise.all([
     getOperationalFees(),
     deps.catalog.listActive(),
+    deps.adminPrefs.get(),
   ]);
 
   return {
     user: { id: user.id, email: user.email, name: user.name },
     fees,
+    monthlyRevenueGoalCents: prefs.monthlyRevenueGoalCents,
     offers,
   };
+}
+
+export async function updateAdminRevenueGoal(
+  userId: string,
+  input: unknown,
+): Promise<void> {
+  const parsed = adminRevenueGoalSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new ValidationError(
+      parsed.error.issues[0]?.message ?? "Données invalides",
+    );
+  }
+
+  const user = await deps.users.findById(userId);
+  if (!user || user.role !== "admin") {
+    throw new UnauthorizedError("Accès réservé");
+  }
+
+  await deps.adminPrefs.setMonthlyRevenueGoalCents(parsed.data.goalEuros);
+
+  await deps.audit.append({
+    userId,
+    action: "admin.revenue_goal_updated",
+    entity: "AdminPreference",
+    metadata: { monthlyRevenueGoalCents: parsed.data.goalEuros },
+  });
 }
 
 export async function updateAdminProfile(
