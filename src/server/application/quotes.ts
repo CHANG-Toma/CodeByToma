@@ -1,5 +1,10 @@
 import { addYears } from "@/lib/dates";
-import { ConflictError, NotFoundError, ValidationError } from "@/server/domain/errors";
+import {
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from "@/server/domain/errors";
+import { planQuoteDeletion } from "@/server/domain/quote-deletion";
 import { formatQuoteNumber } from "@/server/domain/invoice-numbering";
 import {
   assertQuoteTransition,
@@ -107,6 +112,43 @@ export async function transitionQuote(
     metadata: { from: quote.status, to: parsed.data.status },
   });
   return updated;
+}
+
+export async function deleteQuote(
+  id: string,
+): Promise<{ clientId: string; number: string }> {
+  const quote = await getQuote(id);
+  const invoices = await deps.invoices.list({ clientId: quote.clientId });
+  const linked = invoices.filter((i) => i.quoteId === id);
+
+  const linkedWithPayments = await Promise.all(
+    linked.map(async (invoice) => ({
+      id: invoice.id,
+      status: invoice.status,
+      paymentCount: (await deps.payments.list({ invoiceId: invoice.id }))
+        .length,
+    })),
+  );
+
+  const plan = planQuoteDeletion(linkedWithPayments);
+  if (!plan.allowed) {
+    throw new ConflictError(plan.message);
+  }
+
+  for (const invoiceId of plan.invoiceIdsToRemove) {
+    await deps.invoices.delete(invoiceId);
+  }
+
+  await deps.quotes.delete(id);
+
+  await deps.audit.append({
+    action: "quote.deleted",
+    entity: "Quote",
+    entityId: id,
+    metadata: { number: quote.number },
+  });
+
+  return { clientId: quote.clientId, number: quote.number };
 }
 
 export async function acceptQuoteAndCreateInvoice(quoteId: string) {

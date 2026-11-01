@@ -178,6 +178,7 @@ export type IQuoteRepository = {
     }>,
   ): Promise<QuoteRecord>;
   countByYear(year: number): Promise<number>;
+  delete(id: string): Promise<void>;
 };
 
 export type InvoiceCreateInput = {
@@ -221,6 +222,7 @@ export type IInvoiceRepository = {
   sumPaidInPeriod(from: Date, to: Date): Promise<number>;
   sumInvoicedInPeriod(from: Date, to: Date): Promise<number>;
   countByStatus(status: InvoiceStatus): Promise<number>;
+  delete(id: string): Promise<void>;
 };
 
 export type IPaymentRepository = {
@@ -251,6 +253,7 @@ export type ISubscriptionRepository = {
     >,
   ): Promise<SubscriptionRecord>;
   countActive(): Promise<number>;
+  delete(id: string): Promise<void>;
 };
 
 export type ICatalogOfferRepository = {

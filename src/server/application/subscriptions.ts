@@ -109,6 +109,20 @@ export async function transitionSubscription(
   return updated;
 }
 
+export async function deleteSubscription(
+  id: string,
+): Promise<{ clientId: string; label: string }> {
+  const sub = await getSubscription(id);
+  await deps.subscriptions.delete(id);
+  await deps.audit.append({
+    action: "subscription.deleted",
+    entity: "Subscription",
+    entityId: id,
+    metadata: { label: sub.label },
+  });
+  return { clientId: sub.clientId, label: sub.label };
+}
+
 export async function listUpcomingBillings(limit = 10) {
   const active = await deps.subscriptions.list({ status: "active" });
   return active
