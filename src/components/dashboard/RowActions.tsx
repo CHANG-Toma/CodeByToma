@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { MoreHorizontal } from "lucide-react";
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
@@ -17,9 +25,19 @@ export type RowActionButton = {
   label: string;
   formAction: () => void | Promise<void>;
   tone?: "default" | "danger";
+  confirmMessage?: string;
 };
 
-export type RowAction = RowActionLink | RowActionButton;
+export type RowActionDelete = {
+  kind: "delete";
+  label: string;
+  confirmMessage: string;
+  performDelete: () => Promise<
+    { ok: true; clientId: string } | { ok: false; error: string }
+  >;
+};
+
+export type RowAction = RowActionLink | RowActionButton | RowActionDelete;
 
 const itemClass =
   "flex w-full items-center px-3 py-2 text-left text-sm transition";
@@ -29,6 +47,43 @@ const MENU_GAP = 4;
 const VIEW_PAD = 8;
 
 type MenuPos = { top: number; left: number };
+
+function RowDeleteMenuItem({
+  action,
+  onDone,
+}: {
+  action: RowActionDelete;
+  onDone: () => void;
+}) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      disabled={pending}
+      className={cn(
+        itemClass,
+        "text-rose-600 hover:bg-rose-500/10 dark:text-rose-300",
+      )}
+      onClick={() => {
+        onDone();
+        if (!window.confirm(action.confirmMessage)) return;
+        startTransition(async () => {
+          const result = await action.performDelete();
+          if (!result.ok) {
+            window.alert(result.error);
+            return;
+          }
+          router.refresh();
+        });
+      }}
+    >
+      {pending ? "Suppression…" : action.label}
+    </button>
+  );
+}
 
 export function RowActions({ actions }: { actions: RowAction[] }) {
   const [open, setOpen] = useState(false);
@@ -137,6 +192,16 @@ export function RowActions({ actions }: { actions: RowAction[] }) {
                 );
               }
 
+              if (action.kind === "delete") {
+                return (
+                  <RowDeleteMenuItem
+                    key={action.label}
+                    action={action}
+                    onDone={() => setOpen(false)}
+                  />
+                );
+              }
+
               return (
                 <form
                   key={action.label}
@@ -152,7 +217,15 @@ export function RowActions({ actions }: { actions: RowAction[] }) {
                         ? "text-rose-600 hover:bg-rose-500/10 dark:text-rose-300"
                         : "text-dash-soft hover:bg-dash-hover hover:text-dash-text",
                     )}
-                    onClick={() => setOpen(false)}
+                    onClick={(event) => {
+                      setOpen(false);
+                      if (
+                        action.confirmMessage &&
+                        !window.confirm(action.confirmMessage)
+                      ) {
+                        event.preventDefault();
+                      }
+                    }}
                   >
                     {action.label}
                   </button>

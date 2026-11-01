@@ -1,5 +1,6 @@
 import {
   cancelSubscriptionAction,
+  deleteSubscriptionAction,
   pauseSubscriptionAction,
   resumeSubscriptionAction,
 } from "@/app/(private)/actions";
@@ -11,6 +12,7 @@ import {
 import { RowActions, RowActionsHeader } from "@/components/dashboard/RowActions";
 import { subscriptionStatusLabel } from "@/lib/dashboard-labels";
 import { formatEur } from "@/lib/money";
+import { subscriptionListActions } from "@/lib/row-actions";
 import { listSubscriptions } from "@/server/application/subscriptions";
 
 type Props = {
@@ -62,29 +64,9 @@ export default async function ClientSubscriptionsPage({ params }: Props) {
                   "use server";
                   await cancelSubscriptionAction(subId);
                 }
-
-                const actions = [];
-                if (sub.status === "active") {
-                  actions.push({
-                    kind: "button" as const,
-                    label: "Mettre en pause",
-                    formAction: pause,
-                  });
-                }
-                if (sub.status === "paused") {
-                  actions.push({
-                    kind: "button" as const,
-                    label: "Reprendre",
-                    formAction: resume,
-                  });
-                }
-                if (sub.status !== "cancelled") {
-                  actions.push({
-                    kind: "button" as const,
-                    label: "Résilier",
-                    formAction: cancel,
-                    tone: "danger" as const,
-                  });
+                async function remove() {
+                  "use server";
+                  return deleteSubscriptionAction(subId);
                 }
 
                 return (
@@ -104,7 +86,17 @@ export default async function ClientSubscriptionsPage({ params }: Props) {
                     <td className="px-5 py-3 text-dash-muted">
                       {sub.nextBillingDate?.toLocaleDateString("fr-FR") ?? "—"}
                     </td>
-                    <RowActions actions={actions} />
+                    <RowActions
+                      actions={subscriptionListActions({
+                        subscriptionId: sub.id,
+                        label: sub.label,
+                        status: sub.status,
+                        pauseAction: pause,
+                        resumeAction: resume,
+                        cancelAction: cancel,
+                        deleteAction: remove,
+                      })}
+                    />
                   </tr>
                 );
               })}

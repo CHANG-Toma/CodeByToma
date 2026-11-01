@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   acceptQuoteAction,
+  deleteQuoteAction,
   rejectQuoteAction,
   sendQuoteAction,
 } from "@/app/(private)/actions";
@@ -111,6 +112,10 @@ export default async function QuotesPage({ params, searchParams }: Props) {
                   "use server";
                   await rejectQuoteAction(quoteId);
                 }
+                async function remove() {
+                  "use server";
+                  return deleteQuoteAction(quoteId);
+                }
 
                 return (
                   <tr key={quote.id} className="border-b border-dash-border">
@@ -145,6 +150,8 @@ export default async function QuotesPage({ params, searchParams }: Props) {
                         sendAction: send,
                         acceptAction: accept,
                         rejectAction: reject,
+                        deleteAction: remove,
+                        quoteNumber: quote.number,
                       })}
                     />
                   </tr>

@@ -36,6 +36,22 @@ function revalidateDashboard(path = "") {
   revalidatePath(dashboardHref(slug(), path));
 }
 
+function revalidateQuoteSurfaces(input: { id: string; clientId: string }) {
+  revalidateDashboard();
+  revalidateDashboard("quotes");
+  revalidateDashboard(`quotes/${input.id}`);
+  revalidateDashboard(`clients/${input.clientId}/quotes`);
+  revalidateDashboard(`clients/${input.clientId}/quotes/${input.id}`);
+  revalidateDashboard(`clients/${input.clientId}`);
+}
+
+function revalidateSubscriptionSurfaces(clientId: string) {
+  revalidateDashboard();
+  revalidateDashboard("subscriptions");
+  revalidateDashboard(`clients/${clientId}/subscriptions`);
+  revalidateDashboard(`clients/${clientId}`);
+}
+
 function revalidatePortal(path = "") {
   revalidatePath(path ? `/espace/${path}` : "/espace");
 }
@@ -188,9 +204,8 @@ export async function createQuoteAction(
 export async function sendQuoteAction(id: string) {
   await requireAdmin();
   try {
-    await quotesApp.transitionQuote(id, { status: "sent" });
-    revalidateDashboard(`quotes/${id}`);
-    revalidateDashboard("quotes");
+    const quote = await quotesApp.transitionQuote(id, { status: "sent" });
+    revalidateQuoteSurfaces(quote);
   } catch (e) {
     rethrowRedirect(e);
   }
@@ -214,10 +229,37 @@ export async function acceptQuoteAction(id: string) {
 export async function rejectQuoteAction(id: string) {
   await requireAdmin();
   try {
-    await quotesApp.transitionQuote(id, { status: "rejected" });
-    revalidateDashboard(`quotes/${id}`);
+    const quote = await quotesApp.transitionQuote(id, { status: "rejected" });
+    revalidateQuoteSurfaces(quote);
   } catch (e) {
     rethrowRedirect(e);
+  }
+}
+
+export async function deleteQuoteAction(
+  id: string,
+): Promise<{ ok: true; clientId: string } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const { clientId } = await quotesApp.deleteQuote(id);
+    revalidateQuoteSurfaces({ id, clientId });
+    revalidateDashboard("invoices");
+    return { ok: true, clientId };
+  } catch (e) {
+    return toActionError(e);
+  }
+}
+
+export async function deleteSubscriptionAction(
+  id: string,
+): Promise<{ ok: true; clientId: string } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const { clientId } = await subscriptionsApp.deleteSubscription(id);
+    revalidateSubscriptionSurfaces(clientId);
+    return { ok: true, clientId };
+  } catch (e) {
+    return toActionError(e);
   }
 }
 
@@ -306,8 +348,10 @@ export async function createSubscriptionAction(
 export async function pauseSubscriptionAction(id: string) {
   await requireAdmin();
   try {
-    await subscriptionsApp.transitionSubscription(id, { status: "paused" });
-    revalidateDashboard("subscriptions");
+    const sub = await subscriptionsApp.transitionSubscription(id, {
+      status: "paused",
+    });
+    revalidateSubscriptionSurfaces(sub.clientId);
   } catch (e) {
     rethrowRedirect(e);
   }
@@ -316,8 +360,10 @@ export async function pauseSubscriptionAction(id: string) {
 export async function resumeSubscriptionAction(id: string) {
   await requireAdmin();
   try {
-    await subscriptionsApp.transitionSubscription(id, { status: "active" });
-    revalidateDashboard("subscriptions");
+    const sub = await subscriptionsApp.transitionSubscription(id, {
+      status: "active",
+    });
+    revalidateSubscriptionSurfaces(sub.clientId);
   } catch (e) {
     rethrowRedirect(e);
   }
@@ -326,8 +372,10 @@ export async function resumeSubscriptionAction(id: string) {
 export async function cancelSubscriptionAction(id: string) {
   await requireAdmin();
   try {
-    await subscriptionsApp.transitionSubscription(id, { status: "cancelled" });
-    revalidateDashboard("subscriptions");
+    const sub = await subscriptionsApp.transitionSubscription(id, {
+      status: "cancelled",
+    });
+    revalidateSubscriptionSurfaces(sub.clientId);
   } catch (e) {
     rethrowRedirect(e);
   }

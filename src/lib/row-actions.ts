@@ -39,6 +39,10 @@ export function quoteListActions(input: {
   sendAction?: () => void | Promise<void>;
   acceptAction?: () => void | Promise<void>;
   rejectAction?: () => void | Promise<void>;
+  deleteAction?: () => Promise<
+    { ok: true; clientId: string } | { ok: false; error: string }
+  >;
+  quoteNumber?: string;
 }): RowAction[] {
   const actions: RowAction[] = [
     {
@@ -92,6 +96,67 @@ export function quoteListActions(input: {
       label: "Refuser",
       formAction: input.rejectAction,
       tone: "danger",
+      confirmMessage:
+        "Refuser ce devis ? Il ne comptera plus parmi les devis en attente.",
+    });
+  }
+
+  if (input.deleteAction) {
+    const ref = input.quoteNumber ?? "ce devis";
+    actions.push({
+      kind: "delete",
+      label: "Supprimer",
+      confirmMessage: `Supprimer définitivement le devis ${ref} ? Cette action ne peut pas être annulée.`,
+      performDelete: input.deleteAction,
+    });
+  }
+
+  return actions;
+}
+
+export function subscriptionListActions(input: {
+  subscriptionId: string;
+  label: string;
+  status: string;
+  pauseAction?: () => void | Promise<void>;
+  resumeAction?: () => void | Promise<void>;
+  cancelAction?: () => void | Promise<void>;
+  deleteAction?: () => Promise<
+    { ok: true; clientId: string } | { ok: false; error: string }
+  >;
+}): RowAction[] {
+  const actions: RowAction[] = [];
+
+  if (input.status === "active" && input.pauseAction) {
+    actions.push({
+      kind: "button",
+      label: "Mettre en pause",
+      formAction: input.pauseAction,
+    });
+  }
+  if (input.status === "paused" && input.resumeAction) {
+    actions.push({
+      kind: "button",
+      label: "Reprendre",
+      formAction: input.resumeAction,
+    });
+  }
+  if (input.status !== "cancelled" && input.cancelAction) {
+    actions.push({
+      kind: "button",
+      label: "Résilier",
+      formAction: input.cancelAction,
+      tone: "danger",
+      confirmMessage:
+        "Résilier cet abonnement ? Il ne sera plus facturé, mais restera visible dans l’historique.",
+    });
+  }
+  if (input.deleteAction) {
+    actions.push({
+      kind: "delete",
+      label: "Supprimer",
+      confirmMessage: `Supprimer l’abonnement « ${input.label} » ? Il disparaîtra du tableau de bord.`,
+      performDelete: input.deleteAction,
     });
   }
 

@@ -2,14 +2,16 @@ import Link from "next/link";
 import {
   acceptQuoteAction,
   createInvoiceFromQuoteAction,
+  deleteQuoteAction,
   rejectQuoteAction,
   sendQuoteAction,
 } from "@/app/(private)/actions";
+import { ConfirmServerActionButton } from "@/components/dashboard/ConfirmServerActionButton";
+import { DeleteWithConfirm } from "@/components/dashboard/DeleteWithConfirm";
 import {
   PageHeader,
   Panel,
   PrimaryButton,
-  SecondaryButton,
   StatusBadge,
 } from "@/components/dashboard/ui";
 import { quoteStatusLabel } from "@/lib/dashboard-labels";
@@ -52,6 +54,10 @@ export function QuoteDetail({
     "use server";
     await rejectQuoteAction(id);
   }
+  async function remove() {
+    "use server";
+    return deleteQuoteAction(id);
+  }
   async function createInvoice() {
     "use server";
     await createInvoiceFromQuoteAction(id);
@@ -91,10 +97,17 @@ export function QuoteDetail({
               </form>
             ) : null}
             {quote.status === "draft" || quote.status === "sent" ? (
-              <form action={reject}>
-                <SecondaryButton>Refuser</SecondaryButton>
-              </form>
+              <ConfirmServerActionButton
+                confirmMessage="Refuser ce devis ? Il ne comptera plus parmi les devis en attente."
+                label="Refuser"
+                action={reject}
+              />
             ) : null}
+            <DeleteWithConfirm
+              confirmMessage={`Supprimer définitivement le devis ${quote.number} ? Cette action ne peut pas être annulée.`}
+              performDelete={remove}
+              successRedirect={clientQuotesListHref(dashboardSlug, client.id)}
+            />
           </div>
         }
       />

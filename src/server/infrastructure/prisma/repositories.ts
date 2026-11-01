@@ -192,6 +192,10 @@ export const quoteRepository: IQuoteRepository = {
       where: { createdAt: { gte: start, lt: end } },
     });
   },
+
+  async delete(id) {
+    await prisma.quote.delete({ where: { id } });
+  },
 };
 
 export const invoiceRepository: IInvoiceRepository = {
@@ -359,6 +363,10 @@ export const invoiceRepository: IInvoiceRepository = {
       where: { status: status as PrismaInvoiceStatus },
     });
   },
+
+  async delete(id) {
+    await prisma.invoice.delete({ where: { id } });
+  },
 };
 
 export const paymentRepository: IPaymentRepository = {
@@ -453,6 +461,10 @@ export const subscriptionRepository: ISubscriptionRepository = {
 
   async countActive() {
     return prisma.subscription.count({ where: { status: "active" } });
+  },
+
+  async delete(id) {
+    await prisma.subscription.delete({ where: { id } });
   },
 };
 
