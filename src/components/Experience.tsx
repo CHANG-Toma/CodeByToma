@@ -16,6 +16,18 @@ interface ExperienceItem {
 
 const experiences: ExperienceItem[] = [
   {
+    id: 'syngenta',
+    title: 'Alternance - Assistant Chef de Projet',
+    company: ' - Syngenta',
+    location: 'France',
+    date: '2026 - Présent',
+    description: [
+      'Contrat en alternance — Assistant Chef de Projet.',
+      'En parallèle du M2 Lead Developer Full Stack à ENSITECH SQY (2026–2027).',
+    ],
+    technologies: [],
+  },
+  {
     id: 'lamusee',
     title: 'Alternance - Développeur Full-Stack',
     company: ' - Lamusée Paris',

@@ -8,12 +8,12 @@ const highlights = [
   {
     icon: <Briefcase className="w-5 h-5 text-purple" />,
     title: "Freelance & alternance",
-    text: "Disponible pour des missions freelance et une alternance pour ma dernière année de Master Lead Développeur Full-Stack à Ensitech (2025–2027).",
+    text: "Alternance Assistant Chef de Projet chez Syngenta depuis 2026. Missions freelance via CodeByToma en parallèle selon disponibilités.",
   },
   {
     icon: <GraduationCap className="w-5 h-5 text-purple" />,
-    title: "Master Ensitech",
-    text: "Étudiant en 4ᵉ année — Bachelor puis Master Lead Développeur Full-Stack. Parcours orienté architecture, développement web et gestion de projet Agile.",
+    title: "M2 ENSITECH SQY",
+    text: "Master Lead Developer Full Stack (2026–2027) à ENSITECH Saint-Quentin-en-Yvelines — en alternance chez Syngenta.",
   },
   {
     icon: <MapPin className="w-5 h-5 text-purple" />,
@@ -54,14 +54,13 @@ const About = () => {
             className="glassmorphism rounded-lg p-6"
           >
             <p className="text-lightSlate leading-relaxed">
-              Développeur full-stack en alternance chez Lamusée Paris, je conçois
-              des applications web modernes et robustes — de l&apos;interface
-              utilisateur au backend. Seul développeur en poste, j&apos;assure
-              l&apos;autonomie complète sur les choix techniques, de
-              l&apos;architecture à la mise en production.
+              En alternance chez Syngenta en tant qu&apos;Assistant Chef de
+              Projet, je poursuis mon M2 Lead Developer Full Stack à ENSITECH
+              SQY (2026–2027). Mon parcours combine gestion de projet et
+              développement web.
             </p>
             <p className="text-lightSlate leading-relaxed mt-4">
-              En parallèle, je propose mes services via CodeByToma pour la
+              Je propose également mes services via CodeByToma pour la
               conception de sites web, intranets et applications sur mesure.
               Autonome, adaptable et orienté résultat.
             </p>
