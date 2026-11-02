@@ -91,7 +91,7 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.35 }}
           >
-            Basé en Yvelines (78180) — Disponible en freelance et alternance (dernière année de Master)
+            Basé en Yvelines (78180) — Alternance Syngenta · Freelance CodeByToma · M2 ENSITECH SQY (2026–2027)
           </motion.p>
           
           <motion.div

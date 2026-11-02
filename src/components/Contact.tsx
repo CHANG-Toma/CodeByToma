@@ -62,8 +62,9 @@ const Contact = () => {
           >
             <h3 className="text-2xl font-bold text-white mb-6">Discutons de votre projet</h3>
             <p className="text-lightSlate mb-8">
-              Je suis disponible en freelance et en alternance pour ma dernière année de Master
-              (Lead Développeur Full-Stack — Ensitech). N&apos;hésitez pas à me contacter !
+              En alternance chez Syngenta et en M2 Lead Developer Full Stack à ENSITECH SQY
+              (2026–2027), je reste disponible pour des missions freelance via CodeByToma.
+              N&apos;hésitez pas à me contacter !
             </p>
             
             <ul className="space-y-4">
